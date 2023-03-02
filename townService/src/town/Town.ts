@@ -15,11 +15,13 @@ import {
   SocketData,
   ViewingArea as ViewingAreaModel,
   PosterSessionArea as PosterSessionAreaModel,
+  CheckerArea as CheckerAreaModel,
 } from '../types/CoveyTownSocket';
 import ConversationArea from './ConversationArea';
 import InteractableArea from './InteractableArea';
 import ViewingArea from './ViewingArea';
 import PosterSessionArea from './PosterSessionArea';
+import CheckerArea from './CheckerArea';
 
 /**
  * The Town class implements the logic for each town: managing the various events that
@@ -348,6 +350,34 @@ export default class Town {
   }
 
   /**
+   * Creates a new checker area in this town if there is not currently an active
+   * checker area with the same ID. The checker area ID must match the name of a
+   * checker area that exists in this town's map.
+   *
+   * If successful creating the poster session area, this method:
+   *    Adds any players who are in the region defined by the poster session area to it
+   *    Notifies all players in the town that the poster session area has been updated by
+   *      emitting an interactableUpdate event
+   *
+   * @param checkerArea Information describing the checker area to create.
+   *
+   * @returns True if the checker area was created or false if there is no known
+   * checker area with the specified ID or if there is already an active checker area
+   */
+  public addCheckerArea(checkerArea: CheckerAreaModel): boolean {
+    const area = this._interactables.find(
+      eachArea => eachArea.id === checkerArea.id,
+    ) as CheckerArea;
+    if (!area) {
+      return false;
+    }
+
+    area.addPlayersWithinBounds(this._players);
+    this._broadcastEmitter.emit('interactableUpdate', area.toModel());
+    return true;
+  }
+
+  /**
    * Fetch a player's session based on the provided session token. Returns undefined if the
    * session token is not valid.
    *
@@ -420,10 +450,15 @@ export default class Town {
       .filter(eachObject => eachObject.type === 'PosterSessionArea')
       .map(eachPSAreaObj => PosterSessionArea.fromMapObject(eachPSAreaObj, this._broadcastEmitter));
 
+    const checkerAreas = objectLayer.objects
+      .filter(eachObject => eachObject.type === 'CheckerArea')
+      .map(eachPSAreaObj => CheckerArea.fromMapObject(eachPSAreaObj, this._broadcastEmitter));
+
     this._interactables = this._interactables
       .concat(viewingAreas)
       .concat(conversationAreas)
-      .concat(posterSessionAreas);
+      .concat(posterSessionAreas)
+      .concat(checkerAreas);
     this._validateInteractables();
   }
 
