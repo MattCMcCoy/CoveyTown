@@ -23,9 +23,11 @@ import {
   TownSettingsUpdate,
   ViewingArea,
   PosterSessionArea,
+  CheckerSquare,
+  CheckerArea,
 } from '../types/CoveyTownSocket';
 import PosterSessionAreaReal from './PosterSessionArea';
-import { isPosterSessionArea } from '../TestUtils';
+import { isCheckerArea, isPosterSessionArea } from '../TestUtils';
 
 /**
  * This is the town route
@@ -271,6 +273,70 @@ export class TownsController extends Controller {
     };
     (<PosterSessionAreaReal>posterSessionArea).updateModel(updatedPosterSessionArea);
     return newStars;
+  }
+
+  /**
+   * Creates a checker area in a given town
+   *
+   * @param townID ID of the town in which to create the new checker area
+   * @param sessionToken session token of the player making the request, must
+   *        match the session token returned when the player joined the town
+   * @param requestBody The new checker area to create
+   *
+   * @throws InvalidParametersError if the session token is not valid, or if the
+   *          checker area could not be created
+   */
+  @Post('{townID}/checkerArea')
+  @Response<InvalidParametersError>(400, 'Invalid values specified')
+  public async createCheckerArea(
+    @Path() townID: string,
+    @Header('X-Session-Token') sessionToken: string,
+    @Body() requestBody: CheckerArea,
+  ): Promise<void> {
+    const curTown = this._townsStore.getTownByID(townID);
+    if (!curTown) {
+      throw new InvalidParametersError('Invalid town ID');
+    }
+    if (!curTown.getPlayerBySessionToken(sessionToken)) {
+      throw new InvalidParametersError('Invalid session ID');
+    }
+    // add checker area to the town, throw error if it fails
+    if (!curTown.addCheckerArea(requestBody)) {
+      throw new InvalidParametersError('Invalid poster session area');
+    }
+  }
+
+  /**
+   * Gets the squares of a checker area in a given town
+   *
+   * @param townID ID of the town in which to get the checker area squares
+   * @param posterSessionId interactable ID of the checker area
+   * @param sessionToken session token of the player making the request, must
+   *        match the session token returned when the player joined the town
+   *
+   *
+   * @throws InvalidParametersError if the session token is not valid, or if the
+   *          poster session specified does not exist
+   */
+  @Patch('{townID}/{checkerAreaId}/squares')
+  @Response<InvalidParametersError>(400, 'Invalid values specified')
+  public async getCheckerAreaSquares(
+    @Path() townID: string,
+    @Path() checkerAreaId: string,
+    @Header('X-Session-Token') sessionToken: string,
+  ): Promise<CheckerSquare[] | undefined> {
+    const curTown = this._townsStore.getTownByID(townID);
+    if (!curTown) {
+      throw new InvalidParametersError('Invalid town ID');
+    }
+    if (!curTown.getPlayerBySessionToken(sessionToken)) {
+      throw new InvalidParametersError('Invalid session ID');
+    }
+    const checkerArea = curTown.getInteractable(checkerAreaId);
+    if (!checkerArea || !isCheckerArea(checkerArea)) {
+      throw new InvalidParametersError('Invalid poster session ID');
+    }
+    return checkerArea.squares;
   }
 
   /**
