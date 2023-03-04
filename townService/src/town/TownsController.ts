@@ -303,7 +303,7 @@ export class TownsController extends Controller {
     }
     // add checker area to the town, throw error if it fails
     if (!curTown.addCheckerArea(requestBody)) {
-      throw new InvalidParametersError('Invalid poster session area');
+      throw new InvalidParametersError('Invalid checker area');
     }
   }
 
@@ -335,7 +335,7 @@ export class TownsController extends Controller {
     }
     const checkerArea = curTown.getInteractable(checkerAreaId);
     if (!checkerArea || !isCheckerArea(checkerArea)) {
-      throw new InvalidParametersError('Invalid poster session ID');
+      throw new InvalidParametersError('Invalid checker area ID');
     }
     return checkerArea.squares;
   }
@@ -367,7 +367,7 @@ export class TownsController extends Controller {
     }
     const checkerArea = curTown.getInteractable(checkerAreaId);
     if (!checkerArea || !isCheckerArea(checkerArea)) {
-      throw new InvalidParametersError('Invalid poster session ID');
+      throw new InvalidParametersError('Invalid checker area ID');
     }
     (<CheckerAreaReal>checkerArea).initializeBoard();
   }
