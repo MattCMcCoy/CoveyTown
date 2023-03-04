@@ -18,10 +18,8 @@ import {
   isViewingArea,
   isConversationArea,
   MockedPlayer,
-  isCheckerArea,
 } from '../TestUtils';
 import { TownsController } from './TownsController';
-import CheckerSquare from './CheckerParts/CheckerSquare';
 
 type TestTownData = {
   friendlyName: string;
