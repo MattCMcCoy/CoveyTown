@@ -377,10 +377,11 @@ export default class Town {
     const area = this._interactables.find(
       eachArea => eachArea.id === checkerArea.id,
     ) as CheckerArea;
-    if (!area) {
+    if (!area || area.isActive) {
       return false;
     }
 
+    area.updateModel(checkerArea);
     area.addPlayersWithinBounds(this._players);
     this._broadcastEmitter.emit('interactableUpdate', area.toModel());
     return true;

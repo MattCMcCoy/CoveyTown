@@ -17,6 +17,7 @@ import {
   PlayerLocation,
   TownEmitter,
   ViewingArea as ViewingAreaModel,
+  CheckerArea as CheckerAreaModel,
 } from '../types/CoveyTownSocket';
 import ConversationArea from './ConversationArea';
 import Town from './Town';
@@ -236,6 +237,108 @@ const testingMaps: TestMapDict = {
             width: 467,
             x: 612,
             y: 120,
+          },
+        ],
+        opacity: 1,
+        type: 'objectgroup',
+        visible: true,
+        x: 0,
+        y: 0,
+      },
+    ],
+  },
+  twoCheckers: {
+    tiledversion: '1.9.0',
+    tileheight: 32,
+    tilesets: [],
+    tilewidth: 32,
+    type: 'map',
+    layers: [
+      {
+        id: 4,
+        name: 'Objects',
+        objects: [
+          {
+            type: 'CheckerArea',
+            height: 237,
+            id: 39,
+            name: 'Name1',
+            rotation: 0,
+            visible: true,
+            width: 326,
+            x: 40,
+            y: 120,
+          },
+          {
+            type: 'CheckerArea',
+            height: 266,
+            id: 43,
+            name: 'Name2',
+            rotation: 0,
+            visible: true,
+            width: 467,
+            x: 612,
+            y: 120,
+          },
+        ],
+        opacity: 1,
+        type: 'objectgroup',
+        visible: true,
+        x: 0,
+        y: 0,
+      },
+    ],
+  },
+  twoCheckerOnePoster: {
+    tiledversion: '1.9.0',
+    tileheight: 32,
+    tilesets: [],
+    tilewidth: 32,
+    type: 'map',
+    layers: [
+      {
+        id: 4,
+        name: 'Objects',
+        objects: [
+          {
+            type: 'CheckerArea',
+            height: 237,
+            id: 39,
+            name: 'Name1',
+            rotation: 0,
+            visible: true,
+            width: 326,
+            x: 40,
+            y: 120,
+          },
+          {
+            type: 'CheckerArea',
+            height: 266,
+            id: 43,
+            name: 'Name2',
+            rotation: 0,
+            visible: true,
+            width: 467,
+            x: 612,
+            y: 120,
+          },
+          {
+            type: 'PosterArea',
+            height: 237,
+            id: 54,
+            name: 'Name3',
+            properties: [
+              {
+                name: 'video',
+                type: 'string',
+                value: 'someURL',
+              },
+            ],
+            rotation: 0,
+            visible: true,
+            width: 326,
+            x: 155,
+            y: 566,
           },
         ],
         opacity: 1,
@@ -809,6 +912,49 @@ describe('Town', () => {
     });
   });
 
+  describe('addCheckerArea', () => {
+    beforeEach(async () => {
+      town.initializeFromMap(testingMaps.twoCheckerOnePoster);
+    });
+    it('Should return false if no area exists with that ID', () => {
+      expect(
+        town.addCheckerArea({
+          id: nanoid(),
+          squares: [],
+        }),
+      ).toBe(false);
+    });
+    it('Should return false if the area is already active', () => {
+      playerTestData.moveTo(615, 125); // Inside of "Name2" area
+      expect(town.addCheckerArea({ id: 'Name2', squares: [] })).toBe(true);
+      expect(town.addCheckerArea({ id: 'Name2', squares: [] })).toBe(false);
+    });
+    describe('When successful', () => {
+      const newModel: CheckerAreaModel = {
+        id: 'Name2',
+        squares: [],
+      };
+      beforeEach(() => {
+        playerTestData.moveTo(615, 125); // Inside of "Name2" area
+        expect(town.addCheckerArea(newModel)).toBe(true);
+      });
+
+      it('Should update the local model for that area', () => {
+        const checkerArea = town.getInteractable('Name2');
+        expect(checkerArea.toModel().id).toEqual(newModel.id);
+      });
+
+      it('Should emit an interactableUpdate message', () => {
+        const lastEmittedUpdate = getLastEmittedEvent(townEmitter, 'interactableUpdate');
+        expect(lastEmittedUpdate.id).toEqual(newModel.id);
+      });
+      it('Should include any players in that area as occupants', () => {
+        const viewingArea = town.getInteractable('Name2');
+        expect(viewingArea.occupantsByID).toEqual([player.id]);
+      });
+    });
+  });
+
   describe('disconnectAllPlayers', () => {
     beforeEach(() => {
       town.disconnectAllPlayers();
@@ -861,6 +1007,26 @@ describe('Town', () => {
       expect(posterSessionArea1.boundingBox).toEqual({ x: 40, y: 120, height: 237, width: 326 });
       expect(posterSessionArea2.id).toEqual('Name2');
       expect(posterSessionArea2.boundingBox).toEqual({ x: 612, y: 120, height: 266, width: 467 });
+      expect(town.interactables.length).toBe(2);
+    });
+    it('Creates a CheckerArea instance for each region on the map', async () => {
+      town.initializeFromMap(testingMaps.twoCheckers);
+      const checkerArea1 = town.getInteractable('Name1');
+      const checkerArea2 = town.getInteractable('Name2');
+      expect(checkerArea1.id).toEqual('Name1');
+      expect(checkerArea1.boundingBox).toEqual({
+        x: 40,
+        y: 120,
+        height: 237,
+        width: 326,
+      });
+      expect(checkerArea2.id).toEqual('Name2');
+      expect(checkerArea2.boundingBox).toEqual({
+        x: 612,
+        y: 120,
+        height: 266,
+        width: 467,
+      });
       expect(town.interactables.length).toBe(2);
     });
     describe('Updating interactable state in playerMovements', () => {
