@@ -34,20 +34,21 @@ export default class CheckerArea extends InteractableArea {
   ) {
     super(id, coordinates, townEmitter);
 
-    this.squares = squares.length > 0 ? squares : this._initializeSquares();
+    this.squares = squares;
   }
 
   /**
-   * @returns a new list of initialized squares for a checker board game.
+   * initializes the board with all of its base values, including checker pieces.
    */
-  private _initializeSquares(): CheckerSquareModel[] {
-    const tempSquare: CheckerSquareModel[] = [];
+  public initializeBoard() {
+    const newSquares = [];
     for (let x = 0; x < 8; x++) {
       for (let y = 0; y < 8; y++) {
-        tempSquare.push({ id: `${x}${y}`, x, y });
+        newSquares.push({ id: `${x}${y}`, x, y } as CheckerSquareModel);
       }
     }
-    return tempSquare;
+
+    this.squares = newSquares;
   }
 
   /**
@@ -60,7 +61,7 @@ export default class CheckerArea extends InteractableArea {
   public remove(player: Player): void {
     super.remove(player);
     if (this._occupants.length === 0) {
-      this._initializeSquares();
+      this.squares = [];
     }
     this._emitAreaChanged();
   }

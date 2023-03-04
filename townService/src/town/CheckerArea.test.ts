@@ -49,14 +49,14 @@ describe('CheckerArea', () => {
 
       expect(testArea.occupantsByID).toEqual([extraPlayer.id]);
       const lastEmittedUpdate = getLastEmittedEvent(townEmitter, 'interactableUpdate');
-      expect(lastEmittedUpdate).toEqual({ id, squares });
+      expect(lastEmittedUpdate).toEqual({ id, squares: [] });
     });
   });
 
   test('toModel sets the id and squares', () => {
     const model = testArea.toModel();
 
-    expect(model).toEqual({ id, squares });
+    expect(model).toEqual({ id, squares: [] });
   });
 
   test('update model sets the squares', () => {
@@ -66,6 +66,15 @@ describe('CheckerArea', () => {
     testArea.updateModel({ id: newId, squares: newSquares });
     expect(testArea.id).toBe(id);
     expect(testArea.squares).toBe(newSquares);
+  });
+
+  describe('initializeBoard', () => {
+    it('Sets square list to be an 8 by 8 checker board.', () => {
+      expect(testArea.squares).toEqual([]);
+      testArea.initializeBoard();
+      expect(testArea.squares.length).toEqual(64);
+      testArea.squares.forEach(square => expect(square.id).toEqual(`${square.x}${square.y}`));
+    });
   });
 
   describe('fromMapObject', () => {
@@ -98,7 +107,7 @@ describe('CheckerArea', () => {
       );
       expect(val.boundingBox).toEqual({ x, y, width, height });
       expect(val.id).toEqual(name);
-      expect(val.squares).toEqual(squares);
+      expect(val.squares).toEqual([]);
       expect(val.occupantsByID).toEqual([]);
     });
   });
