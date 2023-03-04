@@ -2,7 +2,13 @@ import assert from 'assert';
 import { DeepMockProxy, mockDeep } from 'jest-mock-extended';
 import { nanoid } from 'nanoid';
 import { Town } from '../api/Model';
-import { ConversationArea, Interactable, TownEmitter, ViewingArea } from '../types/CoveyTownSocket';
+import {
+  CheckerArea,
+  ConversationArea,
+  Interactable,
+  TownEmitter,
+  ViewingArea,
+} from '../types/CoveyTownSocket';
 import TownsStore from '../lib/TownsStore';
 import {
   createConversationForTesting,
@@ -12,8 +18,10 @@ import {
   isViewingArea,
   isConversationArea,
   MockedPlayer,
+  isCheckerArea,
 } from '../TestUtils';
 import { TownsController } from './TownsController';
+import CheckerSquare from './CheckerParts/CheckerSquare';
 
 type TestTownData = {
   friendlyName: string;
@@ -296,6 +304,101 @@ describe('TownsController integration tests', () => {
         const conversationArea = createConversationForTesting();
         await expect(
           controller.createConversationArea(testingTown.townID, sessionToken, conversationArea),
+        ).rejects.toThrow();
+      });
+    });
+
+    describe('Create Checker Area', () => {
+      it('Executes without error when creating a new checker area', async () => {
+        const checkerArea = interactables.find(isCheckerArea) as CheckerArea;
+        if (!checkerArea) {
+          fail('Expected at least one checker area to be returned in the initial join data');
+        } else {
+          const fullSquares = [];
+
+          for (let x = 0; x < 8; x++) {
+            for (let y = 0; y < 8; y++) {
+              fullSquares.push({ id: `${x}${y}`, x, y } as CheckerSquare);
+            }
+          }
+          const newCheckerArea: CheckerArea = {
+            id: checkerArea.id,
+            squares: fullSquares,
+          };
+
+          await controller.createCheckerArea(testingTown.townID, sessionToken, newCheckerArea);
+
+          const townEmitter = getBroadcastEmitterForTownID(testingTown.townID);
+
+          const updateMessage = getLastEmittedEvent(townEmitter, 'interactableUpdate');
+
+          if (isCheckerArea(updateMessage)) {
+            expect(updateMessage.id).toEqual(newCheckerArea.id);
+            expect(updateMessage.squares.length).toEqual(newCheckerArea.squares.length);
+            updateMessage.squares.forEach(square => {
+              expect(
+                newCheckerArea.squares.find(newSquare => newSquare.id === square.id),
+              ).not.toBeNull();
+            });
+          } else {
+            fail('Expected an interactableUpdate to be dispatched with the new checker area');
+          }
+        }
+      });
+
+      it('Executes without error when creating a new checker area with no squares', async () => {
+        const checkerArea = interactables.find(isCheckerArea) as CheckerArea;
+        if (!checkerArea) {
+          fail('Expected at least one checker area to be returned in the initial join data');
+        } else {
+          const newCheckerArea: CheckerArea = {
+            id: checkerArea.id,
+            squares: [],
+          };
+
+          expect(newCheckerArea.squares.length).toEqual(0);
+          // should create a brand new game with given a list of squares with nothing in them.
+          await controller.createCheckerArea(testingTown.townID, sessionToken, newCheckerArea);
+
+          const townEmitter = getBroadcastEmitterForTownID(testingTown.townID);
+
+          const updateMessage = getLastEmittedEvent(townEmitter, 'interactableUpdate');
+
+          if (isCheckerArea(updateMessage)) {
+            expect(updateMessage.id).toEqual(newCheckerArea.id);
+            expect(updateMessage.squares.length).toEqual(64);
+          } else {
+            fail('Expected an interactableUpdate to be dispatched with the new checker area');
+          }
+        }
+      });
+
+      it('Returns an error message if the town ID is invalid', async () => {
+        const checkerArea = interactables.find(isCheckerArea) as CheckerArea;
+        const newCheckerArea: CheckerArea = {
+          id: checkerArea.id,
+          squares: [],
+        };
+        await expect(
+          controller.createCheckerArea(nanoid(), sessionToken, newCheckerArea),
+        ).rejects.toThrow();
+      });
+      it('Checks for a valid session token before creating a checker area', async () => {
+        const invalidSessionToken = nanoid();
+        const checkerArea = interactables.find(isCheckerArea) as CheckerArea;
+        const newCheckerArea: CheckerArea = {
+          id: checkerArea.id,
+          squares: [],
+        };
+        await expect(
+          controller.createCheckerArea(testingTown.townID, invalidSessionToken, newCheckerArea),
+        ).rejects.toThrow();
+      });
+      it('Returns an error message if addCheckerArea returns false', async () => {
+        const checkerArea = interactables.find(isCheckerArea) as CheckerArea;
+        checkerArea.id = nanoid();
+        await expect(
+          controller.createCheckerArea(testingTown.townID, sessionToken, checkerArea),
         ).rejects.toThrow();
       });
     });

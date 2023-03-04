@@ -22,7 +22,7 @@ describe('CheckerArea', () => {
     squares = [];
     for (let x = 0; x < 8; x++) {
       for (let y = 0; y < 8; y++) {
-        squares.push(new CheckerSquare({ id: `${x}${y}`, x, y }));
+        squares.push({ id: `${x}${y}`, x, y } as CheckerSquare);
       }
     }
   });

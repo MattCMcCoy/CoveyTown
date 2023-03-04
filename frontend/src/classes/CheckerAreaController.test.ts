@@ -29,6 +29,7 @@ describe('CheckerAreaController', () => {
   describe('Updating squares', () => {
     it('updates the property and emits a checkerSquareChange event if the property changes', () => {
       const newSquares: { id: string; x: number; y: number }[] = [];
+      testArea.squares = newSquares;
       expect(mockListeners.checkerSquareChange).toBeCalledWith(newSquares);
       expect(testArea.squares).toEqual(newSquares);
     });

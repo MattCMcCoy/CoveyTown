@@ -553,7 +553,24 @@
                  "width":158.333333333333,
                  "x":3538.33333333333,
                  "y":826.666666666667
-                }],
+                },
+                {
+                 "type":"CheckerArea",
+                 "height":140,
+                 "id":39,
+                 "name":"Back Hall ",
+                 "properties":[
+                        {
+                         "name":"checker",
+                         "type":"string",
+                         "value": ""
+                        }],
+                 "rotation":0,
+                 "visible":true,
+                 "width":178,
+                 "x":354,
+                 "y":240
+                 }],
          "opacity":1,
          "type":"objectgroup",
          "visible":true,
