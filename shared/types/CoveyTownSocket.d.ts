@@ -76,6 +76,13 @@ export interface ViewingArea {
 
 export interface CheckerArea {
   id: string;
+  squares: CheckerSquare[];
+}
+
+export interface CheckerSquare {
+  id: string;
+  x: number;
+  y: number;
 }
 
 export interface PosterSessionArea {

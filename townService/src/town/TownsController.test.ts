@@ -2,7 +2,13 @@ import assert from 'assert';
 import { DeepMockProxy, mockDeep } from 'jest-mock-extended';
 import { nanoid } from 'nanoid';
 import { Town } from '../api/Model';
-import { ConversationArea, Interactable, TownEmitter, ViewingArea } from '../types/CoveyTownSocket';
+import {
+  CheckerArea,
+  ConversationArea,
+  Interactable,
+  TownEmitter,
+  ViewingArea,
+} from '../types/CoveyTownSocket';
 import TownsStore from '../lib/TownsStore';
 import {
   createConversationForTesting,

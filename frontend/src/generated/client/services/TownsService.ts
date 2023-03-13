@@ -1,6 +1,8 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { CheckerArea } from '../models/CheckerArea';
+import type { CheckerSquare } from '../models/CheckerSquare';
 import type { ConversationArea } from '../models/ConversationArea';
 import type { PosterSessionArea } from '../models/PosterSessionArea';
 import type { Town } from '../models/Town';
@@ -244,6 +246,67 @@ export class TownsService {
             path: {
                 'townID': townId,
                 'posterSessionId': posterSessionId,
+            },
+            headers: {
+                'X-Session-Token': xSessionToken,
+            },
+            errors: {
+                400: `Invalid values specified`,
+            },
+        });
+    }
+
+    /**
+     * Creates a checker area in a given town
+     * @param townId ID of the town in which to create the new checker area
+     * @param xSessionToken session token of the player making the request, must
+     * match the session token returned when the player joined the town
+     * @param requestBody The new checker area to create
+     * @returns void
+     * @throws ApiError
+     */
+    public createCheckerArea(
+        townId: string,
+        xSessionToken: string,
+        requestBody: CheckerArea,
+    ): CancelablePromise<void> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/towns/{townID}/checkerArea',
+            path: {
+                'townID': townId,
+            },
+            headers: {
+                'X-Session-Token': xSessionToken,
+            },
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Invalid values specified`,
+            },
+        });
+    }
+
+    /**
+     * Gets the squares of a checker area in a given town
+     * @param townId ID of the town in which to get the checker area squares
+     * @param checkerAreaId
+     * @param xSessionToken session token of the player making the request, must
+     * match the session token returned when the player joined the town
+     * @returns CheckerSquare Ok
+     * @throws ApiError
+     */
+    public getCheckerAreaSquares(
+        townId: string,
+        checkerAreaId: string,
+        xSessionToken: string,
+    ): CancelablePromise<Array<CheckerSquare>> {
+        return this.httpRequest.request({
+            method: 'PATCH',
+            url: '/towns/{townID}/{checkerAreaId}/squares',
+            path: {
+                'townID': townId,
+                'checkerAreaId': checkerAreaId,
             },
             headers: {
                 'X-Session-Token': xSessionToken,

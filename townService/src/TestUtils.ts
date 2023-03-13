@@ -23,6 +23,7 @@ import {
   SocketData,
   ViewingArea,
   PosterSessionArea,
+  CheckerArea,
 } from './types/CoveyTownSocket';
 
 /**
@@ -206,4 +207,8 @@ export function isPosterSessionArea(interactable: Interactable): interactable is
 
 export function isConversationArea(interactable: Interactable): interactable is ConversationArea {
   return 'topic' in interactable;
+}
+
+export function isCheckerArea(interactable: Interactable): interactable is CheckerArea {
+  return 'squares' in interactable;
 }

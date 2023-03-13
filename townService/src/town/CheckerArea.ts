@@ -3,30 +3,52 @@ import Player from '../lib/Player';
 import {
   Interactable,
   CheckerArea as CheckerAreaModel,
+  CheckerSquare as CheckerSquareModel,
   BoundingBox,
   TownEmitter,
 } from '../types/CoveyTownSocket';
-import Square from './CheckerParts/Square';
 import InteractableArea from './InteractableArea';
 
 export default class CheckerArea extends InteractableArea {
-  private _squares: Square[] = [];
+  private _squares: CheckerSquareModel[] = [];
 
-  public constructor({ id }: CheckerAreaModel, coordinates: BoundingBox, townEmitter: TownEmitter) {
-    super(id, coordinates, townEmitter);
+  public get squares(): CheckerSquareModel[] {
+    return this._squares;
+  }
 
-    this._initializeSquares();
+  public set squares(squares: CheckerSquareModel[]) {
+    this._squares = squares;
   }
 
   /**
-   * initialize squares.
+   * Creates a new checker area
+   *
+   * @param checkerArea model containing the areas starting state
+   * @param coordinates the bounding box that defines this viewing area
+   * @param townEmitter a broadcast emitter that can be used to emit updates to players
    */
-  private _initializeSquares(): void {
+  public constructor(
+    { id, squares }: CheckerAreaModel,
+    coordinates: BoundingBox,
+    townEmitter: TownEmitter,
+  ) {
+    super(id, coordinates, townEmitter);
+
+    this.squares = squares;
+  }
+
+  /**
+   * initializes the board with all of its base values, including checker pieces.
+   */
+  public initializeBoard() {
+    const newSquares = [];
     for (let x = 0; x < 8; x++) {
       for (let y = 0; y < 8; y++) {
-        this._squares.push(new Square({ id: `${x}${y}`, x, y }));
+        newSquares.push({ id: `${x}${y}`, x, y } as CheckerSquareModel);
       }
     }
+
+    this.squares = newSquares;
   }
 
   /**
@@ -39,17 +61,17 @@ export default class CheckerArea extends InteractableArea {
   public remove(player: Player): void {
     super.remove(player);
     if (this._occupants.length === 0) {
-      this._initializeSquares();
+      this.squares = [];
     }
     this._emitAreaChanged();
   }
 
   updateModel(checkerArea: CheckerAreaModel) {
-    throw new Error('Method not implemented.');
+    this.squares = checkerArea.squares;
   }
 
   public toModel(): Interactable {
-    return { id: this.id };
+    return { id: this.id, squares: this.squares };
   }
 
   /**
@@ -64,6 +86,6 @@ export default class CheckerArea extends InteractableArea {
       throw new Error(`Malformed checker area ${name}`);
     }
     const rect: BoundingBox = { x: mapObject.x, y: mapObject.y, width, height };
-    return new CheckerArea({ id: name }, rect, townEmitter);
+    return new CheckerArea({ id: name, squares: [] }, rect, townEmitter);
   }
 }

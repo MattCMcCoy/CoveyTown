@@ -4,7 +4,7 @@ import { BroadcastOperator } from 'socket.io';
 import IVideoClient from '../lib/IVideoClient';
 import Player from '../lib/Player';
 import TwilioVideo from '../lib/TwilioVideo';
-import { isPosterSessionArea, isViewingArea } from '../TestUtils';
+import { isPosterSessionArea, isViewingArea, isCheckerArea } from '../TestUtils';
 import {
   ChatMessage,
   ConversationArea as ConversationAreaModel,
@@ -176,6 +176,15 @@ export default class Town {
         // updatemodel if theres an existing poster session area with the same ID
         if (existingPosterSessionAreaArea) {
           existingPosterSessionAreaArea.updateModel(update);
+        }
+      } else if (isCheckerArea(update)) {
+        newPlayer.townEmitter.emit('interactableUpdate', update);
+        const existingCheckerArea = <CheckerArea>(
+          this._interactables.find(area => area.id === update.id && area instanceof CheckerArea)
+        );
+
+        if (existingCheckerArea) {
+          existingCheckerArea.updateModel(update);
         }
       }
     });
@@ -368,10 +377,11 @@ export default class Town {
     const area = this._interactables.find(
       eachArea => eachArea.id === checkerArea.id,
     ) as CheckerArea;
-    if (!area) {
+    if (!area || area.isActive) {
       return false;
     }
 
+    area.updateModel(checkerArea);
     area.addPlayersWithinBounds(this._players);
     this._broadcastEmitter.emit('interactableUpdate', area.toModel());
     return true;
