@@ -27,7 +27,7 @@ export default class CheckerAreaController extends (EventEmitter as new () => Ty
   private _model: CheckerAreaModel;
 
   /**
-   * Constructs a new PosterSessionAreaController, initialized with the state of the provided posterSessionAreaModel.
+   * Constructs a new CheckerAreaController, initialized with the state of the provided checkerAreaModel.
    *
    * @param checkerAreaModel The checker area model that this controller should represent
    */

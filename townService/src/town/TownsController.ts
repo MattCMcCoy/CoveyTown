@@ -317,7 +317,7 @@ export class TownsController extends Controller {
    *
    *
    * @throws InvalidParametersError if the session token is not valid, or if the
-   *          poster session specified does not exist
+   *          checker area specified does not exist
    */
   @Patch('{townID}/{checkerAreaId}/squares')
   @Response<InvalidParametersError>(400, 'Invalid values specified')
@@ -344,7 +344,7 @@ export class TownsController extends Controller {
    * Initializes the checker board of the given checkerBoard area.
    *
    * @param townID ID of the town in which to initialize the checker areas board.
-   * @param posterSessionId interactable ID of the checker area
+   * @param checkerAreaId interactable ID of the checker area
    * @param sessionToken session token of the player making the request, must
    *        match the session token returned when the player joined the town
    *
