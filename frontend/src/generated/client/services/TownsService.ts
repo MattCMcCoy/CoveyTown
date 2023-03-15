@@ -290,7 +290,7 @@ export class TownsService {
     /**
      * Gets the squares of a checker area in a given town
      * @param townId ID of the town in which to get the checker area squares
-     * @param checkerAreaId
+     * @param checkerAreaId interactable ID of the checker area
      * @param xSessionToken session token of the player making the request, must
      * match the session token returned when the player joined the town
      * @returns CheckerSquare Ok
@@ -304,6 +304,36 @@ export class TownsService {
         return this.httpRequest.request({
             method: 'PATCH',
             url: '/towns/{townID}/{checkerAreaId}/squares',
+            path: {
+                'townID': townId,
+                'checkerAreaId': checkerAreaId,
+            },
+            headers: {
+                'X-Session-Token': xSessionToken,
+            },
+            errors: {
+                400: `Invalid values specified`,
+            },
+        });
+    }
+
+    /**
+     * Initializes the checker board of the given checkerBoard area.
+     * @param townId ID of the town in which to initialize the checker areas board.
+     * @param checkerAreaId interactable ID of the checker area
+     * @param xSessionToken session token of the player making the request, must
+     * match the session token returned when the player joined the town
+     * @returns void
+     * @throws ApiError
+     */
+    public initializeCheckerAreaBoard(
+        townId: string,
+        checkerAreaId: string,
+        xSessionToken: string,
+    ): CancelablePromise<void> {
+        return this.httpRequest.request({
+            method: 'PATCH',
+            url: '/towns/{townID}/{checkerAreaId}/initializeCheckerAreaBoard',
             path: {
                 'townID': townId,
                 'checkerAreaId': checkerAreaId,

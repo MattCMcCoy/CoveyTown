@@ -158,10 +158,6 @@ export function PosterViewer({
   );
 }
 
-/**
- * The PosterViewerWrapper is suitable to be *always* rendered inside of a town, and
- * will activate only if the player begins interacting with a poster session area.
- */
 export default function PosterViewerWrapper(): JSX.Element {
   const posterSessionArea = useInteractable<PosterSessionAreaInteractable>('posterSessionArea');
   if (posterSessionArea) {

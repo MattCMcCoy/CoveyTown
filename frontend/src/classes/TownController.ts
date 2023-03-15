@@ -209,7 +209,7 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
     /*
         The event emitter will show a warning if more than this number of listeners are registered, as it
         may indicate a leak (listeners that should de-register not de-registering). The default is 10; we expect
-        more than 10 listeners because each conversation area might be its own listener, and there are more than 10
+        more than  10 listeners because each conversation area might be its own listener, and there are more than 10
         */
     this.setMaxListeners(30);
 
