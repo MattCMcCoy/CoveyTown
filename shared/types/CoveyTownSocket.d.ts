@@ -83,6 +83,12 @@ export interface CheckerSquare {
   id: string;
   x: number;
   y: number;
+  checker: CheckerPiece;
+}
+
+export interface CheckerPiece {
+  id: string;
+  type: string;
 }
 
 export interface PosterSessionArea {

@@ -1,6 +1,6 @@
 import { mock, mockClear, MockProxy } from 'jest-mock-extended';
 import { nanoid } from 'nanoid';
-import { CheckerArea } from '../types/CoveyTownSocket';
+import { CheckerArea, CheckerPiece as CheckerPieceModel } from '../types/CoveyTownSocket';
 import CheckerAreaController, { CheckerAreaEvents } from './CheckerAreaController';
 import TownController from './TownController';
 
@@ -17,7 +17,12 @@ describe('CheckerAreaController', () => {
     };
     for (let x = 0; x < 8; x++) {
       for (let y = 0; y < 8; y++) {
-        testAreaModel.squares.push({ id: `${x}${y}`, x, y });
+        testAreaModel.squares.push({
+          id: `${x}${y}`,
+          x,
+          y,
+          checker: { id: 'empty', type: 'empty' } as CheckerPieceModel,
+        });
       }
     }
     testArea = new CheckerAreaController(testAreaModel);
@@ -28,7 +33,7 @@ describe('CheckerAreaController', () => {
 
   describe('Updating squares', () => {
     it('updates the property and emits a checkerSquareChange event if the property changes', () => {
-      const newSquares: { id: string; x: number; y: number }[] = [];
+      const newSquares: { id: string; x: number; y: number; checker: CheckerPieceModel }[] = [];
       testArea.squares = newSquares;
       expect(mockListeners.checkerSquareChange).toBeCalledWith(newSquares);
       expect(testArea.squares).toEqual(newSquares);

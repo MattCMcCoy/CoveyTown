@@ -1,4 +1,7 @@
-import { CheckerSquare as CheckerSquareModel } from '../../types/CoveyTownSocket';
+import {
+  CheckerSquare as CheckerSquareModel,
+  CheckerPiece as CheckerPieceModel,
+} from '../../types/CoveyTownSocket';
 
 export default class CheckerSquare {
   private _id: string;
@@ -7,10 +10,13 @@ export default class CheckerSquare {
 
   private _y: number;
 
-  constructor({ id, x, y }: CheckerSquareModel) {
+  private _checker: CheckerPieceModel = { id: 'empty', type: 'empty' };
+
+  constructor({ id, x, y }: CheckerSquareModel, checker: CheckerPieceModel) {
     this._id = id;
     this._x = x;
     this._y = y;
+    this.checker = checker;
   }
 
   public get id(): string {
@@ -23,5 +29,13 @@ export default class CheckerSquare {
 
   public get y(): number {
     return this.y;
+  }
+
+  public get checker(): CheckerPieceModel {
+    return this._checker;
+  }
+
+  public set checker(checker: CheckerPieceModel) {
+    this._checker = checker;
   }
 }

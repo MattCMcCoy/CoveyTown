@@ -172,6 +172,18 @@
 				"type": "object",
 				"additionalProperties": false
 			},
+			"CheckerPiece": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"type": {
+						"type": "string"
+					}
+				},
+				"type": "object",
+				"additionalProperties": false
+			},
 			"CheckerSquare": {
 				"properties": {
 					"id": {
@@ -184,12 +196,16 @@
 					"y": {
 						"type": "number",
 						"format": "double"
+					},
+					"checker": {
+						"$ref": "#/components/schemas/CheckerPiece"
 					}
 				},
 				"required": [
 					"id",
 					"x",
-					"y"
+					"y",
+					"checker"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -795,6 +811,7 @@
 						}
 					},
 					{
+						"description": "interactable ID of the checker area",
 						"in": "path",
 						"name": "checkerAreaId",
 						"required": true,
@@ -814,22 +831,12 @@
 				]
 			}
 		},
-		"/towns/{townID}/{checkerAreaId}/initializeBoard": {
+		"/towns/{townID}/{checkerAreaId}/initializeCheckerAreaBoard": {
 			"patch": {
-				"operationId": "InitializeBoard",
+				"operationId": "InitializeCheckerAreaBoard",
 				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"items": {
-										"$ref": "#/components/schemas/CheckerSquare"
-									},
-									"type": "array"
-								}
-							}
-						}
+					"204": {
+						"description": "No content"
 					},
 					"400": {
 						"description": "Invalid values specified",
@@ -842,14 +849,14 @@
 						}
 					}
 				},
-				"description": "Increment the stars of a given poster session area in a given town, as long as there is\na poster image. Returns the new number of stars.",
+				"description": "Initializes the checker board of the given checkerBoard area.",
 				"tags": [
 					"towns"
 				],
 				"security": [],
 				"parameters": [
 					{
-						"description": "ID of the town in which to get the poster session area image contents",
+						"description": "ID of the town in which to initialize the checker areas board.",
 						"in": "path",
 						"name": "townID",
 						"required": true,
@@ -858,6 +865,7 @@
 						}
 					},
 					{
+						"description": "interactable ID of the checker area",
 						"in": "path",
 						"name": "checkerAreaId",
 						"required": true,

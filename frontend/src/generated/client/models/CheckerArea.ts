@@ -8,4 +8,3 @@ export type CheckerArea = {
     id: string;
     squares: Array<CheckerSquare>;
 };
-
