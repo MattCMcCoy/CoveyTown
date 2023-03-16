@@ -13,7 +13,7 @@ import {
   Box,
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
-import { useInteractable, usePosterSessionAreaController } from '../../../classes/TownController';
+import { useInteractable, useCheckerAreaController } from '../../../classes/TownController';
 import CheckerAreaController, { useSquares } from '../../../classes/CheckerAreaController';
 import useTownController from '../../../hooks/useTownController';
 import CheckerAreaInteractable from './CheckerArea';
@@ -74,7 +74,7 @@ export function CheckerBoard({
   const toast = useToast();
   const title = 'Checkers';
   useEffect(() => {
-    townController.getPosterSessionAreaImageContents(controller);
+    townController.getCheckerAreaBoard(controller);
   }, [townController, controller]);
   // Need to add this method in town controller
   // useEffect(() => {
@@ -115,37 +115,26 @@ export function CheckerGame({
 }): JSX.Element {
   const townController = useTownController();
   const checkerAreaController = useCheckerAreaController(checkerArea.name);
-  // const [selectIsOpen, setSelectIsOpen] = useState(
-  //   posterSessionAreaController.imageContents === undefined,
-  // );
-  // const posterTitle = useTitle(posterSessionAreaController);
-  // useEffect(() => {
-  //   const setTitle = (title: string | undefined) => {
-  //     if (!title) {
-  //       townController.interactableEmitter.emit('endIteraction', posterSessionAreaController);
-  //     } else {
-  //       posterSessionAreaController.title = title;
-  //     }
-  //   };
-  //   posterSessionAreaController.addListener('posterTitleChange', setTitle);
-  //   return () => {
-  //     posterSessionAreaController.removeListener('posterTitleChange', setTitle);
-  //   };
-  // }, [posterSessionAreaController, townController]);
-  // if (!posterTitle) {
-  //   return (
-  //     <SelectPosterModal
-  //       isOpen={selectIsOpen}
-  //       close={() => {
-  //         setSelectIsOpen(false);
-  //         // forces game to emit "posterSessionArea" event again so that
-  //         // repoening the modal works as expected
-  //         townController.interactEnd(posterSessionArea);
-  //       }}
-  //       posterSessionArea={posterSessionArea}
-  //     />
-  //   );
-  // }
+  const [selectIsOpen, setSelectIsOpen] = useState(checkerAreaController.squares.length < 1);
+
+  if (selectIsOpen) {
+    return (
+      <Modal
+        isOpen={selectIsOpen}
+        onClose={() => {
+          close();
+          townController.unPause();
+        }}>
+        <ModalOverlay />
+        <ModalContent>
+          {<ModalHeader>NoSquares</ModalHeader>}
+          <ModalCloseButton />
+          <ModalFooter />
+          {/* </form> */}
+        </ModalContent>
+      </Modal>
+    );
+  }
   return (
     <>
       <CheckerBoard
