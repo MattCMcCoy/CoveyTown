@@ -8,7 +8,7 @@ import Interactable from '../components/Town/Interactable';
 import ViewingArea from '../components/Town/interactables/ViewingArea';
 import PosterSesssionArea from '../components/Town/interactables/PosterSessionArea';
 import { LoginController } from '../contexts/LoginControllerContext';
-import { TownsService, TownsServiceClient } from '../generated/client';
+import { CheckerSquare, TownsService, TownsServiceClient } from '../generated/client';
 import useTownController from '../hooks/useTownController';
 import {
   ChatMessage,
@@ -23,6 +23,7 @@ import ConversationAreaController from './ConversationAreaController';
 import PlayerController from './PlayerController';
 import ViewingAreaController from './ViewingAreaController';
 import PosterSessionAreaController from './PosterSessionAreaController';
+import CheckerAreaController from './CheckerAreaController';
 
 const CALCULATE_NEARBY_PLAYERS_DELAY = 300;
 
@@ -77,6 +78,11 @@ export type TownEvents = {
    * the town controller's record of poster session areas.
    */
   posterSessionAreasChanged: (newPosterSessionAreas: PosterSessionAreaController[]) => void;
+  /**
+   * An event that indicates that the set of checker areas has changed. This event is emitted after updating
+   * the town controller's record of checker areas.
+   */
+  checkerAreasChanged: (newCheckerAreas: CheckerAreaController[]) => void;
   /**
    * An event that indicates that a new chat message has been received, which is the parameter passed to the listener
    */
@@ -199,6 +205,8 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
   private _viewingAreas: ViewingAreaController[] = [];
 
   private _posterSessionAreas: PosterSessionAreaController[] = [];
+
+  private _checkerAreas: CheckerAreaController[] = [];
 
   public constructor({ userName, townID, loginController }: ConnectionProperties) {
     super();
@@ -326,6 +334,15 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
   public set posterSessionAreas(newPosterSessionAreas: PosterSessionAreaController[]) {
     this._posterSessionAreas = newPosterSessionAreas;
     this.emit('posterSessionAreasChanged', newPosterSessionAreas);
+  }
+
+  public get checkerAreas() {
+    return this._checkerAreas;
+  }
+
+  public set checkerAreas(newCheckerAreas: CheckerAreaController[]) {
+    this._checkerAreas = newCheckerAreas;
+    this.emit('checkerAreasChanged', newCheckerAreas);
   }
 
   /**
@@ -672,6 +689,15 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
   }
 
   /**
+   * Emit a checker area update to the townService
+   * @param checkerArea The Checker Area Controller that is updated and should be emitted
+   *    with the event
+   */
+  public emitCheckerAreaUpdate(checkerArea: CheckerAreaController) {
+    this._socket.emit('interactableUpdate', checkerArea.checkerAreaModel());
+  }
+
+  /**
    * Get the image contents for a specified poster session area (specified via poster session area controller)
    * @param posterSessionArea the poster session area controller
    * @returns a promise wrapping the contents of the poster session area's image (i.e. the string)
@@ -684,6 +710,15 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
       posterSessionArea.id,
       this.sessionToken,
     );
+  }
+
+  /**
+   * Get the checkerSquare from a specified checkerArea (specified via checker Area controller)
+   * @param checkerArea the poster session area controller
+   * @returns a promise wrapping the contents of the poster session area's image (i.e. the string)
+   */
+  public async getCheckerAreaBoard(checkerArea: CheckerAreaController): Promise<CheckerSquare[]> {
+    return this._townsService.getCheckerAreaSquares(this.townID, checkerArea.id, this.sessionToken);
   }
 
   /**
@@ -850,6 +885,26 @@ export function usePosterSessionAreaController(
   );
   if (!ret) {
     throw new Error(`Unable to locate poster session area id ${posterSessionAreaID}`);
+  }
+  return ret;
+}
+
+/**
+ * A react hook to retrieve a poster session area controller.
+ *
+ * This function will throw an error if the poster session area controller does not exist.
+ *
+ * This hook relies on the TownControllerContext.
+ *
+ * @param posterSessionAreaID The ID of the viewing area to retrieve the controller for
+ *
+ * @throws Error if there is no poster session area controller matching the specifeid ID
+ */
+export function useCheckerAreaController(checkerAreaID: string): CheckerAreaController {
+  const townController = useTownController();
+  const ret = townController.checkerAreas.find(eachArea => eachArea.id === checkerAreaID);
+  if (!ret) {
+    throw new Error(`Unable to locate poster session area id ${checkerAreaID}`);
   }
   return ret;
 }
