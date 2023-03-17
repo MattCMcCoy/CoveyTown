@@ -18,7 +18,7 @@ export default class CheckerArea extends Interactable {
     );
     this._labelText.setVisible(false);
     // may need method for getting checkers area controller
-    // this.townController.getCheckerAreaController(this);
+    this.townController.getCheckerAreaController(this);
     this.setDepth(-1);
   }
 

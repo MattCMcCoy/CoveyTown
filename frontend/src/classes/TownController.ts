@@ -7,6 +7,7 @@ import TypedEmitter from 'typed-emitter';
 import Interactable from '../components/Town/Interactable';
 import ViewingArea from '../components/Town/interactables/ViewingArea';
 import PosterSesssionArea from '../components/Town/interactables/PosterSessionArea';
+import CheckerArea from '../components/Town/interactables/CheckerArea';
 import { LoginController } from '../contexts/LoginControllerContext';
 import { CheckerSquare, TownsService, TownsServiceClient } from '../generated/client';
 import useTownController from '../hooks/useTownController';
@@ -671,6 +672,28 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
   }
 
   /**
+   * Retrieve the checker area controller that corresponds to a checkerAreaModel, creating one if necessary
+   *
+   * @param checkerArea
+   * @returns
+   */
+  public getCheckerAreaController(checkerArea: CheckerArea): CheckerAreaController {
+    const existingController = this._checkerAreas.find(
+      eachExistingArea => eachExistingArea.id === checkerArea.name,
+    );
+    if (existingController) {
+      return existingController;
+    } else {
+      const newController = new CheckerAreaController({
+        id: checkerArea.name,
+        squares: [],
+      });
+      this.checkerAreas.push(newController);
+      return newController;
+    }
+  }
+
+  /**
    * Emit a viewing area update to the townService
    * @param viewingArea The Viewing Area Controller that is updated and should be emitted
    *    with the event
@@ -890,15 +913,15 @@ export function usePosterSessionAreaController(
 }
 
 /**
- * A react hook to retrieve a poster session area controller.
+ * A react hook to retrieve a checker area controller.
  *
- * This function will throw an error if the poster session area controller does not exist.
+ * This function will throw an error if the checker area controller does not exist.
  *
  * This hook relies on the TownControllerContext.
  *
- * @param posterSessionAreaID The ID of the viewing area to retrieve the controller for
+ * @param checkerAreaID The ID of the checker area to retrieve the controller for
  *
- * @throws Error if there is no poster session area controller matching the specifeid ID
+ * @throws Error if there is no checker area controller matching the specifeid ID
  */
 export function useCheckerAreaController(checkerAreaID: string): CheckerAreaController {
   const townController = useTownController();
