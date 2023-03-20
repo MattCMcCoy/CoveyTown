@@ -406,11 +406,11 @@ export function RegisterRoutes(app: express.Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.patch('/towns/:townID/:checkerAreaId/initializeBoard',
+        app.patch('/towns/:townID/:checkerAreaId/initializeCheckerAreaBoard',
             ...(fetchMiddlewares<RequestHandler>(TownsController)),
-            ...(fetchMiddlewares<RequestHandler>(TownsController.prototype.initializeBoard)),
+            ...(fetchMiddlewares<RequestHandler>(TownsController.prototype.initializeCheckerAreaBoard)),
 
-            function TownsController_initializeBoard(request: any, response: any, next: any) {
+            function TownsController_initializeCheckerAreaBoard(request: any, response: any, next: any) {
             const args = {
                     townID: {"in":"path","name":"townID","required":true,"dataType":"string"},
                     checkerAreaId: {"in":"path","name":"checkerAreaId","required":true,"dataType":"string"},
@@ -426,7 +426,7 @@ export function RegisterRoutes(app: express.Router) {
                 const controller = new TownsController();
 
 
-              const promise = controller.initializeBoard.apply(controller, validatedArgs as any);
+              const promise = controller.initializeCheckerAreaBoard.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);
