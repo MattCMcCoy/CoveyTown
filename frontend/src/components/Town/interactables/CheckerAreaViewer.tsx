@@ -13,27 +13,50 @@ import {
   Box,
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
-import { useInteractable, useCheckerAreaController } from '../../../classes/TownController';
+import TownController, {
+  useInteractable,
+  useCheckerAreaController,
+} from '../../../classes/TownController';
 import CheckerAreaController, { useSquares } from '../../../classes/CheckerAreaController';
 import useTownController from '../../../hooks/useTownController';
 import CheckerAreaInteractable from './CheckerArea';
 import { CheckerSquare } from '../../../generated/client';
+// import { TownsController } from '../../../../../TownService/src/Town/TownsController';
+// import { isCheckerArea } from '../../../../../TownService/src/TestUtils';
+// import CheckerAreaReal from '../../../../../TownService/src/Town/CheckerArea';
+// import InvalidParametersError from '../../../../../TownService/src/lib/InvalidParametersError';
+// import CoveyTownsStore from '../../../../../TownService/src/lib/TownsStore';
 
 export function makeBoard(squares: CheckerSquare[] | undefined): JSX.Element {
   if (squares == undefined) {
     return <></>;
   }
   let i = 1;
-  let color = 'red';
+  const size = '10';
+  // light brown
+  const color1 = '#e6b273';
+  // brown
+  const color2 = '#a5681e';
+  let color = color1;
   let row: JSX.Element[] = [];
   const board: JSX.Element[] = [];
-  for (const square in squares) {
-    row.push(<Box w='40' h='40' bg={color}></Box>);
+  // const square in squares
+  console.log('Number of squares:' + squares.length);
+  // let j = 0; j < 64; j++
+  for (let square in squares) {
+    // add squares to row
+    // eslint-disable-next-line no-self-assign
+    square = square;
+    row.push(<Box w={size} h={size} bg={color}></Box>);
+    // add row to checker board
     if (i % 8 == 0) {
       board.push(<HStack spacing='0px'>{row}</HStack>);
+      // Switch the color
+      color = color == color1 ? color2 : color1;
       row = [];
     }
-    color = color == 'red' ? 'black' : 'red';
+    color = color == color1 ? color2 : color1;
+
     i++;
   }
 
@@ -59,14 +82,35 @@ export function CheckerBoard({
   isOpen: boolean;
   close: () => void;
 }): JSX.Element {
-  const squares = useSquares(controller);
   const townController = useTownController();
   const curPlayerId = townController.ourPlayer.id;
   const toast = useToast();
   const title = 'Checkers';
+
   useEffect(() => {
     townController.getCheckerAreaBoard(controller);
   }, [townController, controller]);
+
+  function initBoard() {
+    console.log('In initBoard');
+    if (controller.squares.length < 1) {
+      console.log('passed if statement');
+      townController
+        .initializeCheckerSessionAreaBoard(controller)
+        .then(newBoard => (controller.squares = newBoard));
+      console.log('newboard length: ' + controller.squares.length);
+    } else {
+      toast({
+        title: `Cant initialize Board`,
+        status: 'error',
+      });
+    }
+    console.log('end of initBoard');
+  }
+  const squares = useSquares(controller);
+  if (squares == undefined || squares.length < 1) {
+    initBoard();
+  }
 
   return (
     <Modal
@@ -101,15 +145,17 @@ export function CheckerGame({
 }): JSX.Element {
   const townController = useTownController();
   const checkerAreaController = useCheckerAreaController(checkerArea.name);
+  // selectIsOpen is true if the squares have not been initialized
   const [selectIsOpen, setSelectIsOpen] = useState(checkerAreaController.squares.length < 1);
 
+  // If a checkers game has started
   if (!selectIsOpen) {
     return (
       <Modal
         isOpen={!selectIsOpen}
         onClose={() => {
-          close();
           townController.unPause();
+          townController.interactEnd(checkerArea);
         }}>
         <ModalOverlay />
         <ModalContent>
