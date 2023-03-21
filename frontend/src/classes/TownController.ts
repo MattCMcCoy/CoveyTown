@@ -760,6 +760,21 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
   }
 
   /**
+   * Initializes the checker board of the given checkerBoard area. (specified via checker area controller)
+   * @param checkerArea the checker area controller
+   * @returns a promise wrapping the board
+   */
+  public async initializeCheckerSessionAreaBoard(
+    checkerArea: CheckerAreaController,
+  ): Promise<CheckerSquare[]> {
+    return this._townsService.initializeCheckerAreaBoard(
+      this.townID,
+      checkerArea.id,
+      this.sessionToken,
+    );
+  }
+
+  /**
    * Determine which players are "nearby" -- that they should be included in our video call
    */
   public nearbyPlayers(): PlayerController[] {
