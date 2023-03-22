@@ -1,5 +1,4 @@
 import {
-  Button,
   HStack,
   VStack,
   Modal,
@@ -12,22 +11,13 @@ import {
   useToast,
   Box,
   Flex,
-  Spacer,
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
-import TownController, {
-  useInteractable,
-  useCheckerAreaController,
-} from '../../../classes/TownController';
+import { useInteractable, useCheckerAreaController } from '../../../classes/TownController';
 import CheckerAreaController, { useSquares } from '../../../classes/CheckerAreaController';
 import useTownController from '../../../hooks/useTownController';
 import CheckerAreaInteractable from './CheckerArea';
 import { CheckerSquare } from '../../../generated/client';
-// import { TownsController } from '../../../../../TownService/src/Town/TownsController';
-// import { isCheckerArea } from '../../../../../TownService/src/TestUtils';
-// import CheckerAreaReal from '../../../../../TownService/src/Town/CheckerArea';
-// import InvalidParametersError from '../../../../../TownService/src/lib/InvalidParametersError';
-// import CoveyTownsStore from '../../../../../TownService/src/lib/TownsStore';
 
 export function makeBoard(squares: CheckerSquare[] | undefined): JSX.Element {
   if (squares == undefined) {
@@ -84,7 +74,6 @@ export function CheckerBoard({
   close: () => void;
 }): JSX.Element {
   const townController = useTownController();
-  const curPlayerId = townController.ourPlayer.id;
   const toast = useToast();
   const title = 'Checkers';
 
