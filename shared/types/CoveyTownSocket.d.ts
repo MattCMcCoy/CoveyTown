@@ -86,9 +86,10 @@ export interface CheckerSquare {
   checker: CheckerPiece;
 }
 
+export type Color = 'red' | 'black' | 'empty';
 export interface CheckerPiece {
   id: string;
-  type: string;
+  type: Color;
 }
 
 export interface PosterSessionArea {

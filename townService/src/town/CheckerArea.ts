@@ -13,8 +13,6 @@ import InteractableArea from './InteractableArea';
 export default class CheckerArea extends InteractableArea {
   private _squares: CheckerSquareModel[] = [];
 
-  private _checkerPieces: CheckerPieceModel[] = this._createCheckerPieces();
-
   public get squares(): CheckerSquareModel[] {
     return this._squares;
   }
@@ -45,6 +43,7 @@ export default class CheckerArea extends InteractableArea {
    */
   public initializeBoard() {
     const newSquares = [];
+    const checkers: CheckerPieceModel[] = this._createCheckerPieces();
     let pieces = 0;
     for (let x = 0; x < 8; x++) {
       for (let y = 0; y < 8; y++) {
@@ -53,7 +52,7 @@ export default class CheckerArea extends InteractableArea {
             id: `${x}${y}`,
             x,
             y,
-            checker: this._checkerPieces.at(pieces),
+            checker: checkers.at(pieces),
           } as CheckerSquareModel);
           pieces += 1;
         } else if ((x === 1 || x === 5 || x === 7) && y % 2 === 0) {
@@ -61,7 +60,7 @@ export default class CheckerArea extends InteractableArea {
             id: `${x}${y}`,
             x,
             y,
-            checker: this._checkerPieces.at(pieces),
+            checker: checkers.at(pieces),
           } as CheckerSquareModel);
           pieces += 1;
         } else {
