@@ -357,7 +357,7 @@ export class TownsController extends Controller {
     @Path() townID: string,
     @Path() checkerAreaId: string,
     @Header('X-Session-Token') sessionToken: string,
-  ): Promise<void> {
+  ): Promise<CheckerSquare[]> {
     const curTown = this._townsStore.getTownByID(townID);
     if (!curTown) {
       throw new InvalidParametersError('Invalid town ID');
@@ -370,6 +370,7 @@ export class TownsController extends Controller {
       throw new InvalidParametersError('Invalid checker area ID');
     }
     (<CheckerAreaReal>checkerArea).initializeBoard();
+    return checkerArea.squares;
   }
 
   /**
