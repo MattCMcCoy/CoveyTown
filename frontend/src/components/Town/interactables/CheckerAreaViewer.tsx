@@ -11,6 +11,8 @@ import {
   ModalOverlay,
   useToast,
   Box,
+  Flex,
+  Spacer,
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import TownController, {
@@ -32,7 +34,7 @@ export function makeBoard(squares: CheckerSquare[] | undefined): JSX.Element {
     return <></>;
   }
   let i = 1;
-  const size = '10';
+  const size = '20';
   // light brown
   const color1 = '#e6b273';
   // brown
@@ -40,9 +42,8 @@ export function makeBoard(squares: CheckerSquare[] | undefined): JSX.Element {
   let color = color1;
   let row: JSX.Element[] = [];
   const board: JSX.Element[] = [];
-  // const square in squares
   console.log('Number of squares:' + squares.length);
-  // let j = 0; j < 64; j++
+
   for (let square in squares) {
     // add squares to row
     // eslint-disable-next-line no-self-assign
@@ -115,6 +116,7 @@ export function CheckerBoard({
   return (
     <Modal
       isOpen={isOpen}
+      size={'4xl'}
       onClose={() => {
         close();
         townController.unPause();
@@ -124,7 +126,9 @@ export function CheckerBoard({
         {<ModalHeader>{title} </ModalHeader>}
         <ModalCloseButton />
         <ModalBody pb={6}></ModalBody>
-        {makeBoard(squares)}
+        <Flex justify={'center'} padding={'5'}>
+          {makeBoard(squares)}
+        </Flex>
         <ModalFooter />
         {/* </form> */}
       </ModalContent>
