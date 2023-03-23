@@ -11,45 +11,50 @@ import {
   useToast,
   Box,
   Flex,
+  Circle,
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import { useInteractable, useCheckerAreaController } from '../../../classes/TownController';
 import CheckerAreaController, { useSquares } from '../../../classes/CheckerAreaController';
 import useTownController from '../../../hooks/useTownController';
 import CheckerAreaInteractable from './CheckerArea';
-import { CheckerSquare } from '../../../generated/client';
+import { CheckerSquare } from '../../../types/CoveyTownSocket';
 
 export function makeBoard(squares: CheckerSquare[] | undefined): JSX.Element {
   if (squares == undefined) {
     return <></>;
   }
-  let i = 1;
   const size = '20';
   // light brown
   const color1 = '#e6b273';
   // brown
   const color2 = '#a5681e';
-  let color = color1;
+
   let row: JSX.Element[] = [];
   const board: JSX.Element[] = [];
-  console.log('Number of squares:' + squares.length);
 
-  for (let square in squares) {
+  squares.forEach(square => {
+    const color =
+      square.x % 2 === 0 && square.y % 2 !== 0
+        ? color2
+        : square.x % 2 !== 0 && square.y % 2 === 0
+        ? color2
+        : color1;
+
     // add squares to row
-    // eslint-disable-next-line no-self-assign
-    square = square;
-    row.push(<Box w={size} h={size} bg={color}></Box>);
+    row.push(
+      <Box w={size} h={size} bg={color} display='flex'>
+        {square.checker.type !== 'empty' ? (
+          <Circle size='70px' margin='auto' bg={square.checker.type}></Circle>
+        ) : null}
+      </Box>,
+    );
     // add row to checker board
-    if (i % 8 == 0) {
+    if (square.y === 7) {
       board.push(<HStack spacing='0px'>{row}</HStack>);
-      // Switch the color
-      color = color == color1 ? color2 : color1;
       row = [];
     }
-    color = color == color1 ? color2 : color1;
-
-    i++;
-  }
+  });
 
   return <VStack spacing='0px'>{board}</VStack>;
 }

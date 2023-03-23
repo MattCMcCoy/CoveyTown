@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
-import { EventEmitter } from 'stream';
+import { EventEmitter } from 'events';
 import TypedEmitter from 'typed-emitter';
 import { CheckerArea as CheckerAreaModel, CheckerSquare } from '../types/CoveyTownSocket';
 
