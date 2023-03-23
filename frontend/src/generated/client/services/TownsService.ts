@@ -323,14 +323,14 @@ xSessionToken: string,
      * @param checkerAreaId interactable ID of the checker area
      * @param xSessionToken session token of the player making the request, must
  * match the session token returned when the player joined the town
-     * @returns void 
+     * @returns CheckerSquare Ok
      * @throws ApiError
      */
     public initializeCheckerAreaBoard(
 townId: string,
 checkerAreaId: string,
 xSessionToken: string,
-): CancelablePromise<void> {
+): CancelablePromise<Array<CheckerSquare>> {
         return this.httpRequest.request({
             method: 'PATCH',
             url: '/towns/{townID}/{checkerAreaId}/initializeCheckerAreaBoard',

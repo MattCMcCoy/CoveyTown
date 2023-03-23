@@ -172,15 +172,27 @@
 				"type": "object",
 				"additionalProperties": false
 			},
+			"Color": {
+				"type": "string",
+				"enum": [
+					"red",
+					"black",
+					"empty"
+				]
+			},
 			"CheckerPiece": {
 				"properties": {
 					"id": {
 						"type": "string"
 					},
 					"type": {
-						"type": "string"
+						"$ref": "#/components/schemas/Color"
 					}
 				},
+				"required": [
+					"id",
+					"type"
+				],
 				"type": "object",
 				"additionalProperties": false
 			},
@@ -835,8 +847,18 @@
 			"patch": {
 				"operationId": "InitializeCheckerAreaBoard",
 				"responses": {
-					"204": {
-						"description": "No content"
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/CheckerSquare"
+									},
+									"type": "array"
+								}
+							}
+						}
 					},
 					"400": {
 						"description": "Invalid values specified",
