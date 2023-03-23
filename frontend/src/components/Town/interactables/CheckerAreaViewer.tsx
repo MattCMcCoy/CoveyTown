@@ -25,25 +25,21 @@ export function makeBoard(squares: CheckerSquare[] | undefined): JSX.Element {
     return <></>;
   }
   const size = '20';
-  // light brown
-  const color1 = '#e6b273';
-  // brown
-  const color2 = '#a5681e';
+
+  // gets the color of a given square
+  const getColor = (x: number, y: number) => {
+    const lightBrown = '#e6b273';
+    const brown = '#a5681e';
+    return (x % 2 === 0 && y % 2 !== 0) || (x % 2 !== 0 && y % 2 === 0) ? brown : lightBrown;
+  };
 
   let row: JSX.Element[] = [];
   const board: JSX.Element[] = [];
 
   squares.forEach(square => {
-    const color =
-      square.x % 2 === 0 && square.y % 2 !== 0
-        ? color2
-        : square.x % 2 !== 0 && square.y % 2 === 0
-        ? color2
-        : color1;
-
     // add squares to row
     row.push(
-      <Box w={size} h={size} bg={color} display='flex'>
+      <Box w={size} h={size} bg={getColor(square.x, square.y)} display='flex'>
         {square.checker.type !== 'empty' ? (
           <Circle size='70px' margin='auto' bg={square.checker.type}></Circle>
         ) : null}
@@ -87,20 +83,16 @@ export function CheckerBoard({
   }, [townController, controller]);
 
   function initBoard() {
-    console.log('In initBoard');
     if (controller.squares.length < 1) {
-      console.log('passed if statement');
       townController
         .initializeCheckerSessionAreaBoard(controller)
         .then(newBoard => (controller.squares = newBoard));
-      console.log('newboard length: ' + controller.squares.length);
     } else {
       toast({
         title: `Cant initialize Board`,
         status: 'error',
       });
     }
-    console.log('end of initBoard');
   }
   const squares = useSquares(controller);
   if (squares == undefined || squares.length < 1) {
