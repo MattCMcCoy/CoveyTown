@@ -5,6 +5,7 @@ import { TownEmitter } from '../types/CoveyTownSocket';
 import CheckerArea from './CheckerArea';
 import { getLastEmittedEvent } from '../TestUtils';
 import CheckerSquare from './CheckerParts/CheckerSquare';
+import CheckerPieceModel from './CheckerParts/CheckerPiece';
 
 describe('CheckerArea', () => {
   const testAreaBox = { x: 100, y: 100, width: 100, height: 100 };
@@ -74,6 +75,109 @@ describe('CheckerArea', () => {
       testArea.initializeBoard();
       expect(testArea.squares.length).toEqual(64);
       testArea.squares.forEach(square => expect(square.id).toEqual(`${square.x}${square.y}`));
+    });
+
+    it('Verfies checkersPieces are on the board.', () => {
+      expect(testArea.squares).toEqual([]);
+      testArea.initializeBoard();
+      expect(testArea.squares.length).toEqual(64);
+      testArea.squares.forEach(square => expect(square.id).toEqual(`${square.x}${square.y}`));
+      expect(testArea.squares.at(1)?.checker).toEqual({
+        id: 'red 0',
+        type: 'red',
+      } as CheckerPieceModel);
+      expect(testArea.squares.at(3)?.checker).toEqual({
+        id: 'red 1',
+        type: 'red',
+      } as CheckerPieceModel);
+      expect(testArea.squares.at(5)?.checker).toEqual({
+        id: 'red 2',
+        type: 'red',
+      } as CheckerPieceModel);
+      expect(testArea.squares.at(7)?.checker).toEqual({
+        id: 'red 3',
+        type: 'red',
+      } as CheckerPieceModel);
+      expect(testArea.squares.at(8)?.checker).toEqual({
+        id: 'red 4',
+        type: 'red',
+      } as CheckerPieceModel);
+      expect(testArea.squares.at(10)?.checker).toEqual({
+        id: 'red 5',
+        type: 'red',
+      } as CheckerPieceModel);
+      expect(testArea.squares.at(12)?.checker).toEqual({
+        id: 'red 6',
+        type: 'red',
+      } as CheckerPieceModel);
+      expect(testArea.squares.at(14)?.checker).toEqual({
+        id: 'red 7',
+        type: 'red',
+      } as CheckerPieceModel);
+      expect(testArea.squares.at(17)?.checker).toEqual({
+        id: 'red 8',
+        type: 'red',
+      } as CheckerPieceModel);
+      expect(testArea.squares.at(19)?.checker).toEqual({
+        id: 'red 9',
+        type: 'red',
+      } as CheckerPieceModel);
+      expect(testArea.squares.at(21)?.checker).toEqual({
+        id: 'red 10',
+        type: 'red',
+      } as CheckerPieceModel);
+      expect(testArea.squares.at(23)?.checker).toEqual({
+        id: 'red 11',
+        type: 'red',
+      } as CheckerPieceModel);
+      expect(testArea.squares.at(40)?.checker).toEqual({
+        id: 'black 11',
+        type: 'black',
+      } as CheckerPieceModel);
+      expect(testArea.squares.at(42)?.checker).toEqual({
+        id: 'black 10',
+        type: 'black',
+      } as CheckerPieceModel);
+      expect(testArea.squares.at(44)?.checker).toEqual({
+        id: 'black 9',
+        type: 'black',
+      } as CheckerPieceModel);
+      expect(testArea.squares.at(46)?.checker).toEqual({
+        id: 'black 8',
+        type: 'black',
+      } as CheckerPieceModel);
+      expect(testArea.squares.at(49)?.checker).toEqual({
+        id: 'black 7',
+        type: 'black',
+      } as CheckerPieceModel);
+      expect(testArea.squares.at(51)?.checker).toEqual({
+        id: 'black 6',
+        type: 'black',
+      } as CheckerPieceModel);
+      expect(testArea.squares.at(53)?.checker).toEqual({
+        id: 'black 5',
+        type: 'black',
+      } as CheckerPieceModel);
+      expect(testArea.squares.at(55)?.checker).toEqual({
+        id: 'black 4',
+        type: 'black',
+      } as CheckerPieceModel);
+      expect(testArea.squares.at(56)?.checker).toEqual({
+        id: 'black 3',
+        type: 'black',
+      } as CheckerPieceModel);
+      expect(testArea.squares.at(58)?.checker).toEqual({
+        id: 'black 2',
+        type: 'black',
+      } as CheckerPieceModel);
+      expect(testArea.squares.at(60)?.checker).toEqual({
+        id: 'black 1',
+        type: 'black',
+      } as CheckerPieceModel);
+      expect(testArea.squares.at(62)?.checker).toEqual({
+        id: 'black 0',
+        type: 'black',
+      } as CheckerPieceModel);
     });
   });
 

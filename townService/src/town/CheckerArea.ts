@@ -4,6 +4,7 @@ import {
   Interactable,
   CheckerArea as CheckerAreaModel,
   CheckerSquare as CheckerSquareModel,
+  CheckerPiece as CheckerPieceModel,
   BoundingBox,
   TownEmitter,
 } from '../types/CoveyTownSocket';
@@ -42,13 +43,54 @@ export default class CheckerArea extends InteractableArea {
    */
   public initializeBoard() {
     const newSquares = [];
+    const checkers: CheckerPieceModel[] = this._createCheckerPieces();
+    let pieces = 0;
     for (let x = 0; x < 8; x++) {
       for (let y = 0; y < 8; y++) {
-        newSquares.push({ id: `${x}${y}`, x, y } as CheckerSquareModel);
+        if ((x === 0 || x === 2 || x === 6) && y % 2 !== 0) {
+          newSquares.push({
+            id: `${x}${y}`,
+            x,
+            y,
+            checker: checkers.at(pieces),
+          } as CheckerSquareModel);
+          pieces += 1;
+        } else if ((x === 1 || x === 5 || x === 7) && y % 2 === 0) {
+          newSquares.push({
+            id: `${x}${y}`,
+            x,
+            y,
+            checker: checkers.at(pieces),
+          } as CheckerSquareModel);
+          pieces += 1;
+        } else {
+          newSquares.push({
+            id: `${x}${y}`,
+            x,
+            y,
+            checker: { id: 'empty', type: 'empty' },
+          } as CheckerSquareModel);
+        }
       }
     }
 
     this.squares = newSquares;
+  }
+
+  /**
+   * Helper method that creates all of the checker pieces with their corresponding colors. Starting with the 12 red
+   * then the 12 black
+   */
+  private _createCheckerPieces(): CheckerPieceModel[] {
+    const checkers: CheckerPieceModel[] = [];
+    for (let i = 0; i < 24; i++) {
+      if (i < 12) {
+        checkers.push({ id: `red ${i}`, type: 'red' } as CheckerPieceModel);
+      } else {
+        checkers.push({ id: `black ${23 - i}`, type: 'black' } as CheckerPieceModel);
+      }
+    }
+    return checkers;
   }
 
   /**

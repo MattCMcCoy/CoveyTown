@@ -10,7 +10,9 @@ export { OpenAPI } from './core/OpenAPI';
 export type { OpenAPIConfig } from './core/OpenAPI';
 
 export type { CheckerArea } from './models/CheckerArea';
+export type { CheckerPiece } from './models/CheckerPiece';
 export type { CheckerSquare } from './models/CheckerSquare';
+export { Color } from './models/Color';
 export type { ConversationArea } from './models/ConversationArea';
 export type { InvalidParametersError } from './models/InvalidParametersError';
 export type { PosterSessionArea } from './models/PosterSessionArea';

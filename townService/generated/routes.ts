@@ -86,12 +86,27 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Color": {
+        "dataType": "refAlias",
+        "type": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["red"]},{"dataType":"enum","enums":["black"]},{"dataType":"enum","enums":["empty"]}],"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "CheckerPiece": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string","required":true},
+            "type": {"ref":"Color","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "CheckerSquare": {
         "dataType": "refObject",
         "properties": {
             "id": {"dataType":"string","required":true},
             "x": {"dataType":"double","required":true},
             "y": {"dataType":"double","required":true},
+            "checker": {"ref":"CheckerPiece","required":true},
         },
         "additionalProperties": false,
     },

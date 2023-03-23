@@ -2,8 +2,9 @@
 /* tslint:disable */
 /* eslint-disable */
 
-export type ConversationArea = {
+import type { Color } from './Color';
+
+export type CheckerPiece = {
     id: string;
-    topic?: string;
-    occupantsByID: Array<string>;
+    type: Color;
 };
