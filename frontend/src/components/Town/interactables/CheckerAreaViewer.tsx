@@ -24,7 +24,8 @@ export function makeBoard(squares: CheckerSquare[] | undefined): JSX.Element {
   if (squares == undefined) {
     return <></>;
   }
-  const size = '20';
+  const squareSize = '20';
+  const circleSize = '70px';
 
   // gets the color of a given square
   const getColor = (x: number, y: number) => {
@@ -39,9 +40,9 @@ export function makeBoard(squares: CheckerSquare[] | undefined): JSX.Element {
   squares.forEach(square => {
     // add squares to row
     row.push(
-      <Box w={size} h={size} bg={getColor(square.x, square.y)} display='flex'>
+      <Box w={squareSize} h={squareSize} bg={getColor(square.x, square.y)} display='flex'>
         {square.checker.type !== 'empty' ? (
-          <Circle size='70px' margin='auto' bg={square.checker.type}></Circle>
+          <Circle size={circleSize} margin='auto' bg={square.checker.type}></Circle>
         ) : null}
       </Box>,
     );
