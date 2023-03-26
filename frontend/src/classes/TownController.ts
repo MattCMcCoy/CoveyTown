@@ -18,8 +18,14 @@ import {
   TownSettingsUpdate,
   ViewingArea as ViewingAreaModel,
   PosterSessionArea as PosterSessionAreaModel,
+  CheckerArea as CheckerAreaModel,
 } from '../types/CoveyTownSocket';
-import { isConversationArea, isViewingArea, isPosterSessionArea } from '../types/TypeUtils';
+import {
+  isConversationArea,
+  isViewingArea,
+  isPosterSessionArea,
+  isCheckerArea,
+} from '../types/TypeUtils';
 import ConversationAreaController from './ConversationAreaController';
 import PlayerController from './PlayerController';
 import ViewingAreaController from './ViewingAreaController';
@@ -469,6 +475,11 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
         if (relArea) {
           relArea.updateFrom(interactable);
         }
+      } else if (isCheckerArea(interactable)) {
+        const relArea = this.checkerAreas.find(area => area.id == interactable.id);
+        if (relArea) {
+          relArea.updateFrom(interactable);
+        }
       }
     });
   }
@@ -561,6 +572,17 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
     // TODO catch the error if the file type is invalid
     console.warn('Intermediate poster session: ' + JSON.stringify(newArea, null, 4));
     await this._townsService.createPosterSessionArea(this.townID, this.sessionToken, newArea);
+  }
+
+  /**
+   * Create a new poster session area, sending the request to the townService. Throws an error if the request
+   * is not successful. Does not immediately update local state about the new poster session area - it will be
+   * updated once the townService creates the area and emits an interactableUpdate
+   *
+   * @param newArea
+   */
+  async createCheckerArea(newArea: CheckerAreaModel) {
+    await this._townsService.createCheckerArea(this.townID, this.sessionToken, newArea);
   }
 
   /**
@@ -687,6 +709,8 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
       const newController = new CheckerAreaController({
         id: checkerArea.name,
         squares: [],
+        blackScore: 0,
+        redScore: 0,
       });
       this.checkerAreas.push(newController);
       return newController;

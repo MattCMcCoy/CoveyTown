@@ -17,7 +17,11 @@ describe('CheckerArea', () => {
 
   beforeEach(() => {
     mockClear(townEmitter);
-    testArea = new CheckerArea({ id, squares: [] }, testAreaBox, townEmitter);
+    testArea = new CheckerArea(
+      { id, squares: [], blackScore: 0, redScore: 0 },
+      testAreaBox,
+      townEmitter,
+    );
     newPlayer = new Player(nanoid(), mock<TownEmitter>());
     testArea.add(newPlayer);
     squares = [];
@@ -42,6 +46,16 @@ describe('CheckerArea', () => {
   });
 
   describe('remove', () => {
+    it('Removes the player from the list of occupants, clears the board, and emits an interactableUpdate event', () => {
+      testArea.initializeBoard();
+      expect(testArea.squares.length).toBeGreaterThan(0);
+      testArea.remove(newPlayer);
+
+      expect(testArea.occupantsByID).toEqual([]);
+      const lastEmittedUpdate = getLastEmittedEvent(townEmitter, 'interactableUpdate');
+      expect(lastEmittedUpdate).toEqual({ id, squares: [] });
+    });
+
     it('Removes the player from the list of occupants and emits an interactableUpdate event', () => {
       // Add another player so we dont test when last person leaves.
       const extraPlayer = new Player(nanoid(), mock<TownEmitter>());
@@ -64,7 +78,7 @@ describe('CheckerArea', () => {
     const newSquares: CheckerSquare[] = [];
     const newId = 'newID';
 
-    testArea.updateModel({ id: newId, squares: newSquares });
+    testArea.updateModel({ id: newId, squares: newSquares, blackScore: 0, redScore: 0 });
     expect(testArea.id).toBe(id);
     expect(testArea.squares).toBe(newSquares);
   });

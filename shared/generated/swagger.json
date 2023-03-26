@@ -232,11 +232,21 @@
 							"$ref": "#/components/schemas/CheckerSquare"
 						},
 						"type": "array"
+					},
+					"blackScore": {
+						"type": "number",
+						"format": "double"
+					},
+					"redScore": {
+						"type": "number",
+						"format": "double"
 					}
 				},
 				"required": [
 					"id",
-					"squares"
+					"squares",
+					"blackScore",
+					"redScore"
 				],
 				"type": "object",
 				"additionalProperties": false

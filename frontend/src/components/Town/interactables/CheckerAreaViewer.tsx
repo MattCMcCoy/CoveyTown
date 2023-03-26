@@ -12,23 +12,44 @@ import {
   Box,
   Flex,
   Circle,
+  Square,
+  Grid,
+  GridItem,
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import { useInteractable, useCheckerAreaController } from '../../../classes/TownController';
-import CheckerAreaController, { useSquares } from '../../../classes/CheckerAreaController';
+import CheckerAreaController, {
+  useBlackScore,
+  useRedScore,
+  useSquares,
+} from '../../../classes/CheckerAreaController';
 import useTownController from '../../../hooks/useTownController';
 import CheckerAreaInteractable from './CheckerArea';
 import { CheckerSquare } from '../../../types/CoveyTownSocket';
 
-export function makeBoard(squares: CheckerSquare[] | undefined): JSX.Element {
+function makeBoard(squares: CheckerSquare[] | undefined): JSX.Element {
   if (squares == undefined) {
     return <></>;
   }
   const squareSize = '20';
   const circleSize = '70px';
 
+  // gets the color of the inner circle of a piece
+  const getInnerCircleColor = (type: string) => {
+    const red = '#C53030';
+    const black = '#1A202C';
+    return type == 'red' ? red : black;
+  };
+
+  // gets the color of the outer circle of a piece
+  const getOuterCircleColor = (type: string) => {
+    const red = '#9B2C2C';
+    const black = 'black';
+    return type == 'red' ? red : black;
+  };
+
   // gets the color of a given square
-  const getColor = (x: number, y: number) => {
+  const getSquareColor = (x: number, y: number) => {
     const lightBrown = '#e6b273';
     const brown = '#a5681e';
     return (x % 2 === 0 && y % 2 !== 0) || (x % 2 !== 0 && y % 2 === 0) ? brown : lightBrown;
@@ -40,15 +61,30 @@ export function makeBoard(squares: CheckerSquare[] | undefined): JSX.Element {
   squares.forEach(square => {
     // add squares to row
     row.push(
-      <Box w={squareSize} h={squareSize} bg={getColor(square.x, square.y)} display='flex'>
+      <Box
+        w={squareSize}
+        h={squareSize}
+        bg={getSquareColor(square.x, square.y)}
+        display='flex'
+        key={square.id}>
         {square.checker.type !== 'empty' ? (
-          <Circle size={circleSize} margin='auto' bg={square.checker.type}></Circle>
+          <Circle size={circleSize} margin='auto' bg={getOuterCircleColor(square.checker.type)}>
+            <Circle
+              size={'50px'}
+              margin='auto'
+              bg={getInnerCircleColor(square.checker.type)}
+              shadow='inner'></Circle>
+          </Circle>
         ) : null}
       </Box>,
     );
     // add row to checker board
     if (square.y === 7) {
-      board.push(<HStack spacing='0px'>{row}</HStack>);
+      board.push(
+        <HStack spacing='0px' key={square.x}>
+          {row}
+        </HStack>,
+      );
       row = [];
     }
   });
@@ -79,6 +115,11 @@ export function CheckerBoard({
   const toast = useToast();
   const title = 'Checkers';
 
+  const innerRed = '#C53030';
+  const innerBlack = '#1A202C';
+  const outerRed = '#9B2C2C';
+  const outerBlack = 'black';
+
   useEffect(() => {
     townController.getCheckerAreaBoard(controller);
   }, [townController, controller]);
@@ -96,6 +137,8 @@ export function CheckerBoard({
     }
   }
   const squares = useSquares(controller);
+  const blackScore = useBlackScore(controller);
+  const redScore = useRedScore(controller);
   if (squares == undefined || squares.length < 1) {
     initBoard();
   }
@@ -113,9 +156,37 @@ export function CheckerBoard({
         {<ModalHeader>{title} </ModalHeader>}
         <ModalCloseButton />
         <ModalBody pb={6}></ModalBody>
-        <Flex justify={'center'} padding={'5'}>
-          {makeBoard(squares)}
-        </Flex>
+        <Grid templateColumns='repeat(5, 1fr)'>
+          <GridItem colSpan={4}>
+            <Flex justify={'center'} padding={'5'}>
+              {makeBoard(squares)}
+            </Flex>
+          </GridItem>
+          <GridItem colSpan={1} margin='auto'>
+            <Square display={'grid'}>
+              <Circle size={'70px'} margin='auto' bg={outerRed} marginBottom={5}>
+                <Circle
+                  size={'50px'}
+                  margin='auto'
+                  bg={innerRed}
+                  shadow='inner'
+                  textColor={'white'}>
+                  {redScore}
+                </Circle>
+              </Circle>
+              <Circle size={'70px'} margin='auto' bg={outerBlack}>
+                <Circle
+                  size={'50px'}
+                  margin='auto'
+                  bg={innerBlack}
+                  shadow='inner'
+                  textColor={'white'}>
+                  {blackScore}
+                </Circle>
+              </Circle>
+            </Square>
+          </GridItem>
+        </Grid>
         <ModalFooter />
         {/* </form> */}
       </ModalContent>
@@ -146,7 +217,6 @@ export function CheckerGame({
         isOpen={!selectIsOpen}
         onClose={() => {
           townController.unPause();
-          townController.interactEnd(checkerArea);
         }}>
         <ModalOverlay />
         <ModalContent>

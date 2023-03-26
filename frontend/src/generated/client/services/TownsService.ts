@@ -1,7 +1,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { CheckerArea } from '../models/CheckerArea';
+import { CheckerArea } from '../../../types/CoveyTownSocket';
 import type { CheckerSquare } from '../models/CheckerSquare';
 import type { ConversationArea } from '../models/ConversationArea';
 import type { PosterSessionArea } from '../models/PosterSessionArea';
@@ -52,7 +52,7 @@ requestBody: TownCreateParams,
      * @param townId town to update
      * @param xCoveyTownPassword town update password, must match the password returned by createTown
      * @param requestBody The updated settings
-     * @returns void 
+     * @returns void
      * @throws ApiError
      */
     public updateTown(
@@ -81,7 +81,7 @@ requestBody: TownSettingsUpdate,
      * Deletes a town
      * @param townId ID of the town to delete
      * @param xCoveyTownPassword town update password, must match the password returned by createTown
-     * @returns void 
+     * @returns void
      * @throws ApiError
      */
     public deleteTown(
@@ -108,7 +108,7 @@ xCoveyTownPassword: string,
      * @param townId ID of the town in which to create the new conversation area
      * @param xSessionToken session token of the player making the request, must match the session token returned when the player joined the town
      * @param requestBody The new conversation area to create
-     * @returns void 
+     * @returns void
      * @throws ApiError
      */
     public createConversationArea(
@@ -139,7 +139,7 @@ requestBody: ConversationArea,
      * @param xSessionToken session token of the player making the request, must
  * match the session token returned when the player joined the town
      * @param requestBody The new viewing area to create
-     * @returns void 
+     * @returns void
      * @throws ApiError
      */
     public createViewingArea(
@@ -170,7 +170,7 @@ requestBody: ViewingArea,
      * @param xSessionToken session token of the player making the request, must
  * match the session token returned when the player joined the town
      * @param requestBody The new poster session area to create
-     * @returns void 
+     * @returns void
      * @throws ApiError
      */
     public createPosterSessionArea(
@@ -262,7 +262,7 @@ xSessionToken: string,
      * @param xSessionToken session token of the player making the request, must
  * match the session token returned when the player joined the town
      * @param requestBody The new checker area to create
-     * @returns void 
+     * @returns void
      * @throws ApiError
      */
     public createCheckerArea(

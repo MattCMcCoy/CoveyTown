@@ -14,6 +14,8 @@ describe('CheckerAreaController', () => {
     testAreaModel = {
       id: nanoid(),
       squares: [],
+      blackScore: 0,
+      redScore: 0,
     };
     for (let x = 0; x < 8; x++) {
       for (let y = 0; y < 8; y++) {
@@ -56,6 +58,8 @@ describe('CheckerAreaController', () => {
       const newModel: CheckerArea = {
         id: testAreaModel.id,
         squares: [],
+        blackScore: 0,
+        redScore: 0,
       };
 
       testArea.updateFrom(newModel);
@@ -68,6 +72,8 @@ describe('CheckerAreaController', () => {
       const newModel: CheckerArea = {
         id: nanoid(),
         squares: testArea.squares,
+        blackScore: 0,
+        redScore: 0,
       };
       testArea.updateFrom(newModel);
       expect(testArea.id).toEqual(existingID);

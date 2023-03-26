@@ -116,6 +116,8 @@ const models: TsoaRoute.Models = {
         "properties": {
             "id": {"dataType":"string","required":true},
             "squares": {"dataType":"array","array":{"dataType":"refObject","ref":"CheckerSquare"},"required":true},
+            "blackScore": {"dataType":"double","required":true},
+            "redScore": {"dataType":"double","required":true},
         },
         "additionalProperties": false,
     },
