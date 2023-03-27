@@ -93,6 +93,8 @@ describe('TownsController integration tests', () => {
           const newCheckerArea: CheckerArea = {
             id: checkerArea.id,
             squares: fullSquares,
+            blackScore: 0,
+            redScore: 0,
           };
 
           await controller.createCheckerArea(testingTown.townID, sessionToken, newCheckerArea);
@@ -123,6 +125,8 @@ describe('TownsController integration tests', () => {
           const newCheckerArea: CheckerArea = {
             id: checkerArea.id,
             squares: [],
+            blackScore: 0,
+            redScore: 0,
           };
 
           expect(newCheckerArea.squares.length).toEqual(0);
@@ -147,6 +151,8 @@ describe('TownsController integration tests', () => {
         const newCheckerArea: CheckerArea = {
           id: checkerArea.id,
           squares: [],
+          blackScore: 0,
+          redScore: 0,
         };
         await expect(
           controller.createCheckerArea(nanoid(), sessionToken, newCheckerArea),
@@ -158,6 +164,8 @@ describe('TownsController integration tests', () => {
         const newCheckerArea: CheckerArea = {
           id: checkerArea.id,
           squares: [],
+          blackScore: 0,
+          redScore: 0,
         };
         await expect(
           controller.createCheckerArea(testingTown.townID, invalidSessionToken, newCheckerArea),

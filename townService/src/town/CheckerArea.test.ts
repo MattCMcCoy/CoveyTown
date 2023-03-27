@@ -53,7 +53,7 @@ describe('CheckerArea', () => {
 
       expect(testArea.occupantsByID).toEqual([]);
       const lastEmittedUpdate = getLastEmittedEvent(townEmitter, 'interactableUpdate');
-      expect(lastEmittedUpdate).toEqual({ id, squares: [] });
+      expect(lastEmittedUpdate).toEqual({ id, squares: [], redScore: 0, blackScore: 0 });
     });
 
     it('Removes the player from the list of occupants and emits an interactableUpdate event', () => {
@@ -64,14 +64,14 @@ describe('CheckerArea', () => {
 
       expect(testArea.occupantsByID).toEqual([extraPlayer.id]);
       const lastEmittedUpdate = getLastEmittedEvent(townEmitter, 'interactableUpdate');
-      expect(lastEmittedUpdate).toEqual({ id, squares: [] });
+      expect(lastEmittedUpdate).toEqual({ id, squares: [], redScore: 0, blackScore: 0 });
     });
   });
 
   test('toModel sets the id and squares', () => {
     const model = testArea.toModel();
 
-    expect(model).toEqual({ id, squares: [] });
+    expect(model).toEqual({ id, squares: [], redScore: 0, blackScore: 0 });
   });
 
   test('update model sets the squares', () => {
