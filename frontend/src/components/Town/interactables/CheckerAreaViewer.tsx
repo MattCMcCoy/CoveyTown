@@ -66,7 +66,6 @@ function Board({ squares }: { squares: CheckerSquare[] | undefined }): JSX.Eleme
   if (squares == undefined) {
     return <></>;
   }
-  const squareSize = '20';
 
   // gets the color of a given square
   const getSquareColor = (x: number, y: number) => {
@@ -81,12 +80,7 @@ function Board({ squares }: { squares: CheckerSquare[] | undefined }): JSX.Eleme
   squares.forEach(square => {
     // add squares to row
     row.push(
-      <Box
-        w={squareSize}
-        h={squareSize}
-        bg={getSquareColor(square.x, square.y)}
-        display='flex'
-        key={square.id}>
+      <Box w={'20'} h={'20'} bg={getSquareColor(square.x, square.y)} display='flex' key={square.id}>
         {square.checker.type !== 'empty' ? (
           <Circle
             size={CHECKER_OUTER_SIZE}
@@ -142,22 +136,21 @@ export function CheckerBoard({
     townController.getCheckerAreaBoard(controller);
   }, [townController, controller]);
 
-  function initBoard() {
-    if (controller.squares.length < 1) {
-      townController
-        .initializeCheckerSessionAreaBoard(controller)
-        .then(newBoard => (controller.squares = newBoard));
-    } else {
-      toast({
-        title: `Cant initialize Board`,
-        status: 'error',
-      });
-    }
-  }
   const squares = useSquares(controller);
-  if (squares == undefined || squares.length < 1) {
-    initBoard();
-  }
+  useEffect(() => {
+    if (squares == undefined || squares.length < 1) {
+      if (controller.squares.length < 1) {
+        townController
+          .initializeCheckerSessionAreaBoard(controller)
+          .then(newBoard => (controller.squares = newBoard));
+      } else {
+        toast({
+          title: `Cant initialize Board`,
+          status: 'error',
+        });
+      }
+    }
+  }, [controller, squares, toast, townController]);
 
   return (
     <Modal

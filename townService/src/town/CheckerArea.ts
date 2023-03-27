@@ -48,8 +48,8 @@ export default class CheckerArea extends InteractableArea {
     super(id, coordinates, townEmitter);
 
     this.squares = squares;
-    this._blackScore = blackScore ?? 0;
-    this._redScore = redScore ?? 0;
+    this._blackScore = blackScore;
+    this._redScore = redScore;
   }
 
   /**
@@ -126,8 +126,8 @@ export default class CheckerArea extends InteractableArea {
 
   updateModel(checkerArea: CheckerAreaModel) {
     this.squares = checkerArea.squares;
-    this._blackScore = checkerArea.blackScore ?? 0;
-    this._redScore = checkerArea.redScore ?? 0;
+    this._blackScore = checkerArea.blackScore;
+    this._redScore = checkerArea.redScore;
   }
 
   public toModel(): Interactable {
