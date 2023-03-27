@@ -13,12 +13,24 @@ import InteractableArea from './InteractableArea';
 export default class CheckerArea extends InteractableArea {
   private _squares: CheckerSquareModel[] = [];
 
+  private _redScore: number;
+
+  private _blackScore: number;
+
   public get squares(): CheckerSquareModel[] {
     return this._squares;
   }
 
   public set squares(squares: CheckerSquareModel[]) {
     this._squares = squares;
+  }
+
+  public get redScore(): number {
+    return this._redScore;
+  }
+
+  public get blackScore(): number {
+    return this._blackScore;
   }
 
   /**
@@ -29,13 +41,15 @@ export default class CheckerArea extends InteractableArea {
    * @param townEmitter a broadcast emitter that can be used to emit updates to players
    */
   public constructor(
-    { id, squares }: CheckerAreaModel,
+    { id, squares, blackScore, redScore }: CheckerAreaModel,
     coordinates: BoundingBox,
     townEmitter: TownEmitter,
   ) {
     super(id, coordinates, townEmitter);
 
     this.squares = squares;
+    this._blackScore = blackScore;
+    this._redScore = redScore;
   }
 
   /**
@@ -104,16 +118,25 @@ export default class CheckerArea extends InteractableArea {
     super.remove(player);
     if (this._occupants.length === 0) {
       this.squares = [];
+      this._blackScore = 0;
+      this._redScore = 0;
     }
     this._emitAreaChanged();
   }
 
   updateModel(checkerArea: CheckerAreaModel) {
     this.squares = checkerArea.squares;
+    this._blackScore = checkerArea.blackScore;
+    this._redScore = checkerArea.redScore;
   }
 
   public toModel(): Interactable {
-    return { id: this.id, squares: this.squares };
+    return {
+      id: this.id,
+      squares: this.squares,
+      blackScore: this._blackScore,
+      redScore: this._redScore,
+    };
   }
 
   /**
@@ -128,6 +151,10 @@ export default class CheckerArea extends InteractableArea {
       throw new Error(`Malformed checker area ${name}`);
     }
     const rect: BoundingBox = { x: mapObject.x, y: mapObject.y, width, height };
-    return new CheckerArea({ id: name, squares: [] }, rect, townEmitter);
+    return new CheckerArea(
+      { id: name, squares: [], blackScore: 0, redScore: 0 },
+      rect,
+      townEmitter,
+    );
   }
 }

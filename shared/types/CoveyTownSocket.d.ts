@@ -77,6 +77,8 @@ export interface ViewingArea {
 export interface CheckerArea {
   id: string;
   squares: CheckerSquare[];
+  blackScore: number;
+  redScore: number;
 }
 
 export interface CheckerSquare {
@@ -86,7 +88,12 @@ export interface CheckerSquare {
   checker: CheckerPiece;
 }
 
-export type Color = 'red' | 'black' | 'empty';
+export enum Color {
+  RED = "red",
+  BLACK = "black",
+  EMPTY = "empty",
+}
+
 export interface CheckerPiece {
   id: string;
   type: Color;

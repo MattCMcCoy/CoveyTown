@@ -8,6 +8,7 @@ import ViewingAreaController from './classes/ViewingAreaController';
 import PosterSessionAreaController from './classes/PosterSessionAreaController';
 import { TownsService } from './generated/client';
 import { CoveyTownSocket, ServerToClientEvents, TownJoinResponse } from './types/CoveyTownSocket';
+import CheckerAreaController from './classes/CheckerAreaController';
 
 //These types copied from socket.io server library so that we don't have to depend on the whole thing to have type-safe tests.
 type SocketReservedEventsMap = {
@@ -87,6 +88,7 @@ type MockedTownControllerProperties = {
   conversationAreas?: ConversationAreaController[];
   viewingAreas?: ViewingAreaController[];
   posterSessionAreas?: PosterSessionAreaController[];
+  checkerAreas?: CheckerAreaController[];
 };
 export function mockTownController({
   friendlyName,
@@ -98,6 +100,7 @@ export function mockTownController({
   conversationAreas,
   viewingAreas,
   posterSessionAreas,
+  checkerAreas,
 }: MockedTownControllerProperties) {
   const mockedController = mockDeep<TownController>();
   if (friendlyName) {
@@ -126,6 +129,16 @@ export function mockTownController({
   if (viewingAreas) {
     Object.defineProperty(mockedController, 'viewingAreas', { value: viewingAreas });
   }
+
+  if (checkerAreas) {
+    Object.defineProperty(mockedController, 'checkerAreas', { value: checkerAreas });
+    mockedController.getCheckerAreaBoard.mockImplementation(
+      async (checkerArea: CheckerAreaController) => {
+        return checkerArea.squares || 'fail';
+      },
+    );
+  }
+
   if (posterSessionAreas) {
     Object.defineProperty(mockedController, 'posterSessionAreas', { value: posterSessionAreas });
     mockedController.getPosterSessionAreaImageContents.mockImplementation(

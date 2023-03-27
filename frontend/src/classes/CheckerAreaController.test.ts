@@ -14,6 +14,8 @@ describe('CheckerAreaController', () => {
     testAreaModel = {
       id: nanoid(),
       squares: [],
+      blackScore: 0,
+      redScore: 0,
     };
     for (let x = 0; x < 8; x++) {
       for (let y = 0; y < 8; y++) {
@@ -29,6 +31,8 @@ describe('CheckerAreaController', () => {
     mockClear(townController);
     mockClear(mockListeners.checkerSquareChange);
     testArea.addListener('checkerSquareChange', mockListeners.checkerSquareChange);
+    testArea.addListener('blackScoreChange', mockListeners.blackScoreChange);
+    testArea.addListener('redScoreChange', mockListeners.redScoreChange);
   });
 
   describe('Updating squares', () => {
@@ -56,6 +60,8 @@ describe('CheckerAreaController', () => {
       const newModel: CheckerArea = {
         id: testAreaModel.id,
         squares: [],
+        blackScore: 0,
+        redScore: 0,
       };
 
       testArea.updateFrom(newModel);
@@ -63,11 +69,39 @@ describe('CheckerAreaController', () => {
       expect(mockListeners.checkerSquareChange).toBeCalledWith(newModel.squares);
     });
 
+    it('Updates the red score property', () => {
+      const newModel: CheckerArea = {
+        id: testAreaModel.id,
+        squares: testAreaModel.squares,
+        blackScore: testAreaModel.blackScore,
+        redScore: testAreaModel.redScore + 1,
+      };
+
+      testArea.updateFrom(newModel);
+      expect(testArea.redScore).toEqual(newModel.redScore);
+      expect(mockListeners.redScoreChange).toBeCalledWith(newModel.redScore);
+    });
+
+    it('Updates the black score property', () => {
+      const newModel: CheckerArea = {
+        id: testAreaModel.id,
+        squares: testAreaModel.squares,
+        blackScore: testAreaModel.blackScore + 1,
+        redScore: testAreaModel.redScore,
+      };
+
+      testArea.updateFrom(newModel);
+      expect(testArea.blackScore).toEqual(newModel.blackScore);
+      expect(mockListeners.blackScoreChange).toBeCalledWith(newModel.blackScore);
+    });
+
     it('Does not update the id property', () => {
       const existingID = testArea.id;
       const newModel: CheckerArea = {
         id: nanoid(),
         squares: testArea.squares,
+        blackScore: 0,
+        redScore: 0,
       };
       testArea.updateFrom(newModel);
       expect(testArea.id).toEqual(existingID);

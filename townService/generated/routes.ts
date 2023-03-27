@@ -87,8 +87,8 @@ const models: TsoaRoute.Models = {
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Color": {
-        "dataType": "refAlias",
-        "type": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["red"]},{"dataType":"enum","enums":["black"]},{"dataType":"enum","enums":["empty"]}],"validators":{}},
+        "dataType": "refEnum",
+        "enums": ["red","black","empty"],
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "CheckerPiece": {
@@ -116,6 +116,8 @@ const models: TsoaRoute.Models = {
         "properties": {
             "id": {"dataType":"string","required":true},
             "squares": {"dataType":"array","array":{"dataType":"refObject","ref":"CheckerSquare"},"required":true},
+            "blackScore": {"dataType":"double","required":true},
+            "redScore": {"dataType":"double","required":true},
         },
         "additionalProperties": false,
     },

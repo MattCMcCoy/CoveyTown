@@ -11,45 +11,100 @@ import {
   useToast,
   Box,
   Flex,
+  Circle,
+  Square,
+  Grid,
+  GridItem,
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import { useInteractable, useCheckerAreaController } from '../../../classes/TownController';
-import CheckerAreaController, { useSquares } from '../../../classes/CheckerAreaController';
+import CheckerAreaController, {
+  useBlackScore,
+  useRedScore,
+  useSquares,
+} from '../../../classes/CheckerAreaController';
 import useTownController from '../../../hooks/useTownController';
 import CheckerAreaInteractable from './CheckerArea';
 import { CheckerSquare } from '../../../generated/client';
 
-export function makeBoard(squares: CheckerSquare[] | undefined): JSX.Element {
+const CHECKER_INNER_RED = '#C53030';
+const CHECKER_INNER_BLACK = '#1A202C';
+const CHECKER_OUTER_RED = '#9B2C2C';
+const CHECKER_OUTER_BLACK = 'black';
+const CHECKER_OUTER_SIZE = '70';
+const CHECKER_INNER_SIZE = '50';
+
+function Score({ controller }: { controller: CheckerAreaController }): JSX.Element {
+  const blackScore = useBlackScore(controller);
+  const redScore = useRedScore(controller);
+  return (
+    <Square display={'grid'}>
+      <Circle size={CHECKER_OUTER_SIZE} margin='auto' bg={CHECKER_OUTER_RED} marginBottom={5}>
+        <Circle
+          size={CHECKER_INNER_SIZE}
+          margin='auto'
+          bg={CHECKER_INNER_RED}
+          shadow='inner'
+          textColor={'white'}>
+          {redScore}
+        </Circle>
+      </Circle>
+      <Circle size={CHECKER_OUTER_SIZE} margin='auto' bg={CHECKER_OUTER_BLACK}>
+        <Circle
+          size={CHECKER_INNER_SIZE}
+          margin='auto'
+          bg={CHECKER_INNER_BLACK}
+          shadow='inner'
+          textColor={'white'}>
+          {blackScore}
+        </Circle>
+      </Circle>
+    </Square>
+  );
+}
+function Board({ squares }: { squares: CheckerSquare[] | undefined }): JSX.Element {
   if (squares == undefined) {
     return <></>;
   }
-  let i = 1;
-  const size = '20';
-  // light brown
-  const color1 = '#e6b273';
-  // brown
-  const color2 = '#a5681e';
-  let color = color1;
+
+  // gets the color of a given square
+  const getSquareColor = (x: number, y: number) => {
+    const lightBrown = '#e6b273';
+    const brown = '#a5681e';
+    return (x % 2 === 0 && y % 2 !== 0) || (x % 2 !== 0 && y % 2 === 0) ? brown : lightBrown;
+  };
+
   let row: JSX.Element[] = [];
   const board: JSX.Element[] = [];
-  console.log('Number of squares:' + squares.length);
 
-  for (let square in squares) {
+  squares.forEach(square => {
     // add squares to row
-    // eslint-disable-next-line no-self-assign
-    square = square;
-    row.push(<Box w={size} h={size} bg={color}></Box>);
+    row.push(
+      <Box w={'20'} h={'20'} bg={getSquareColor(square.x, square.y)} display='flex' key={square.id}>
+        {square.checker.type !== 'empty' ? (
+          <Circle
+            size={CHECKER_OUTER_SIZE}
+            margin='auto'
+            bg={square.checker.type == 'red' ? CHECKER_OUTER_RED : CHECKER_OUTER_BLACK}>
+            <Circle
+              size={CHECKER_INNER_SIZE}
+              margin='auto'
+              bg={square.checker.type == 'red' ? CHECKER_INNER_RED : CHECKER_INNER_BLACK}
+              shadow='inner'></Circle>
+          </Circle>
+        ) : null}
+      </Box>,
+    );
     // add row to checker board
-    if (i % 8 == 0) {
-      board.push(<HStack spacing='0px'>{row}</HStack>);
-      // Switch the color
-      color = color == color1 ? color2 : color1;
+    if (square.y === 7) {
+      board.push(
+        <HStack spacing='0px' key={square.x}>
+          {row}
+        </HStack>,
+      );
       row = [];
     }
-    color = color == color1 ? color2 : color1;
-
-    i++;
-  }
+  });
 
   return <VStack spacing='0px'>{board}</VStack>;
 }
@@ -81,26 +136,21 @@ export function CheckerBoard({
     townController.getCheckerAreaBoard(controller);
   }, [townController, controller]);
 
-  function initBoard() {
-    console.log('In initBoard');
-    if (controller.squares.length < 1) {
-      console.log('passed if statement');
-      townController
-        .initializeCheckerSessionAreaBoard(controller)
-        .then(newBoard => (controller.squares = newBoard));
-      console.log('newboard length: ' + controller.squares.length);
-    } else {
-      toast({
-        title: `Cant initialize Board`,
-        status: 'error',
-      });
-    }
-    console.log('end of initBoard');
-  }
   const squares = useSquares(controller);
-  if (squares == undefined || squares.length < 1) {
-    initBoard();
-  }
+  useEffect(() => {
+    if (squares == undefined || squares.length < 1) {
+      if (controller.squares.length < 1) {
+        townController
+          .initializeCheckerSessionAreaBoard(controller)
+          .then(newBoard => (controller.squares = newBoard));
+      } else {
+        toast({
+          title: `Cant initialize Board`,
+          status: 'error',
+        });
+      }
+    }
+  }, [controller, squares, toast, townController]);
 
   return (
     <Modal
@@ -115,9 +165,16 @@ export function CheckerBoard({
         {<ModalHeader>{title} </ModalHeader>}
         <ModalCloseButton />
         <ModalBody pb={6}></ModalBody>
-        <Flex justify={'center'} padding={'5'}>
-          {makeBoard(squares)}
-        </Flex>
+        <Grid templateColumns='repeat(5, 1fr)'>
+          <GridItem colSpan={4}>
+            <Flex justify={'center'} padding={'5'}>
+              <Board squares={squares} />
+            </Flex>
+          </GridItem>
+          <GridItem colSpan={1} margin='auto'>
+            <Score controller={controller} />
+          </GridItem>
+        </Grid>
         <ModalFooter />
         {/* </form> */}
       </ModalContent>
@@ -148,11 +205,11 @@ export function CheckerGame({
         isOpen={!selectIsOpen}
         onClose={() => {
           townController.unPause();
-          townController.interactEnd(checkerArea);
         }}>
         <ModalOverlay />
         <ModalContent>
           {<ModalHeader>Game in Progress</ModalHeader>}
+          <Score controller={checkerAreaController} />
           <ModalCloseButton />
           <ModalFooter />
           {/* </form> */}

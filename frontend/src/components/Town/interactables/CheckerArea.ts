@@ -9,7 +9,12 @@ export default class CheckerArea extends Interactable {
     super.addedToScene();
     this.setTintFill();
     this.setAlpha(0.3);
-
+    this.scene.add.text(
+      this.x - this.displayWidth / 2,
+      this.y - this.displayHeight / 2,
+      this.name,
+      { color: '#FFFFFF', backgroundColor: '#000000' },
+    );
     this._labelText = this.scene.add.text(
       this.x - this.displayWidth / 2,
       this.y - this.displayHeight / 2,

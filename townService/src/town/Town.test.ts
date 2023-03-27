@@ -921,18 +921,36 @@ describe('Town', () => {
         town.addCheckerArea({
           id: nanoid(),
           squares: [],
+          blackScore: 0,
+          redScore: 0,
         }),
       ).toBe(false);
     });
     it('Should return false if the area is already active', () => {
       playerTestData.moveTo(615, 125); // Inside of "Name2" area
-      expect(town.addCheckerArea({ id: 'Name2', squares: [] })).toBe(true);
-      expect(town.addCheckerArea({ id: 'Name2', squares: [] })).toBe(false);
+      expect(
+        town.addCheckerArea({
+          id: 'Name2',
+          squares: [],
+          blackScore: 0,
+          redScore: 0,
+        }),
+      ).toBe(true);
+      expect(
+        town.addCheckerArea({
+          id: 'Name2',
+          squares: [],
+          blackScore: 0,
+          redScore: 0,
+        }),
+      ).toBe(false);
     });
     describe('When successful', () => {
       const newModel: CheckerAreaModel = {
         id: 'Name2',
         squares: [],
+        blackScore: 0,
+        redScore: 0,
       };
       beforeEach(() => {
         playerTestData.moveTo(615, 125); // Inside of "Name2" area
