@@ -173,12 +173,12 @@
 				"additionalProperties": false
 			},
 			"Color": {
-				"type": "string",
 				"enum": [
 					"red",
 					"black",
 					"empty"
-				]
+				],
+				"type": "string"
 			},
 			"CheckerPiece": {
 				"properties": {

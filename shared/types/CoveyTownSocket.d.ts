@@ -88,7 +88,12 @@ export interface CheckerSquare {
   checker: CheckerPiece;
 }
 
-export type Color = "red" | "black" | "empty";
+export enum Color {
+  RED = "red",
+  BLACK = "black",
+  EMPTY = "empty",
+}
+
 export interface CheckerPiece {
   id: string;
   type: Color;

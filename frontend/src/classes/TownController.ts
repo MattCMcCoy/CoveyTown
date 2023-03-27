@@ -444,14 +444,14 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
 
     /**
      * When an interactable's state changes, push that update into the relevant controller, which is assumed
-     * to be either a Viewing Area, a Poster Session Area, or a Conversation Area, and which is assumed to already
-     * be represented by a ViewingAreaController, PosterSessionAreaController or ConversationAreaController that this TownController has.
+     * to be either a Viewing Area, a Poster Session Area, Checker Area,  or a Conversation Area, and which is assumed to already
+     * be represented by a ViewingAreaController, PosterSessionAreaController, CheckerAreaController or ConversationAreaController that this TownController has.
      *
      * If a conversation area transitions from empty to occupied (or occupied to empty), this handler will emit
      * a conversationAreasChagned event to listeners of this TownController.
      *
      * If the update changes properties of the interactable, the interactable is also expected to emit its own
-     * events (@see ViewingAreaController and @see ConversationAreaController and @see PosterSessionAreaController)
+     * events @see ViewingAreaController and @see ConversationAreaController and @see PosterSessionAreaController and @see CheckerAreaController
      */
     this._socket.on('interactableUpdate', interactable => {
       if (isConversationArea(interactable)) {
@@ -575,8 +575,8 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
   }
 
   /**
-   * Create a new poster session area, sending the request to the townService. Throws an error if the request
-   * is not successful. Does not immediately update local state about the new poster session area - it will be
+   * Create a new checker area, sending the request to the townService. Throws an error if the request
+   * is not successful. Does not immediately update local state about the new checker area - it will be
    * updated once the townService creates the area and emits an interactableUpdate
    *
    * @param newArea
@@ -630,6 +630,8 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
             this._viewingAreas.push(new ViewingAreaController(eachInteractable));
           } else if (isPosterSessionArea(eachInteractable)) {
             this._posterSessionAreas.push(new PosterSessionAreaController(eachInteractable));
+          } else if (isCheckerArea(eachInteractable)) {
+            this._checkerAreas.push(new CheckerAreaController(eachInteractable));
           }
         });
         this._userID = initialData.userID;

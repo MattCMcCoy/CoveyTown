@@ -2,7 +2,8 @@ import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import { EventEmitter } from 'events';
 import TypedEmitter from 'typed-emitter';
-import { CheckerArea as CheckerAreaModel, CheckerSquare } from '../types/CoveyTownSocket';
+import { CheckerArea as CheckerAreaModel } from '../types/CoveyTownSocket';
+import { CheckerSquare } from '../generated/client';
 
 /**
  * The events that a CheckerAreaController can emit.
