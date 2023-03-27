@@ -160,9 +160,9 @@ describe('Checker Board Viewer', () => {
       expect(getSingleListenerRemoved('checkerSquareChange')).toBe(listenerAdded);
     });
     it('Removes the listeners and adds new ones if the controller changes', () => {
-      const origStarChange = getSingleListenerAdded('checkerSquareChange');
-      const origTitleChange = getSingleListenerAdded('redScoreChange');
-      const origImageContentsChange = getSingleListenerAdded('blackScoreChange');
+      const origCheckerChange = getSingleListenerAdded('checkerSquareChange');
+      const origRedScoreChange = getSingleListenerAdded('redScoreChange');
+      const origBlackScoreChange = getSingleListenerAdded('blackScoreChange');
       const piece = { id: '1', type: 'red' } as CheckerPiece;
       const piece2 = { id: '2', type: 'black' } as CheckerPiece;
       const checker = { id: '11', x: 1, y: 1, checker: piece } as CheckerSquare;
@@ -177,9 +177,9 @@ describe('Checker Board Viewer', () => {
       const newAddListenerSpy = jest.spyOn(newCheckerAreaController, 'addListener');
       renderData.rerender(renderCheckerArea(newCheckerAreaController, townController));
 
-      expect(getSingleListenerRemoved('checkerSquareChange')).toBe(origStarChange);
-      expect(getSingleListenerRemoved('redScoreChange')).toBe(origTitleChange);
-      expect(getSingleListenerRemoved('blackScoreChange')).toBe(origImageContentsChange);
+      expect(getSingleListenerRemoved('checkerSquareChange')).toBe(origCheckerChange);
+      expect(getSingleListenerRemoved('redScoreChange')).toBe(origRedScoreChange);
+      expect(getSingleListenerRemoved('blackScoreChange')).toBe(origBlackScoreChange);
 
       getSingleListenerAdded('checkerSquareChange', newAddListenerSpy);
       getSingleListenerAdded('redScoreChange', newAddListenerSpy);
