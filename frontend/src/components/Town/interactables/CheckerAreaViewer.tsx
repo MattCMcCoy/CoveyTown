@@ -26,6 +26,7 @@ import CheckerAreaController, {
 import useTownController from '../../../hooks/useTownController';
 import CheckerAreaInteractable from './CheckerArea';
 import { CheckerSquare } from '../../../generated/client';
+import CheckerOptionModal from './CheckerOptionModal';
 
 const CHECKER_INNER_RED = '#C53030';
 const CHECKER_INNER_BLACK = '#1A202C';
@@ -238,9 +239,15 @@ export function CheckerGame({
  * will activate only if the player begins interacting with checker area.
  */
 export default function CheckerAreaWrapper(): JSX.Element {
+  const [beginGame, setBeginGame] = useState(false);
   const checkerArea = useInteractable<CheckerAreaInteractable>('checkerArea');
-  if (checkerArea) {
+  const changeGameState = (val: boolean) => {
+    setBeginGame(val);
+  };
+  if (checkerArea && beginGame) {
     return <CheckerGame checkerArea={checkerArea} />;
+  } else if (checkerArea) {
+    return <CheckerOptionModal changeGameState={changeGameState}></CheckerOptionModal>;
   }
   return <></>;
 }
