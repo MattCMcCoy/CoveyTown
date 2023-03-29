@@ -17,7 +17,10 @@ import {
   GridItem,
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
-import { useInteractable, useCheckerAreaController } from '../../../classes/TownController';
+import TownController, {
+  useInteractable,
+  useCheckerAreaController,
+} from '../../../classes/TownController';
 import CheckerAreaController, {
   useBlackScore,
   useRedScore,
@@ -63,7 +66,22 @@ function Score({ controller }: { controller: CheckerAreaController }): JSX.Eleme
     </Square>
   );
 }
-function Board({ squares }: { squares: CheckerSquare[] | undefined }): JSX.Element {
+function Board({
+  squares,
+  controller,
+}: {
+  squares: CheckerSquare[] | undefined;
+  controller: CheckerAreaController;
+}): JSX.Element {
+  const [moveFrom, setMoveFrom] = useState<string>('');
+  const [moveTo, setMoveTo] = useState<string>('');
+  const townController = useTownController();
+
+  useEffect(() => {
+    if (moveFrom && moveTo) {
+      // townController.makeCheckerMove(controller, moveFrom, moveTo);
+    }
+  }, [controller, moveFrom, moveTo, townController]);
   if (squares == undefined) {
     return <></>;
   }
@@ -78,10 +96,27 @@ function Board({ squares }: { squares: CheckerSquare[] | undefined }): JSX.Eleme
   let row: JSX.Element[] = [];
   const board: JSX.Element[] = [];
 
+  function handleSquareClick(id: string): void {
+    if (moveFrom == '') {
+      setMoveFrom(id);
+    } else if (moveTo == '') {
+      setMoveTo(id);
+    } else {
+      setMoveFrom(id);
+      setMoveTo('');
+    }
+  }
+
   squares.forEach(square => {
     // add squares to row
     row.push(
-      <Box w={'20'} h={'20'} bg={getSquareColor(square.x, square.y)} display='flex' key={square.id}>
+      <Box
+        w={'20'}
+        h={'20'}
+        bg={getSquareColor(square.x, square.y)}
+        display='flex'
+        key={square.id}
+        onClick={() => handleSquareClick(square.id)}>
         {square.checker.type !== 'empty' ? (
           <Circle
             size={CHECKER_OUTER_SIZE}
@@ -169,7 +204,7 @@ export function CheckerBoard({
         <Grid templateColumns='repeat(5, 1fr)'>
           <GridItem colSpan={4}>
             <Flex justify={'center'} padding={'5'}>
-              <Board squares={squares} />
+              <Board squares={squares} controller={controller} />
             </Flex>
           </GridItem>
           <GridItem colSpan={1} margin='auto'>

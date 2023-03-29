@@ -9,5 +9,6 @@ export type CheckerSquare = {
     'x': number;
     'y': number;
     checker: CheckerPiece;
-    moves: number[];
+    moves: Array<number>;
 };
+

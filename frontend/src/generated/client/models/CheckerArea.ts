@@ -10,3 +10,4 @@ export type CheckerArea = {
     blackScore: number;
     redScore: number;
 };
+

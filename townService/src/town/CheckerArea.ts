@@ -146,6 +146,15 @@ export default class CheckerArea extends InteractableArea {
     this.squares.forEach(square => this._attackingMoves(square));
   }
 
+  public makeMove(moveFrom: string, moveTo: string) {
+    const moveFromSquare = this.squares.find(square => square.id === moveFrom);
+    const moveToSquare = this.squares.find(square => square.id === moveTo);
+    if (moveFromSquare && moveToSquare) {
+      moveToSquare.checker.type = moveFromSquare.checker.type;
+      moveFromSquare.checker.type = Color.EMPTY;
+    }
+  }
+
   private _generalMoves(square: CheckerSquareModel) {
     const generalMoves = [];
     if (square.checker.type === 'red') {

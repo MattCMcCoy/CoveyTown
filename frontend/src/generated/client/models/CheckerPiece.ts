@@ -8,3 +8,4 @@ export type CheckerPiece = {
     id: string;
     type: Color;
 };
+
