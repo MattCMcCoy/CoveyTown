@@ -459,9 +459,9 @@ export function RegisterRoutes(app: express.Router) {
             const args = {
                     townID: {"in":"path","name":"townID","required":true,"dataType":"string"},
                     checkerAreaId: {"in":"path","name":"checkerAreaId","required":true,"dataType":"string"},
+                    sessionToken: {"in":"header","name":"X-Session-Token","required":true,"dataType":"string"},
                     moveFrom: {"in":"path","name":"moveFrom","required":true,"dataType":"string"},
                     moveTo: {"in":"path","name":"moveTo","required":true,"dataType":"string"},
-                    sessionToken: {"in":"header","name":"X-Session-Token","required":true,"dataType":"string"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa

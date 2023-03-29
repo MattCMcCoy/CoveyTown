@@ -151,7 +151,8 @@ export default class CheckerArea extends InteractableArea {
     const moveToSquare = this.squares.find(square => square.id === moveTo);
     if (moveFromSquare && moveToSquare) {
       moveToSquare.checker.type = moveFromSquare.checker.type;
-      moveFromSquare.checker.type = Color.EMPTY;
+      // Color.EMPTY doesnt work?
+      moveFromSquare.checker.type = 'empty' as Color;
     }
   }
 

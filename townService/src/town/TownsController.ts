@@ -389,9 +389,9 @@ export class TownsController extends Controller {
   public async makeCheckerMove(
     @Path() townID: string,
     @Path() checkerAreaId: string,
+    @Header('X-Session-Token') sessionToken: string,
     @Path() moveFrom: string,
     @Path() moveTo: string,
-    @Header('X-Session-Token') sessionToken: string,
   ): Promise<CheckerSquare[]> {
     const curTown = this._townsStore.getTownByID(townID);
     if (!curTown) {

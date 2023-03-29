@@ -15,6 +15,7 @@ import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
 
 export class TownsService {
+
     constructor(public readonly httpRequest: BaseHttpRequest) {}
 
     /**
@@ -345,4 +346,41 @@ export class TownsService {
             },
         });
     }
+
+    /**
+     * Initializes the checker board of the given checkerBoard area.
+     * @param townId ID of the town in which to initialize the checker areas board.
+     * @param checkerAreaId interactable ID of the checker area
+     * @param xSessionToken session token of the player making the request, must
+     * match the session token returned when the player joined the town
+     * @param moveFrom
+     * @param moveTo
+     * @returns CheckerSquare Ok
+     * @throws ApiError
+     */
+    public makeCheckerMove(
+        townId: string,
+        checkerAreaId: string,
+        xSessionToken: string,
+        moveFrom: string,
+        moveTo: string,
+    ): CancelablePromise<Array<CheckerSquare>> {
+        return this.httpRequest.request({
+            method: 'PATCH',
+            url: '/towns/{townID}/{checkerAreaId}/makeCheckerMove/{moveFrom}/{moveTo}',
+            path: {
+                'townID': townId,
+                'checkerAreaId': checkerAreaId,
+                'moveFrom': moveFrom,
+                'moveTo': moveTo,
+            },
+            headers: {
+                'X-Session-Token': xSessionToken,
+            },
+            errors: {
+                400: `Invalid values specified`,
+            },
+        });
+    }
+
 }

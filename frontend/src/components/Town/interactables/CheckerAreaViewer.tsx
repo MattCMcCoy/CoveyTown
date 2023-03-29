@@ -17,10 +17,7 @@ import {
   GridItem,
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
-import TownController, {
-  useInteractable,
-  useCheckerAreaController,
-} from '../../../classes/TownController';
+import { useInteractable, useCheckerAreaController } from '../../../classes/TownController';
 import CheckerAreaController, {
   useBlackScore,
   useRedScore,
@@ -79,7 +76,9 @@ function Board({
 
   useEffect(() => {
     if (moveFrom && moveTo) {
-      // townController.makeCheckerMove(controller, moveFrom, moveTo);
+      townController
+        .makeCheckerMove(controller, moveFrom, moveTo)
+        .then(newBoard => (controller.squares = newBoard));
     }
   }, [controller, moveFrom, moveTo, townController]);
   if (squares == undefined) {

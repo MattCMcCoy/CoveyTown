@@ -800,19 +800,19 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
     );
   }
 
-  // public async makeCheckerMove(
-  //   checkerArea: CheckerAreaController,
-  //   moveFrom: string,
-  //   moveTo: string,
-  // ): Promise<CheckerSquare[]> {
-  //   return this._townsService.makeCheckerMove(
-  //     this.townID,
-  //     checkerArea.id,
-  //     this.sessionToken,
-  //     moveFrom,
-  //     moveTo,
-  //   );
-  // }
+  public async makeCheckerMove(
+    checkerArea: CheckerAreaController,
+    moveFrom: string,
+    moveTo: string,
+  ): Promise<CheckerSquare[]> {
+    return this._townsService.makeCheckerMove(
+      this.townID,
+      checkerArea.id,
+      this.sessionToken,
+      moveFrom,
+      moveTo,
+    );
+  }
 
   /**
    * Determine which players are "nearby" -- that they should be included in our video call

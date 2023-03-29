@@ -978,6 +978,15 @@
 						}
 					},
 					{
+						"description": "session token of the player making the request, must\nmatch the session token returned when the player joined the town",
+						"in": "header",
+						"name": "X-Session-Token",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
 						"in": "path",
 						"name": "moveFrom",
 						"required": true,
@@ -988,15 +997,6 @@
 					{
 						"in": "path",
 						"name": "moveTo",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					},
-					{
-						"description": "session token of the player making the request, must\nmatch the session token returned when the player joined the town",
-						"in": "header",
-						"name": "X-Session-Token",
 						"required": true,
 						"schema": {
 							"type": "string"
