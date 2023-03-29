@@ -141,7 +141,7 @@ export default class CheckerArea extends InteractableArea {
     };
   }
 
-  public updateMovablePieces() {
+  public updateMoveablePieces() {
     this.squares.forEach(square => this._generalMoves(square));
     this.squares.forEach(square => this._attackingMoves(square));
   }
@@ -154,14 +154,14 @@ export default class CheckerArea extends InteractableArea {
         square.y - 1 >= 0 &&
         this.squares.at((square.x + 1) * (square.y - 1))?.checker.type === 'empty'
       ) {
-        generalMoves.push((square.x + 1) * (square.y - 1));
+        square.moves.push((square.x + 1) * (square.y - 1));
       }
       if (
         square.x - 1 < 8 &&
         square.y - 1 >= 0 &&
         this.squares.at((square.x - 1) * (square.y - 1))?.checker.type === 'empty'
       ) {
-        generalMoves.push((square.x - 1) * (square.y - 1));
+        square.moves.push((square.x - 1) * (square.y - 1));
       }
     }
     if (square.checker.type === 'black') {
@@ -170,14 +170,14 @@ export default class CheckerArea extends InteractableArea {
         square.y + 1 >= 0 &&
         this.squares.at((square.x + 1) * (square.y - 1))?.checker.type === 'empty'
       ) {
-        generalMoves.push((square.x + 1) * (square.y - 1));
+        square.moves.push((square.x + 1) * (square.y - 1));
       }
       if (
         square.x - 1 < 8 &&
         square.y + 1 >= 0 &&
         this.squares.at((square.x - 1) * (square.y + 1))?.checker.type === 'empty'
       ) {
-        generalMoves.push((square.x - 1) * (square.y + 1));
+        square.moves.push((square.x - 1) * (square.y + 1));
       }
     }
   }
