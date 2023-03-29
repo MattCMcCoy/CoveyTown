@@ -1,7 +1,7 @@
 import { mock, mockClear } from 'jest-mock-extended';
 import { nanoid } from 'nanoid';
 import Player from '../lib/Player';
-import { TownEmitter } from '../types/CoveyTownSocket';
+import { Color, TownEmitter } from '../types/CoveyTownSocket.d';
 import CheckerArea from './CheckerArea';
 import { getLastEmittedEvent } from '../TestUtils';
 import CheckerSquare from './CheckerParts/CheckerSquare';

@@ -7,7 +7,9 @@ import {
   CheckerPiece as CheckerPieceModel,
   BoundingBox,
   TownEmitter,
-} from '../types/CoveyTownSocket';
+  Color,
+} from '../types/CoveyTownSocket.d';
+import CheckerSquare from './CheckerParts/CheckerSquare';
 import InteractableArea from './InteractableArea';
 
 export default class CheckerArea extends InteractableArea {
@@ -137,6 +139,86 @@ export default class CheckerArea extends InteractableArea {
       blackScore: this._blackScore,
       redScore: this._redScore,
     };
+  }
+
+  public updateMovablePieces() {
+    this.squares.forEach(square => this._generalMoves(square));
+    this.squares.forEach(square => this._attackingMoves(square));
+  }
+
+  private _generalMoves(square: CheckerSquareModel) {
+    const generalMoves = [];
+    if (square.checker.type === 'red') {
+      if (
+        square.x + 1 < 8 &&
+        square.y - 1 >= 0 &&
+        this.squares.at((square.x + 1) * (square.y - 1))?.checker.type === 'empty'
+      ) {
+        generalMoves.push((square.x + 1) * (square.y - 1));
+      }
+      if (
+        square.x - 1 < 8 &&
+        square.y - 1 >= 0 &&
+        this.squares.at((square.x - 1) * (square.y - 1))?.checker.type === 'empty'
+      ) {
+        generalMoves.push((square.x - 1) * (square.y - 1));
+      }
+    }
+    if (square.checker.type === 'black') {
+      if (
+        square.x + 1 < 8 &&
+        square.y + 1 >= 0 &&
+        this.squares.at((square.x + 1) * (square.y - 1))?.checker.type === 'empty'
+      ) {
+        generalMoves.push((square.x + 1) * (square.y - 1));
+      }
+      if (
+        square.x - 1 < 8 &&
+        square.y + 1 >= 0 &&
+        this.squares.at((square.x - 1) * (square.y + 1))?.checker.type === 'empty'
+      ) {
+        generalMoves.push((square.x - 1) * (square.y + 1));
+      }
+    }
+  }
+
+  private _attackingMoves(square: CheckerSquareModel) {
+    if (square.checker.type === 'red') {
+      if (
+        square.x + 2 < 8 &&
+        square.y - 2 >= 0 &&
+        this.squares.at((square.x + 2) * (square.y - 2))?.checker.type === 'empty' &&
+        this.squares.at((square.x + 1) * (square.y - 1))?.checker.type === 'black'
+      ) {
+        square.moves.push((square.x + 2) * (square.y - 2));
+      }
+      if (
+        square.x - 2 < 8 &&
+        square.y - 2 >= 0 &&
+        this.squares.at((square.x - 2) * (square.y - 2))?.checker.type === 'empty' &&
+        this.squares.at((square.x - 1) * (square.y - 1))?.checker.type === 'black'
+      ) {
+        square.moves.push((square.x - 2) * (square.y - 2));
+      }
+    }
+    if (square.checker.type === 'black') {
+      if (
+        square.x + 2 < 8 &&
+        square.y + 2 >= 0 &&
+        this.squares.at((square.x + 2) * (square.y + 2))?.checker.type === 'empty' &&
+        this.squares.at((square.x + 1) * (square.y + 1))?.checker.type === 'red'
+      ) {
+        square.moves.push((square.x + 2) * (square.y + 2));
+      }
+      if (
+        square.x - 2 < 8 &&
+        square.y + 2 >= 0 &&
+        this.squares.at((square.x - 2) * (square.y + 2))?.checker.type === 'empty' &&
+        this.squares.at((square.x - 1) * (square.y + 1))?.checker.type === 'red'
+      ) {
+        square.moves.push((square.x - 2) * (square.y + 2));
+      }
+    }
   }
 
   /**

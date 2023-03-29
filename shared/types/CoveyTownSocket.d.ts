@@ -86,12 +86,13 @@ export interface CheckerSquare {
   x: number;
   y: number;
   checker: CheckerPiece;
+  moves: number[];
 }
 
 export enum Color {
-  RED = "red",
-  BLACK = "black",
-  EMPTY = "empty",
+  RED = 'red',
+  BLACK = 'black',
+  EMPTY = 'empty',
 }
 
 export interface CheckerPiece {
