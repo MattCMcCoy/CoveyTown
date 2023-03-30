@@ -79,6 +79,7 @@ export interface CheckerArea {
   squares: CheckerSquare[];
   blackScore: number;
   redScore: number;
+  activePlayer: number;
 }
 
 export interface CheckerSquare {
