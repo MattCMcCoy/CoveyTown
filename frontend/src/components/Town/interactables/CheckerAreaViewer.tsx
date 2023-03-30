@@ -22,7 +22,7 @@ import React, { useEffect, useState } from 'react';
 import { useInteractable, useCheckerAreaController } from '../../../classes/TownController';
 import CheckerAreaController, {
   useBlackScore,
-  useCurrentPlayer,
+  useActivePlayer,
   useRedScore,
   useSquares,
 } from '../../../classes/CheckerAreaController';
@@ -140,7 +140,7 @@ export function CheckerBoard({
 }): JSX.Element {
   const townController = useTownController();
   const toast = useToast();
-  const currPlayer = useCurrentPlayer(controller);
+  const currPlayer = useActivePlayer(controller);
   const [title, setTitle] = useState('Waiting for other players ...');
 
   useEffect(() => {
@@ -161,7 +161,7 @@ export function CheckerBoard({
   }
 
   async function changeTurn() {
-    await townController.changeCurrentPlayer(controller).then(p => (controller.currentPlayer = p));
+    await townController.changeActivePlayer(controller).then(p => (controller.activePlayer = p));
     //console.log('new current Player: ' + p);
     console.log('current player: ' + controller.getActivePlayer());
     toast({
@@ -224,7 +224,7 @@ export function JoinMenu({
 }): JSX.Element {
   const townController = useTownController();
   const toast = useToast();
-  const currPlayer = useCurrentPlayer(controller);
+  const currPlayer = useActivePlayer(controller);
   const title = 'Checkers';
   const currPlayerId = townController.ourPlayer.id;
   const { isOpen, onOpen, onClose } = useDisclosure();
