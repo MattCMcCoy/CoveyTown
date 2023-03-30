@@ -26,6 +26,12 @@ export type CheckerAreaEvents = {
    * Listeners are passed the new state of the score.
    */
   redScoreChange: (redScore: number) => void;
+
+  /**
+   * A playerTurnChange event indicates that a players are changing turns.
+   * Listeners are passed the new state of the currentPlayer.
+   */
+  playerTurnChange: (player: number) => void;
 };
 
 /**
@@ -39,6 +45,8 @@ export type CheckerAreaEvents = {
 export default class CheckerAreaController extends (EventEmitter as new () => TypedEmitter<CheckerAreaEvents>) {
   private _model: CheckerAreaModel;
 
+  private _players: string[] = [];
+
   /**
    * Constructs a new CheckerAreaController, initialized with the state of the provided checkerAreaModel.
    *
@@ -47,6 +55,7 @@ export default class CheckerAreaController extends (EventEmitter as new () => Ty
   constructor(checkerAreaModel: CheckerAreaModel) {
     super();
     this._model = checkerAreaModel;
+    this._players = [];
   }
 
   /**
@@ -116,6 +125,37 @@ export default class CheckerAreaController extends (EventEmitter as new () => Ty
   }
 
   /**
+   * The pleyer whose turn it is.
+   */
+  public get activePlayer(): number {
+    return this._model.activePlayer;
+  }
+
+  /**
+   * The state of the currentPlayer in a checker area.
+   *
+   * Changing this value will emit a 'playerTurnChange' event
+   */
+  public set activePlayer(activePlayer: number) {
+    if (this._model.activePlayer != activePlayer) {
+      this._model.activePlayer = activePlayer;
+      this.emit('playerTurnChange', activePlayer);
+    }
+  }
+
+  public get players(): string[] {
+    return this._players;
+  }
+
+  public addPlayer(playerId: string) {
+    this._players.push(playerId);
+  }
+
+  public getActivePlayer(): string {
+    return this._players[this.activePlayer];
+  }
+
+  /**
    * @returns CheckerArea that represents the current state of this CheckerArea
    */
   public checkerAreaModel(): CheckerAreaModel {
@@ -131,6 +171,7 @@ export default class CheckerAreaController extends (EventEmitter as new () => Ty
     this.squares = updatedModel.squares;
     this.blackScore = updatedModel.blackScore ?? 0;
     this.redScore = updatedModel.redScore ?? 0;
+    this.activePlayer = updatedModel.activePlayer;
   }
 }
 
@@ -173,4 +214,16 @@ export function useRedScore(controller: CheckerAreaController): number {
     };
   }, [controller]);
   return redScore;
+}
+
+export function useActivePlayer(controller: CheckerAreaController): number {
+  const [currentPlayer, setCurrentPlayer] = useState(controller.activePlayer);
+
+  useEffect(() => {
+    controller.addListener('playerTurnChange', setCurrentPlayer);
+    return () => {
+      controller.removeListener('playerTurnChange', setCurrentPlayer);
+    };
+  }, [controller]);
+  return currentPlayer;
 }
