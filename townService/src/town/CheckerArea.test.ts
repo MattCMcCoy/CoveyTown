@@ -18,7 +18,13 @@ describe('CheckerArea', () => {
   beforeEach(() => {
     mockClear(townEmitter);
     testArea = new CheckerArea(
-      { id, squares: [], blackScore: 0, redScore: 0 },
+      {
+        id,
+        squares: [],
+        blackScore: 0,
+        redScore: 0,
+        activePlayer: 0,
+      },
       testAreaBox,
       townEmitter,
     );
@@ -78,7 +84,13 @@ describe('CheckerArea', () => {
     const newSquares: CheckerSquare[] = [];
     const newId = 'newID';
 
-    testArea.updateModel({ id: newId, squares: newSquares, blackScore: 0, redScore: 0 });
+    testArea.updateModel({
+      id: newId,
+      squares: newSquares,
+      blackScore: 0,
+      redScore: 0,
+      activePlayer: 0,
+    });
     expect(testArea.id).toBe(id);
     expect(testArea.squares).toBe(newSquares);
   });
