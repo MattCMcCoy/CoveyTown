@@ -15,11 +15,14 @@ import {
   Square,
   Grid,
   GridItem,
+  Button,
+  useDisclosure,
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import { useInteractable, useCheckerAreaController } from '../../../classes/TownController';
 import CheckerAreaController, {
   useBlackScore,
+  useCurrentPlayer,
   useRedScore,
   useSquares,
 } from '../../../classes/CheckerAreaController';
@@ -62,6 +65,7 @@ function Score({ controller }: { controller: CheckerAreaController }): JSX.Eleme
     </Square>
   );
 }
+
 function Board({ squares }: { squares: CheckerSquare[] | undefined }): JSX.Element {
   if (squares == undefined) {
     return <></>;
@@ -136,7 +140,8 @@ export function CheckerBoard({
 }): JSX.Element {
   const townController = useTownController();
   const toast = useToast();
-  const title = 'Checkers';
+  const currPlayer = useCurrentPlayer(controller);
+  const [title, setTitle] = useState('Waiting for other players ...');
 
   useEffect(() => {
     townController.getCheckerAreaBoard(controller);
@@ -154,6 +159,24 @@ export function CheckerBoard({
       });
     }
   }
+
+  async function changeTurn() {
+    await townController.changeCurrentPlayer(controller).then(p => (controller.currentPlayer = p));
+    //console.log('new current Player: ' + p);
+    console.log('current player: ' + controller.getActivePlayer());
+    toast({
+      title: 'Switching turns',
+      status: 'info',
+    });
+  }
+
+  useEffect(() => {
+    if (controller.players.length > 1) {
+      setTitle('');
+    }
+    console.log('In useEffect');
+  }, [townController, controller]);
+
   const squares = useSquares(controller);
   if (squares == undefined || squares.length < 1) {
     initBoard();
@@ -172,16 +195,63 @@ export function CheckerBoard({
         {<ModalHeader>{title} </ModalHeader>}
         <ModalCloseButton />
         <ModalBody pb={6}></ModalBody>
-        <Grid templateColumns='repeat(5, 1fr)'>
-          <GridItem colSpan={4}>
+        <Grid templateColumns='repeat(5, 1fr)' templateRows='repeat(2, 1fr)'>
+          <GridItem colSpan={4} rowSpan={2}>
             <Flex justify={'center'} padding={'5'}>
               <Board squares={squares} />
             </Flex>
+          </GridItem>
+          <GridItem colSpan={1}>
+            <Button onClick={() => changeTurn()}>{'Active Player: ' + currPlayer}</Button>
           </GridItem>
           <GridItem colSpan={1} margin='auto'>
             <Score controller={controller} />
           </GridItem>
         </Grid>
+        <ModalFooter />
+        {/* </form> */}
+      </ModalContent>
+    </Modal>
+  );
+}
+
+export function JoinMenu({
+  controller,
+  close,
+}: {
+  controller: CheckerAreaController;
+  close: () => void;
+}): JSX.Element {
+  const townController = useTownController();
+  const toast = useToast();
+  const currPlayer = useCurrentPlayer(controller);
+  const title = 'Checkers';
+  const currPlayerId = townController.ourPlayer.id;
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  return (
+    <Modal
+      isOpen={true}
+      size={'4xl'}
+      onClose={() => {
+        close();
+        townController.unPause();
+      }}>
+      <ModalOverlay />
+      <ModalContent>
+        {<ModalHeader>{title} </ModalHeader>}
+        <ModalCloseButton />
+        <ModalBody pb={6}></ModalBody>
+        <Button
+          onClick={() => {
+            console.log('calling CheckerBoard');
+            if (controller.players.length < 2 && !controller.players.includes(currPlayerId)) {
+              controller.addPlayer(townController.ourPlayer.id);
+              onOpen();
+            }
+          }}>
+          Join Game
+        </Button>
+        <CheckerBoard controller={controller} isOpen={isOpen} close={close} />
         <ModalFooter />
         {/* </form> */}
       </ModalContent>
@@ -205,6 +275,8 @@ export function CheckerGame({
   // selectIsOpen is true if the squares have not been initialized
   const [selectIsOpen, setSelectIsOpen] = useState(checkerAreaController.squares.length < 1);
 
+  console.log('checker players: ' + checkerAreaController.players);
+
   // If a checkers game has started
   if (!selectIsOpen) {
     return (
@@ -212,6 +284,7 @@ export function CheckerGame({
         isOpen={!selectIsOpen}
         onClose={() => {
           townController.unPause();
+          townController.interactEnd(checkerArea);
         }}>
         <ModalOverlay />
         <ModalContent>
@@ -226,9 +299,8 @@ export function CheckerGame({
   }
   return (
     <>
-      <CheckerBoard
+      <JoinMenu
         controller={checkerAreaController}
-        isOpen={selectIsOpen}
         close={() => {
           setSelectIsOpen(false);
           // forces game to emit "checkerArea" event again so that
