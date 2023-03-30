@@ -713,6 +713,7 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
         squares: [],
         blackScore: 0,
         redScore: 0,
+        activePlayer: 0,
       });
       this.checkerAreas.push(newController);
       return newController;
@@ -798,6 +799,15 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
       checkerArea.id,
       this.sessionToken,
     );
+  }
+
+  /**
+   * Initializes the checker board of the given checkerBoard area. (specified via checker area controller)
+   * @param checkerArea the checker area controller
+   * @returns a promise wrapping the board
+   */
+  public async changeActivePlayer(checkerArea: CheckerAreaController): Promise<number> {
+    return this._townsService.changeActivePlayer(this.townID, checkerArea.id, this.sessionToken);
   }
 
   /**
