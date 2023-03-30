@@ -1,5 +1,4 @@
 import { ITiledMapObject } from '@jonbell/tiled-map-type-guard';
-import { ThisMonthList } from 'twilio/lib/rest/api/v2010/account/usage/record/thisMonth';
 import Player from '../lib/Player';
 import {
   Interactable,
@@ -18,7 +17,7 @@ export default class CheckerArea extends InteractableArea {
 
   private _blackScore: number;
 
-  private _currentPlayer: number;
+  private _activePlayer: number;
 
   public get squares(): CheckerSquareModel[] {
     return this._squares;
@@ -36,8 +35,8 @@ export default class CheckerArea extends InteractableArea {
     return this._blackScore;
   }
 
-  public get currentPlayer(): number {
-    return this._currentPlayer;
+  public get activePlayer(): number {
+    return this._activePlayer;
   }
 
   /**
@@ -57,14 +56,14 @@ export default class CheckerArea extends InteractableArea {
     this.squares = squares;
     this._blackScore = blackScore ?? 0;
     this._redScore = redScore ?? 0;
-    this._currentPlayer = 0;
+    this._activePlayer = 0;
   }
 
   /**
    * initializes the board with all of its base values, including checker pieces.
    */
   public initializeBoard() {
-    this._currentPlayer = 0;
+    this._activePlayer = 0;
     const newSquares = [];
     const checkers: CheckerPieceModel[] = this._createCheckerPieces();
     let pieces = 0;
@@ -129,7 +128,7 @@ export default class CheckerArea extends InteractableArea {
       this.squares = [];
       this._blackScore = 0;
       this._redScore = 0;
-      this._currentPlayer = 0;
+      this._activePlayer = 0;
     }
     this._emitAreaChanged();
   }
@@ -138,7 +137,7 @@ export default class CheckerArea extends InteractableArea {
     this.squares = checkerArea.squares;
     this._blackScore = checkerArea.blackScore ?? 0;
     this._redScore = checkerArea.redScore ?? 0;
-    this._currentPlayer = checkerArea.currentPlayer;
+    this._activePlayer = checkerArea.activePlayer;
   }
 
   public toModel(): Interactable {
@@ -147,7 +146,7 @@ export default class CheckerArea extends InteractableArea {
       squares: this.squares,
       blackScore: this._blackScore,
       redScore: this._redScore,
-      currentPlayer: this._currentPlayer,
+      activePlayer: this._activePlayer,
     };
   }
 
@@ -169,7 +168,7 @@ export default class CheckerArea extends InteractableArea {
         squares: [],
         blackScore: 0,
         redScore: 0,
-        currentPlayer: 0,
+        activePlayer: 0,
       },
       rect,
       townEmitter,

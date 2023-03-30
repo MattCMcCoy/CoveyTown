@@ -341,9 +341,9 @@ export class TownsController extends Controller {
   }
 
   /**
-   * Gets the squares of a checker area in a given town
+   * changes the active player of the checker game.
    *
-   * @param townID ID of the town in which to get the checker area squares
+   * @param townID ID of the town in which to get the players of the checker area
    * @param checkerAreaId interactable ID of the checker area
    * @param sessionToken session token of the player making the request, must
    *        match the session token returned when the player joined the town
@@ -352,7 +352,7 @@ export class TownsController extends Controller {
    * @throws InvalidParametersError if the session token is not valid, or if the
    *          checker area specified does not exist
    */
-  @Patch('{townID}/{checkerAreaId}/changeCurrentPlayer')
+  @Patch('{townID}/{checkerAreaId}/changeActivePlayer')
   @Response<InvalidParametersError>(400, 'Invalid values specified')
   public async changeActivePlayer(
     @Path() townID: string,
@@ -370,17 +370,17 @@ export class TownsController extends Controller {
     if (!checkerArea || !isCheckerArea(checkerArea)) {
       throw new InvalidParametersError('Invalid checker area ID');
     }
-    const newCurrentPlayer = checkerArea.activePlayer === 0 ? 1 : 0;
+    const newActivePlayer = checkerArea.activePlayer === 0 ? 1 : 0;
 
     const updatedCheckerArea = {
       id: checkerArea.id,
       squares: checkerArea.squares,
       blackScore: checkerArea.blackScore,
       redScore: checkerArea.redScore,
-      currentPlayer: newCurrentPlayer,
+      activePlayer: newActivePlayer,
     };
     (<CheckerAreaReal>checkerArea).updateModel(updatedCheckerArea);
-    return newCurrentPlayer;
+    return newActivePlayer;
   }
 
   /**
