@@ -29,9 +29,15 @@ export type CheckerAreaEvents = {
 
   /**
    * A playerTurnChange event indicates that a players are changing turns.
-   * Listeners are passed the new state of the currentPlayer.
+   * Listeners are passed the new state of the activePlayer.
    */
   playerTurnChange: (player: number) => void;
+
+  /**
+   * A playerTurnChange event indicates that a players are changing turns.
+   * Listeners are passed the new state of the activePlayer.
+   */
+  playerListChange: (players: string[]) => void;
 };
 
 /**
@@ -144,7 +150,19 @@ export default class CheckerAreaController extends (EventEmitter as new () => Ty
   }
 
   public get players(): string[] {
-    return this._players;
+    return this._model.players;
+  }
+
+  /**
+   * The state of the currentPlayer in a checker area.
+   *
+   * Changing this value will emit a 'playerTurnChange' event
+   */
+  public set players(players: string[]) {
+    if (this._model.players != players) {
+      this._model.players = players;
+      this.emit('playerListChange', players);
+    }
   }
 
   public addPlayer(playerId: string) {
@@ -152,7 +170,15 @@ export default class CheckerAreaController extends (EventEmitter as new () => Ty
   }
 
   public getActivePlayer(): string {
-    return this._players[this.activePlayer];
+    return this.players[this.activePlayer];
+  }
+
+  public isActivePlayer(playerId: string): boolean {
+    return this.players[this.activePlayer] == playerId;
+  }
+
+  public getActivePlayerColor(): string {
+    return this.activePlayer == 0 ? 'red' : 'black';
   }
 
   /**
@@ -217,13 +243,25 @@ export function useRedScore(controller: CheckerAreaController): number {
 }
 
 export function useActivePlayer(controller: CheckerAreaController): number {
-  const [currentPlayer, setCurrentPlayer] = useState(controller.activePlayer);
+  const [activePlayer, setActivePlayer] = useState(controller.activePlayer);
 
   useEffect(() => {
-    controller.addListener('playerTurnChange', setCurrentPlayer);
+    controller.addListener('playerTurnChange', setActivePlayer);
     return () => {
-      controller.removeListener('playerTurnChange', setCurrentPlayer);
+      controller.removeListener('playerTurnChange', setActivePlayer);
     };
   }, [controller]);
-  return currentPlayer;
+  return activePlayer;
+}
+
+export function usePlayers(controller: CheckerAreaController): string[] {
+  const [players, setPlayers] = useState(controller.players);
+
+  useEffect(() => {
+    controller.addListener('playerListChange', setPlayers);
+    return () => {
+      controller.removeListener('playerListChange', setPlayers);
+    };
+  }, [controller]);
+  return players;
 }
