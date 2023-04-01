@@ -19,12 +19,16 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
-import { useInteractable, useCheckerAreaController } from '../../../classes/TownController';
+import TownController, {
+  useInteractable,
+  useCheckerAreaController,
+} from '../../../classes/TownController';
 import CheckerAreaController, {
   useBlackScore,
   useActivePlayer,
   useRedScore,
   useSquares,
+  usePlayers,
 } from '../../../classes/CheckerAreaController';
 import useTownController from '../../../hooks/useTownController';
 import CheckerAreaInteractable from './CheckerArea';
@@ -66,11 +70,24 @@ function Score({ controller }: { controller: CheckerAreaController }): JSX.Eleme
   );
 }
 
-function Board({ squares }: { squares: CheckerSquare[] | undefined }): JSX.Element {
+function Board({
+  squares,
+  controller,
+}: {
+  squares: CheckerSquare[] | undefined;
+  controller: CheckerAreaController;
+}): JSX.Element {
+  const squareSize = '20';
+  const townController = useTownController();
+  const toast = useToast();
+  const currPlayer = townController.ourPlayer.id;
+  let source: CheckerSquare;
+  const [finishTurn, setFinishTurn] = useState(0);
+  const [firstButtonClicked, setFirstButtonClicked] = useState(0);
+  const [secondButtonClicked, setSecondButtonClicked] = useState(0);
   if (squares == undefined) {
     return <></>;
   }
-  const squareSize = '20';
 
   // gets the color of a given square
   const getSquareColor = (x: number, y: number) => {
@@ -79,17 +96,77 @@ function Board({ squares }: { squares: CheckerSquare[] | undefined }): JSX.Eleme
     return (x % 2 === 0 && y % 2 !== 0) || (x % 2 !== 0 && y % 2 === 0) ? brown : lightBrown;
   };
 
+  async function changeTurn() {
+    await townController.changeActivePlayer(controller).then(p => (controller.activePlayer = p));
+    //console.log('new current Player: ' + p);
+    console.log('current player: ' + controller.getActivePlayer());
+    toast({
+      title: 'Switching turns',
+      status: 'info',
+    });
+  }
+
+  function handleFirstButtonClick(square: CheckerSquare) {
+    setFirstButtonClicked(1);
+    console.log('Source square clicked: ' + square.id);
+    source = square;
+  }
+
+  function handleSecondButtonClick(square: CheckerSquare) {
+    if (firstButtonClicked == 1) {
+      //dest = square;
+      //call movePiece method that changes the models checker squares
+      //movePiece(source, square);
+      setSecondButtonClicked(2);
+      console.log('Dest square clicked: ' + square.id);
+      setFirstButtonClicked(0);
+      console.log('SwitchTurn would be called');
+      changeTurn();
+
+      //rerender board
+      // Execute your event here
+    }
+  }
+
+  function handleButtonAction(square: CheckerSquare, color: string) {
+    console.log('In handleButtonAction');
+    if (square.checker.type == color) {
+      return handleFirstButtonClick(square);
+    } else if (square.checker.type == 'empty') {
+      return handleSecondButtonClick(square);
+    } else {
+      return () => undefined;
+    }
+  }
+  // function handleTurn(square: CheckerSquare) {
+  //   if (square.checker.type == 'red') {
+  //     setFinishTurn(1);
+  //   } else {
+  //     setFinishTurn(2);
+  //   }
+  // }
+  const color = controller.getActivePlayerColor();
   let row: JSX.Element[] = [];
   const board: JSX.Element[] = [];
-
+  console.log('Is active player: ' + controller.isActivePlayer(currPlayer));
+  console.log('Active player color: ' + color);
   squares.forEach(square => {
     // add squares to row
+    console.log('Rerendering squares');
     row.push(
       <Box
+        as='button'
         w={squareSize}
         h={squareSize}
         bg={getSquareColor(square.x, square.y)}
         display='flex'
+        onClick={
+          controller.isActivePlayer(currPlayer)
+            ? () => handleButtonAction(square, color)
+            : () => {
+                console.log('Not active player');
+              }
+        }
         key={square.id}>
         {square.checker.type !== 'empty' ? (
           <Circle
@@ -115,7 +192,6 @@ function Board({ squares }: { squares: CheckerSquare[] | undefined }): JSX.Eleme
       row = [];
     }
   });
-
   return <VStack spacing='0px'>{board}</VStack>;
 }
 
@@ -141,11 +217,27 @@ export function CheckerBoard({
   const townController = useTownController();
   const toast = useToast();
   const currPlayer = useActivePlayer(controller);
+  const playerList = usePlayers(controller);
+  //let dest: CheckerSquare;
   const [title, setTitle] = useState('Waiting for other players ...');
-
+  console.log('In CheckerBoard');
+  console.log('Player list' + controller.players);
   useEffect(() => {
+    console.log('In first useEffect');
     townController.getCheckerAreaBoard(controller);
   }, [townController, controller]);
+
+  useEffect(() => {
+    console.log('In second useEffect');
+    console.log('player list length: ' + playerList.length);
+    function getPlayerColor(): string {
+      return playerList.indexOf(townController.ourPlayer.id) == 0 ? 'red' : 'black';
+    }
+
+    if (playerList.length > 0) {
+      setTitle('You are player ' + getPlayerColor());
+    }
+  }, [townController, playerList]);
 
   function initBoard() {
     if (controller.squares.length < 1) {
@@ -170,13 +262,6 @@ export function CheckerBoard({
     });
   }
 
-  useEffect(() => {
-    if (controller.players.length > 1) {
-      setTitle('');
-    }
-    console.log('In useEffect');
-  }, [townController, controller]);
-
   const squares = useSquares(controller);
   if (squares == undefined || squares.length < 1) {
     initBoard();
@@ -198,11 +283,13 @@ export function CheckerBoard({
         <Grid templateColumns='repeat(5, 1fr)' templateRows='repeat(2, 1fr)'>
           <GridItem colSpan={4} rowSpan={2}>
             <Flex justify={'center'} padding={'5'}>
-              <Board squares={squares} />
+              <Board squares={squares} controller={controller} />
             </Flex>
           </GridItem>
           <GridItem colSpan={1}>
-            <Button onClick={() => changeTurn()}>{'Active Player: ' + currPlayer}</Button>
+            <Button onClick={() => changeTurn()}>
+              {'Active Player: ' + controller.getActivePlayerColor()}
+            </Button>
           </GridItem>
           <GridItem colSpan={1} margin='auto'>
             <Score controller={controller} />
@@ -243,9 +330,14 @@ export function JoinMenu({
         <ModalBody pb={6}></ModalBody>
         <Button
           onClick={() => {
-            console.log('calling CheckerBoard');
+            //console.log('calling CheckerBoard');
             if (controller.players.length < 2 && !controller.players.includes(currPlayerId)) {
-              controller.addPlayer(townController.ourPlayer.id);
+              //controller.addPlayer(townController.ourPlayer.id);
+              townController
+                .addCheckerPlayer(controller)
+                .then(players => (controller.players = players));
+              console.log('Adding player: ' + townController.ourPlayer.id);
+              console.log('New player list length: ' + controller.players.length);
               onOpen();
             }
           }}>
