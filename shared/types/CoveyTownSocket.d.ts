@@ -80,6 +80,7 @@ export interface CheckerArea {
   blackScore: number;
   redScore: number;
   activePlayer: number;
+  players: string[];
 }
 
 export interface CheckerSquare {

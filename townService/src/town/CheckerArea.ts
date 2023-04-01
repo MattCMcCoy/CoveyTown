@@ -19,6 +19,8 @@ export default class CheckerArea extends InteractableArea {
 
   private _activePlayer: number;
 
+  private _players: string[];
+
   public get squares(): CheckerSquareModel[] {
     return this._squares;
   }
@@ -39,6 +41,10 @@ export default class CheckerArea extends InteractableArea {
     return this._activePlayer;
   }
 
+  public get players(): string[] {
+    return this._players;
+  }
+
   /**
    * Creates a new checker area
    *
@@ -57,6 +63,7 @@ export default class CheckerArea extends InteractableArea {
     this._blackScore = blackScore ?? 0;
     this._redScore = redScore ?? 0;
     this._activePlayer = 0;
+    this._players = [];
   }
 
   /**
@@ -129,6 +136,7 @@ export default class CheckerArea extends InteractableArea {
       this._blackScore = 0;
       this._redScore = 0;
       this._activePlayer = 0;
+      this._players = []; // may need to change
     }
     this._emitAreaChanged();
   }
@@ -138,6 +146,7 @@ export default class CheckerArea extends InteractableArea {
     this._blackScore = checkerArea.blackScore ?? 0;
     this._redScore = checkerArea.redScore ?? 0;
     this._activePlayer = checkerArea.activePlayer;
+    this._players = checkerArea.players;
   }
 
   public toModel(): Interactable {
@@ -147,6 +156,7 @@ export default class CheckerArea extends InteractableArea {
       blackScore: this._blackScore,
       redScore: this._redScore,
       activePlayer: this._activePlayer,
+      players: this._players,
     };
   }
 
@@ -169,6 +179,7 @@ export default class CheckerArea extends InteractableArea {
         blackScore: 0,
         redScore: 0,
         activePlayer: 0,
+        players: [],
       },
       rect,
       townEmitter,
