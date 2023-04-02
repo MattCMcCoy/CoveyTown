@@ -385,7 +385,7 @@ export class TownsController extends Controller {
    * @throws InvalidParametersError if the session token is not valid, or if the
    *          checker area specified does not exist
    */
-  @Get('{townID}/{checkerAreaId}/leaderboard')
+  @Patch('{townID}/{checkerAreaId}/leaderboard')
   @Response<InvalidParametersError>(400, 'Invalid values specified')
   public async getCheckerLeaderBoard(
     @Path() townID: string,

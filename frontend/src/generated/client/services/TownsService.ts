@@ -363,7 +363,7 @@ export class TownsService {
         xSessionToken: string,
     ): CancelablePromise<Array<CheckerLeaderboardItem>> {
         return this.httpRequest.request({
-            method: 'GET',
+            method: 'PATCH',
             url: '/towns/{townID}/{checkerAreaId}/leaderboard',
             path: {
                 'townID': townId,
