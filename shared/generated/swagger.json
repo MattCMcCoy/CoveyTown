@@ -952,7 +952,7 @@
 			}
 		},
 		"/towns/{townID}/{checkerAreaId}/leaderboard": {
-			"patch": {
+			"get": {
 				"operationId": "GetCheckerLeaderBoard",
 				"responses": {
 					"200": {

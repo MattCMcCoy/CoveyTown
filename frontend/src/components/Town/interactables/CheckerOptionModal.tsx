@@ -17,10 +17,10 @@ interface RuleItem {
 
 export function CheckerViewer({
   changeGameState,
-  setLeaderBoardOpen,
+  openLeaderboard,
 }: {
   changeGameState: (val: boolean) => void;
-  setLeaderBoardOpen: () => void;
+  openLeaderboard: () => void;
 }): JSX.Element {
   const [visibleState, setVisibleState] = useState(true);
   const ruleList: RuleItem[] = [
@@ -85,7 +85,7 @@ export function CheckerViewer({
             <Button colorScheme='blue' mx={3} onClick={onClose}>
               Wait For Player
             </Button>
-            <Button colorScheme='gray' onClick={setLeaderBoardOpen}>
+            <Button colorScheme='gray' onClick={openLeaderboard}>
               Leaderboard
             </Button>
           </ModalFooter>

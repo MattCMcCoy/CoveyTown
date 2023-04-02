@@ -241,7 +241,7 @@ export function CheckerGame({
  */
 export default function CheckerAreaWrapper(): JSX.Element {
   const [beginGame, setBeginGame] = useState(false);
-  const [isLeaderBoardOpen, setLeaderBoardOpen] = useState(false);
+  const [isLeaderboardOpen, setLeaderboardOpen] = useState(false);
   const checkerArea = useInteractable<CheckerAreaInteractable>('checkerArea');
   const changeGameState = (val: boolean) => {
     setBeginGame(val);
@@ -249,18 +249,18 @@ export default function CheckerAreaWrapper(): JSX.Element {
   if (checkerArea && beginGame) {
     return <CheckerGame checkerArea={checkerArea} />;
   } else if (checkerArea) {
-    if (isLeaderBoardOpen) {
+    if (isLeaderboardOpen) {
       return (
         <CheckerLeaderBoard
-          isLeaderBoardOpen={isLeaderBoardOpen}
+          isLeaderboardOpen={isLeaderboardOpen}
           checkerArea={checkerArea}
-          closeLeaderBoard={() => setLeaderBoardOpen(false)}></CheckerLeaderBoard>
+          closeLeaderboard={() => setLeaderboardOpen(false)}></CheckerLeaderBoard>
       );
     }
     return (
       <CheckerOptionModal
         changeGameState={changeGameState}
-        setLeaderBoardOpen={() => setLeaderBoardOpen(true)}></CheckerOptionModal>
+        openLeaderboard={() => setLeaderboardOpen(true)}></CheckerOptionModal>
     );
   }
   return <></>;

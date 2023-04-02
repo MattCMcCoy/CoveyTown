@@ -18,32 +18,32 @@ import useTownController from '../../../hooks/useTownController';
 import CheckerAreaInteractable from './CheckerArea';
 
 export default function CheckerLeaderBoard({
-  isLeaderBoardOpen,
+  isLeaderboardOpen,
   checkerArea,
-  closeLeaderBoard,
+  closeLeaderboard,
 }: {
-  isLeaderBoardOpen: boolean;
+  isLeaderboardOpen: boolean;
   checkerArea: CheckerAreaInteractable;
-  closeLeaderBoard: () => void;
+  closeLeaderboard: () => void;
 }) {
   const townController = useTownController();
   const checkerAreaController = useCheckerAreaController(checkerArea.name);
   const leaderboard = useLeaderboard(checkerAreaController);
 
   useEffect(() => {
-    if (isLeaderBoardOpen) {
+    if (isLeaderboardOpen) {
       townController
         .getCheckerLeaderboard(checkerAreaController)
         .then(newLeaderboard => (checkerAreaController.leaderboard = newLeaderboard));
     }
-  }, [checkerAreaController, isLeaderBoardOpen, townController]);
+  }, [checkerAreaController, isLeaderboardOpen, townController]);
 
   return (
-    <Modal isOpen={isLeaderBoardOpen} onClose={closeLeaderBoard}>
+    <Modal isOpen={isLeaderboardOpen} onClose={closeLeaderboard}>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>Leaderboard</ModalHeader>
-        <ModalCloseButton onClick={closeLeaderBoard} />
+        <ModalCloseButton onClick={closeLeaderboard} />
         <ModalBody>
           <Grid templateColumns='repeat(4, 1fr)' boxShadow='dark-lg'>
             <GridItem pl='1'>Position</GridItem>
@@ -99,7 +99,7 @@ export default function CheckerLeaderBoard({
           )}
         </ModalBody>
         <ModalFooter>
-          <Button colorScheme='gray' onClick={closeLeaderBoard}>
+          <Button colorScheme='gray' onClick={closeLeaderboard}>
             Close
           </Button>
         </ModalFooter>
