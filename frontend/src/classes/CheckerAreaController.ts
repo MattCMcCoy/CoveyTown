@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { EventEmitter } from 'events';
 import TypedEmitter from 'typed-emitter';
 import { CheckerArea as CheckerAreaModel } from '../types/CoveyTownSocket';
-import { CheckerSquare } from '../generated/client';
+import { CheckerLeaderboardItem, CheckerSquare } from '../generated/client';
 
 /**
  * The events that a CheckerAreaController can emit.
@@ -26,6 +26,12 @@ export type CheckerAreaEvents = {
    * Listeners are passed the new state of the score.
    */
   redScoreChange: (redScore: number) => void;
+
+  /**
+   * A leaderboardChange event that indicates that the leaderboard has changed.
+   * Listeners are passed the new state of the leaderboard.
+   */
+  leaderboardChange: (leaderboard: CheckerLeaderboardItem[]) => void;
 };
 
 /**
@@ -115,6 +121,17 @@ export default class CheckerAreaController extends (EventEmitter as new () => Ty
     }
   }
 
+  public get leaderboard(): CheckerLeaderboardItem[] {
+    return this._model.leaderboard;
+  }
+
+  public set leaderboard(leaderboard: CheckerLeaderboardItem[]) {
+    if (_.xor(this._model.leaderboard, leaderboard).length > 0) {
+      this._model.leaderboard = leaderboard;
+      this.emit('leaderboardChange', leaderboard);
+    }
+  }
+
   /**
    * @returns CheckerArea that represents the current state of this CheckerArea
    */
@@ -173,4 +190,16 @@ export function useRedScore(controller: CheckerAreaController): number {
     };
   }, [controller]);
   return redScore;
+}
+
+export function useLeaderboard(controller: CheckerAreaController): CheckerLeaderboardItem[] {
+  const [leaderboard, setLeaderboard] = useState(controller.leaderboard);
+
+  useEffect(() => {
+    controller.addListener('leaderboardChange', setLeaderboard);
+    return () => {
+      controller.removeListener('leaderboardChange', setLeaderboard);
+    };
+  }, [controller]);
+  return leaderboard;
 }

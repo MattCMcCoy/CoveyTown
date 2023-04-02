@@ -19,6 +19,7 @@ import {
   ViewingArea as ViewingAreaModel,
   PosterSessionArea as PosterSessionAreaModel,
   CheckerArea as CheckerAreaModel,
+  CheckerLeaderboardItem,
 } from '../types/CoveyTownSocket';
 import {
   isConversationArea,
@@ -713,6 +714,7 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
         squares: [],
         blackScore: 0,
         redScore: 0,
+        leaderboard: [],
       });
       this.checkerAreas.push(newController);
       return newController;
@@ -798,6 +800,12 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
       checkerArea.id,
       this.sessionToken,
     );
+  }
+
+  public async getCheckerLeaderboard(
+    checkerArea: CheckerAreaController,
+  ): Promise<CheckerLeaderboardItem[]> {
+    return this._townsService.getCheckerLeaderBoard(this.townID, checkerArea.id, this.sessionToken);
   }
 
   /**

@@ -16,6 +16,7 @@ describe('CheckerAreaController', () => {
       squares: [],
       blackScore: 0,
       redScore: 0,
+      leaderboard: [],
     };
     for (let x = 0; x < 8; x++) {
       for (let y = 0; y < 8; y++) {
@@ -62,6 +63,7 @@ describe('CheckerAreaController', () => {
         squares: [],
         blackScore: 0,
         redScore: 0,
+        leaderboard: [],
       };
 
       testArea.updateFrom(newModel);
@@ -75,6 +77,7 @@ describe('CheckerAreaController', () => {
         squares: testAreaModel.squares,
         blackScore: testAreaModel.blackScore,
         redScore: testAreaModel.redScore + 1,
+        leaderboard: testAreaModel.leaderboard,
       };
 
       testArea.updateFrom(newModel);
@@ -88,6 +91,7 @@ describe('CheckerAreaController', () => {
         squares: testAreaModel.squares,
         blackScore: testAreaModel.blackScore + 1,
         redScore: testAreaModel.redScore,
+        leaderboard: testAreaModel.leaderboard,
       };
 
       testArea.updateFrom(newModel);
@@ -102,6 +106,7 @@ describe('CheckerAreaController', () => {
         squares: testArea.squares,
         blackScore: 0,
         redScore: 0,
+        leaderboard: testAreaModel.leaderboard,
       };
       testArea.updateFrom(newModel);
       expect(testArea.id).toEqual(existingID);
@@ -115,6 +120,7 @@ describe('CheckerAreaController', () => {
         squares: [],
         blackScore: 0,
         redScore: 0,
+        leaderboard: testAreaModel.leaderboard,
       };
       testArea.updateFrom(newModel);
       expect(testArea.squares).toEqual([]);

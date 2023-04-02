@@ -8,7 +8,7 @@ import {
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/react';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 interface RuleItem {
   title: string;
@@ -17,8 +17,10 @@ interface RuleItem {
 
 export function CheckerViewer({
   changeGameState,
+  setLeaderBoardOpen,
 }: {
   changeGameState: (val: boolean) => void;
+  setLeaderBoardOpen: () => void;
 }): JSX.Element {
   const [visibleState, setVisibleState] = useState(true);
   const ruleList: RuleItem[] = [
@@ -56,34 +58,35 @@ export function CheckerViewer({
     setVisibleState(false);
     changeGameState(true);
   };
-  const onWait = () => {
-    onClose();
-  };
+
   return (
     <>
-      <Modal isOpen={visibleState} onClose={onClose}>
+      <Modal isOpen={visibleState} onClose={() => setVisibleState(false)}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Game Rules</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <ul className='rule-detail'>
+            <ul>
               {ruleList.map((rule: RuleItem, index) => {
                 return (
-                  <li className='rule-item' key={index}>
-                    <p className='rule-title'>{rule.title}</p>
-                    <p className='rule-des'>{rule.des}</p>
+                  <li key={index}>
+                    <p>{rule.title}</p>
+                    <p>{rule.des}</p>
                   </li>
                 );
               })}
             </ul>
           </ModalBody>
           <ModalFooter>
-            <Button colorScheme='blue' mr={3} onClick={onClose}>
+            <Button colorScheme='blue' onClick={onClose}>
               Play With AI
             </Button>
-            <Button variant='ghost' onClick={onWait}>
-              Wait
+            <Button colorScheme='blue' mx={3} onClick={onClose}>
+              Wait For Player
+            </Button>
+            <Button colorScheme='gray' onClick={setLeaderBoardOpen}>
+              Leaderboard
             </Button>
           </ModalFooter>
         </ModalContent>

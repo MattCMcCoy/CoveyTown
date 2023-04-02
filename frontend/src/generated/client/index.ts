@@ -10,6 +10,7 @@ export { OpenAPI } from './core/OpenAPI';
 export type { OpenAPIConfig } from './core/OpenAPI';
 
 export type { CheckerArea } from './models/CheckerArea';
+export type { CheckerLeaderboardItem } from './models/CheckerLeaderboardItem';
 export type { CheckerPiece } from './models/CheckerPiece';
 export type { CheckerSquare } from './models/CheckerSquare';
 export { Color } from './models/Color';

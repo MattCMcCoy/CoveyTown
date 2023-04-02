@@ -7,6 +7,7 @@ import {
   CheckerPiece as CheckerPieceModel,
   BoundingBox,
   TownEmitter,
+  CheckerLeaderboardItem,
 } from '../types/CoveyTownSocket';
 import InteractableArea from './InteractableArea';
 
@@ -16,6 +17,8 @@ export default class CheckerArea extends InteractableArea {
   private _redScore: number;
 
   private _blackScore: number;
+
+  private _leaderboard: CheckerLeaderboardItem[] = [];
 
   public get squares(): CheckerSquareModel[] {
     return this._squares;
@@ -31,6 +34,10 @@ export default class CheckerArea extends InteractableArea {
 
   public get blackScore(): number {
     return this._blackScore;
+  }
+
+  public get leaderboard(): CheckerLeaderboardItem[] {
+    return this._leaderboard;
   }
 
   /**
@@ -124,6 +131,11 @@ export default class CheckerArea extends InteractableArea {
     this._emitAreaChanged();
   }
 
+  public addPlayer(player: Player): void {
+    super.add(player);
+    this._leaderboard.push({ playerId: player.id, wins: 0, losses: 0 });
+  }
+
   updateModel(checkerArea: CheckerAreaModel) {
     this.squares = checkerArea.squares;
     this._blackScore = checkerArea.blackScore;
@@ -136,6 +148,7 @@ export default class CheckerArea extends InteractableArea {
       squares: this.squares,
       blackScore: this._blackScore,
       redScore: this._redScore,
+      leaderboard: this._leaderboard,
     };
   }
 
@@ -152,7 +165,7 @@ export default class CheckerArea extends InteractableArea {
     }
     const rect: BoundingBox = { x: mapObject.x, y: mapObject.y, width, height };
     return new CheckerArea(
-      { id: name, squares: [], blackScore: 0, redScore: 0 },
+      { id: name, squares: [], blackScore: 0, redScore: 0, leaderboard: [] },
       rect,
       townEmitter,
     );

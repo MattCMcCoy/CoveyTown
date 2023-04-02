@@ -51,6 +51,7 @@ describe('Checker Board Viewer', () => {
       squares: [checker],
       blackScore: 0,
       redScore: 0,
+      leaderboard: [],
     });
     townController = mockTownController({ checkerAreas: [checkerArea] });
 
@@ -173,6 +174,7 @@ describe('Checker Board Viewer', () => {
         squares: [checker, checker2],
         blackScore: 10,
         redScore: 10,
+        leaderboard: [],
       });
       const newAddListenerSpy = jest.spyOn(newCheckerAreaController, 'addListener');
       renderData.rerender(renderCheckerArea(newCheckerAreaController, townController));

@@ -27,6 +27,7 @@ import useTownController from '../../../hooks/useTownController';
 import CheckerAreaInteractable from './CheckerArea';
 import { CheckerSquare } from '../../../generated/client';
 import CheckerOptionModal from './CheckerOptionModal';
+import CheckerLeaderBoard from './CheckerLeaderboard';
 
 const CHECKER_INNER_RED = '#C53030';
 const CHECKER_INNER_BLACK = '#1A202C';
@@ -240,6 +241,7 @@ export function CheckerGame({
  */
 export default function CheckerAreaWrapper(): JSX.Element {
   const [beginGame, setBeginGame] = useState(false);
+  const [isLeaderBoardOpen, setLeaderBoardOpen] = useState(false);
   const checkerArea = useInteractable<CheckerAreaInteractable>('checkerArea');
   const changeGameState = (val: boolean) => {
     setBeginGame(val);
@@ -247,7 +249,19 @@ export default function CheckerAreaWrapper(): JSX.Element {
   if (checkerArea && beginGame) {
     return <CheckerGame checkerArea={checkerArea} />;
   } else if (checkerArea) {
-    return <CheckerOptionModal changeGameState={changeGameState}></CheckerOptionModal>;
+    if (isLeaderBoardOpen) {
+      return (
+        <CheckerLeaderBoard
+          isLeaderBoardOpen={isLeaderBoardOpen}
+          checkerArea={checkerArea}
+          closeLeaderBoard={() => setLeaderBoardOpen(false)}></CheckerLeaderBoard>
+      );
+    }
+    return (
+      <CheckerOptionModal
+        changeGameState={changeGameState}
+        setLeaderBoardOpen={() => setLeaderBoardOpen(true)}></CheckerOptionModal>
+    );
   }
   return <></>;
 }
