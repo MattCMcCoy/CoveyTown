@@ -349,12 +349,12 @@ export class TownsService {
     }
 
     /**
-     * Gets the squares of a checker area in a given town
-     * @param townId ID of the town in which to get the checker area squares
+     * Gets the leaderboard of a given checker area.
+     * @param townId ID of the town in which to get the checker areas leaderboard.
      * @param checkerAreaId interactable ID of the checker area
-     * @param xSessionToken session token of the player making the request, must
+     * @param xSessionToken token of the player making the request, must
      * match the session token returned when the player joined the town
-     * @returns CheckerLeaderboardItem Ok
+     * @returns CheckerLeaderboardItem the leaderboard of the checker area
      * @throws ApiError
      */
     public getCheckerLeaderBoard(

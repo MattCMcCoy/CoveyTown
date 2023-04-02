@@ -766,7 +766,7 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
   /**
    * Get the checkerSquare from a specified checkerArea (specified via checker Area controller)
    * @param checkerArea the poster session area controller
-   * @returns a promise wrapping the contents of the poster session area's image (i.e. the string)
+   * @returns a promise wrapping the contents of the areas board
    */
   public async getCheckerAreaBoard(checkerArea: CheckerAreaController): Promise<CheckerSquare[]> {
     return this._townsService.getCheckerAreaSquares(this.townID, checkerArea.id, this.sessionToken);
@@ -802,6 +802,11 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
     );
   }
 
+  /**
+   * Get the checkerLeaderboard from a specified checkerArea (specified via checker Area controller)
+   * @param checkerArea the poster session area controller
+   * @returns a promise wrapping the contents of the areas leaderboard
+   */
   public async getCheckerLeaderboard(
     checkerArea: CheckerAreaController,
   ): Promise<CheckerLeaderboardItem[]> {

@@ -956,7 +956,7 @@
 				"operationId": "GetCheckerLeaderBoard",
 				"responses": {
 					"200": {
-						"description": "Ok",
+						"description": "the leaderboard of the checker area",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -979,14 +979,14 @@
 						}
 					}
 				},
-				"description": "Gets the squares of a checker area in a given town",
+				"description": "Gets the leaderboard of a given checker area.",
 				"tags": [
 					"towns"
 				],
 				"security": [],
 				"parameters": [
 					{
-						"description": "ID of the town in which to get the checker area squares",
+						"description": "ID of the town in which to get the checker areas leaderboard.",
 						"in": "path",
 						"name": "townID",
 						"required": true,
@@ -1004,7 +1004,7 @@
 						}
 					},
 					{
-						"description": "session token of the player making the request, must\nmatch the session token returned when the player joined the town",
+						"description": "token of the player making the request, must\nmatch the session token returned when the player joined the town",
 						"in": "header",
 						"name": "X-Session-Token",
 						"required": true,
