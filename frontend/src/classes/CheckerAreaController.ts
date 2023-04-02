@@ -146,8 +146,9 @@ export default class CheckerAreaController extends (EventEmitter as new () => Ty
    */
   public updateFrom(updatedModel: CheckerAreaModel): void {
     this.squares = updatedModel.squares;
-    this.blackScore = updatedModel.blackScore ?? 0;
-    this.redScore = updatedModel.redScore ?? 0;
+    this.blackScore = updatedModel.blackScore;
+    this.redScore = updatedModel.redScore;
+    this.leaderboard = updatedModel.leaderboard;
   }
 }
 

@@ -15,7 +15,7 @@ interface RuleItem {
   des: string;
 }
 
-export function CheckerViewer({
+export default function CheckerOptionModal({
   changeGameState,
   openLeaderboard,
 }: {
@@ -94,5 +94,3 @@ export function CheckerViewer({
     </>
   );
 }
-
-export default CheckerViewer;

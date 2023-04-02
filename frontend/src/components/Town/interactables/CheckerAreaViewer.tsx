@@ -27,7 +27,7 @@ import useTownController from '../../../hooks/useTownController';
 import CheckerAreaInteractable from './CheckerArea';
 import { CheckerSquare } from '../../../generated/client';
 import CheckerOptionModal from './CheckerOptionModal';
-import CheckerLeaderBoard from './CheckerLeaderboard';
+import CheckerLeaderboardModal from './CheckerLeaderboardModal';
 
 const CHECKER_INNER_RED = '#C53030';
 const CHECKER_INNER_BLACK = '#1A202C';
@@ -251,16 +251,18 @@ export default function CheckerAreaWrapper(): JSX.Element {
   } else if (checkerArea) {
     if (isLeaderboardOpen) {
       return (
-        <CheckerLeaderBoard
+        <CheckerLeaderboardModal
           isLeaderboardOpen={isLeaderboardOpen}
           checkerArea={checkerArea}
-          closeLeaderboard={() => setLeaderboardOpen(false)}></CheckerLeaderBoard>
+          closeLeaderboard={() => setLeaderboardOpen(false)}
+        />
       );
     }
     return (
       <CheckerOptionModal
         changeGameState={changeGameState}
-        openLeaderboard={() => setLeaderboardOpen(true)}></CheckerOptionModal>
+        openLeaderboard={() => setLeaderboardOpen(true)}
+      />
     );
   }
   return <></>;

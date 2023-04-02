@@ -17,7 +17,7 @@ import { useCheckerAreaController } from '../../../classes/TownController';
 import useTownController from '../../../hooks/useTownController';
 import CheckerAreaInteractable from './CheckerArea';
 
-export default function CheckerLeaderBoard({
+export default function CheckerLeaderboardModal({
   isLeaderboardOpen,
   checkerArea,
   closeLeaderboard,

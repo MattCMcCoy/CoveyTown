@@ -174,7 +174,7 @@ describe('Checker Board Viewer', () => {
         squares: [checker, checker2],
         blackScore: 10,
         redScore: 10,
-        leaderboard: [],
+        leaderboard: [{ position: 2, playerId: '123', wins: 3, losses: 2 }],
       });
       const newAddListenerSpy = jest.spyOn(newCheckerAreaController, 'addListener');
       renderData.rerender(renderCheckerArea(newCheckerAreaController, townController));
