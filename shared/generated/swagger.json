@@ -224,6 +224,10 @@
 			},
 			"CheckerLeaderboardItem": {
 				"properties": {
+					"position": {
+						"type": "number",
+						"format": "double"
+					},
 					"playerId": {
 						"type": "string"
 					},
@@ -237,6 +241,7 @@
 					}
 				},
 				"required": [
+					"position",
 					"playerId",
 					"wins",
 					"losses"

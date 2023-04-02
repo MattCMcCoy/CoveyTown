@@ -131,11 +131,6 @@ export default class CheckerArea extends InteractableArea {
     this._emitAreaChanged();
   }
 
-  public addPlayer(player: Player): void {
-    super.add(player);
-    this._leaderboard.push({ playerId: player.id, wins: 0, losses: 0 });
-  }
-
   updateModel(checkerArea: CheckerAreaModel) {
     this.squares = checkerArea.squares;
     this._blackScore = checkerArea.blackScore;

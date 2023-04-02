@@ -114,6 +114,7 @@ const models: TsoaRoute.Models = {
     "CheckerLeaderboardItem": {
         "dataType": "refObject",
         "properties": {
+            "position": {"dataType":"double","required":true},
             "playerId": {"dataType":"string","required":true},
             "wins": {"dataType":"double","required":true},
             "losses": {"dataType":"double","required":true},
