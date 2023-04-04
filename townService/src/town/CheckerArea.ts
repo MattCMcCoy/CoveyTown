@@ -60,8 +60,8 @@ export default class CheckerArea extends InteractableArea {
     super(id, coordinates, townEmitter);
 
     this.squares = squares;
-    this._blackScore = blackScore ?? 0;
-    this._redScore = redScore ?? 0;
+    this._blackScore = blackScore;
+    this._redScore = redScore;
     this._activePlayer = 0;
     this._players = [];
   }
@@ -136,15 +136,15 @@ export default class CheckerArea extends InteractableArea {
       this._blackScore = 0;
       this._redScore = 0;
       this._activePlayer = 0;
-      this._players = []; // may need to change
+      this._players = [];
     }
     this._emitAreaChanged();
   }
 
   updateModel(checkerArea: CheckerAreaModel) {
     this.squares = checkerArea.squares;
-    this._blackScore = checkerArea.blackScore ?? 0;
-    this._redScore = checkerArea.redScore ?? 0;
+    this._blackScore = checkerArea.blackScore;
+    this._redScore = checkerArea.redScore;
     this._activePlayer = checkerArea.activePlayer;
     this._players = checkerArea.players;
   }

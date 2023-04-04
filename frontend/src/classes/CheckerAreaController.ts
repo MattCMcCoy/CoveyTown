@@ -34,7 +34,8 @@ export type CheckerAreaEvents = {
   playerTurnChange: (player: number) => void;
 
   /**
-   * A playerTurnChange event indicates that a players are changing turns.
+   * A playerListChange event indicates that a players participating
+   * in the game are changing.
    * Listeners are passed the new state of the activePlayer.
    */
   playerListChange: (players: string[]) => void;
@@ -163,10 +164,6 @@ export default class CheckerAreaController extends (EventEmitter as new () => Ty
       this._model.players = players;
       this.emit('playerListChange', players);
     }
-  }
-
-  public addPlayer(playerId: string) {
-    this._players.push(playerId);
   }
 
   public getActivePlayer(): string {

@@ -803,7 +803,7 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
   }
 
   /**
-   * Initializes the checker board of the given checkerBoard area. (specified via checker area controller)
+   * Switches the turn between the players of the given checkerBoard area. (specified via checker area controller)
    * @param checkerArea the checker area controller
    * @returns a promise wrapping the board
    */
@@ -812,7 +812,7 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
   }
 
   /**
-   * Initializes the checker board of the given checkerBoard area. (specified via checker area controller)
+   * Adds a person to the players of the given checkerBoard area. (specified via checker area controller)
    * @param checkerArea the checker area controller
    * @returns a promise wrapping the board
    */

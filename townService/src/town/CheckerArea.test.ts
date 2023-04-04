@@ -24,6 +24,7 @@ describe('CheckerArea', () => {
         blackScore: 0,
         redScore: 0,
         activePlayer: 0,
+        players: [],
       },
       testAreaBox,
       townEmitter,
@@ -90,6 +91,7 @@ describe('CheckerArea', () => {
       blackScore: 0,
       redScore: 0,
       activePlayer: 0,
+      players: [],
     });
     expect(testArea.id).toBe(id);
     expect(testArea.squares).toBe(newSquares);
