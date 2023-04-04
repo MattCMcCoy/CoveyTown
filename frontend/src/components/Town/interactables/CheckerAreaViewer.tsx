@@ -40,6 +40,7 @@ const CHECKER_OUTER_RED = '#9B2C2C';
 const CHECKER_OUTER_BLACK = 'black';
 const CHECKER_OUTER_SIZE = '70';
 const CHECKER_INNER_SIZE = '50';
+const MAX_PLAYERS = 1;
 
 function Score({ controller }: { controller: CheckerAreaController }): JSX.Element {
   const blackScore = useBlackScore(controller);
@@ -218,10 +219,26 @@ export function CheckerBoard({
   const toast = useToast();
   const currPlayer = useActivePlayer(controller);
   const playerList = usePlayers(controller);
+  const squares = useSquares(controller);
   //let dest: CheckerSquare;
   const [title, setTitle] = useState('Waiting for other players ...');
+
   console.log('In CheckerBoard');
   console.log('Player list' + controller.players);
+
+  async function initBoard() {
+    await townController
+      .initializeCheckerSessionAreaBoard(controller)
+      .then(newBoard => (controller.squares = newBoard));
+    if (controller.squares == undefined || controller.squares.length < 1) {
+      console.log('useEffect squares: ' + squares);
+      toast({
+        title: `Cant initialize Board`,
+        status: 'error',
+      });
+    }
+  }
+
   useEffect(() => {
     console.log('In first useEffect');
     townController.getCheckerAreaBoard(controller);
@@ -234,23 +251,28 @@ export function CheckerBoard({
       return playerList.indexOf(townController.ourPlayer.id) == 0 ? 'red' : 'black';
     }
 
-    if (playerList.length > 0) {
+    if (playerList.length >= MAX_PLAYERS) {
       setTitle('You are player ' + getPlayerColor());
     }
   }, [townController, playerList]);
 
-  function initBoard() {
-    if (controller.squares.length < 1) {
-      townController
-        .initializeCheckerSessionAreaBoard(controller)
-        .then(newBoard => (controller.squares = newBoard));
-    } else {
-      toast({
-        title: `Cant initialize Board`,
-        status: 'error',
-      });
-    }
+  if (playerList.length >= MAX_PLAYERS && (squares == undefined || squares.length < 1)) {
+    console.log('INITIALIZING SQUARES');
+    initBoard();
   }
+
+  // function initBoard() {
+  //   if (controller.squares.length < 1) {
+  //     townController
+  //       .initializeCheckerSessionAreaBoard(controller)
+  //       .then(newBoard => (controller.squares = newBoard));
+  //   } else {
+  //     toast({
+  //       title: `Cant initialize Board`,
+  //       status: 'error',
+  //     });
+  //   }
+  // }
 
   async function changeTurn() {
     await townController.changeActivePlayer(controller).then(p => (controller.activePlayer = p));
@@ -262,10 +284,9 @@ export function CheckerBoard({
     });
   }
 
-  const squares = useSquares(controller);
-  if (squares == undefined || squares.length < 1) {
-    initBoard();
-  }
+  // if (squares == undefined || squares.length < 1) {
+  //   initBoard();
+  // }
 
   return (
     <Modal
@@ -331,7 +352,10 @@ export function JoinMenu({
         <Button
           onClick={() => {
             //console.log('calling CheckerBoard');
-            if (controller.players.length < 2 && !controller.players.includes(currPlayerId)) {
+            if (
+              controller.players.length < MAX_PLAYERS &&
+              !controller.players.includes(currPlayerId)
+            ) {
               //controller.addPlayer(townController.ourPlayer.id);
               townController
                 .addCheckerPlayer(controller)
