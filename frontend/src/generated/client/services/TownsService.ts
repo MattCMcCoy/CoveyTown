@@ -318,12 +318,12 @@ xSessionToken: string,
     }
 
     /**
-     * Gets the squares of a checker area in a given town
-     * @param townId ID of the town in which to get the checker area squares
+     * changes the active player of the checker game.
+     * @param townId ID of the town in which to get the players of the checker area
      * @param checkerAreaId interactable ID of the checker area
      * @param xSessionToken session token of the player making the request, must
  * match the session token returned when the player joined the town
-     * @returns string Ok
+     * @returns number Ok
      * @throws ApiError
      */
     public changeActivePlayer(
@@ -333,10 +333,43 @@ xSessionToken: string,
 ): CancelablePromise<number> {
         return this.httpRequest.request({
             method: 'PATCH',
-            url: '/towns/{townID}/{checkerAreaId}/changeCurrentPlayer',
+            url: '/towns/{townID}/{checkerAreaId}/changeActivePlayer',
             path: {
                 'townID': townId,
                 'checkerAreaId': checkerAreaId,
+            },
+            headers: {
+                'X-Session-Token': xSessionToken,
+            },
+            errors: {
+                400: `Invalid values specified`,
+            },
+        });
+    }
+
+    /**
+     * changes the active player of the checker game.
+     * @param townId ID of the town in which to get the players of the checker area
+     * @param checkerAreaId interactable ID of the checker area
+     * @param playerId 
+     * @param xSessionToken session token of the player making the request, must
+ * match the session token returned when the player joined the town
+     * @returns string Ok
+     * @throws ApiError
+     */
+    public addCheckerPlayer(
+townId: string,
+checkerAreaId: string,
+playerId: string,
+xSessionToken: string,
+): CancelablePromise<Array<string>> {
+        return this.httpRequest.request({
+            method: 'PATCH',
+            url: '/towns/{townID}/{checkerAreaId}/{playerId}/addCheckerPlayer',
+            path: {
+                'townID': townId,
+                'checkerAreaId': checkerAreaId,
+                'playerId': playerId,
             },
             headers: {
                 'X-Session-Token': xSessionToken,
