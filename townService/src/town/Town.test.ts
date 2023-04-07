@@ -923,6 +923,8 @@ describe('Town', () => {
           squares: [],
           blackScore: 0,
           redScore: 0,
+          activePlayer: 0,
+          players: [],
         }),
       ).toBe(false);
     });
@@ -934,6 +936,8 @@ describe('Town', () => {
           squares: [],
           blackScore: 0,
           redScore: 0,
+          activePlayer: 0,
+          players: [],
         }),
       ).toBe(true);
       expect(
@@ -942,6 +946,8 @@ describe('Town', () => {
           squares: [],
           blackScore: 0,
           redScore: 0,
+          activePlayer: 0,
+          players: [],
         }),
       ).toBe(false);
     });
@@ -951,6 +957,8 @@ describe('Town', () => {
         squares: [],
         blackScore: 0,
         redScore: 0,
+        activePlayer: 0,
+        players: [],
       };
       beforeEach(() => {
         playerTestData.moveTo(615, 125); // Inside of "Name2" area
