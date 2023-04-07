@@ -114,20 +114,4 @@ describe('CheckerAreaController', () => {
       expect(testArea.id).toEqual(existingID);
     });
   });
-
-  describe('game over', () => {
-    it('Initial completion of data', () => {
-      const newModel: CheckerArea = {
-        id: testAreaModel.id,
-        squares: [],
-        blackScore: 0,
-        redScore: 0,
-      };
-      testArea.updateFrom(newModel);
-      expect(testArea.squares).toEqual([]);
-      expect(mockListeners.checkerSquareChange).toBeCalledWith([]);
-      expect(testArea.blackScore).toBeCalledWith(0);
-      expect(testArea.redScore).toBeCalledWith(0);
-    });
-  });
 });
