@@ -209,7 +209,7 @@ export function CheckerBoard({
   const squares = useSquares(controller);
   const [title, setTitle] = useState('Waiting for other players ...');
 
-  console.log('Player list' + controller.players);
+  console.log('Player list: ' + controller.players);
 
   async function initBoard() {
     await townController
@@ -242,7 +242,9 @@ export function CheckerBoard({
   }, [townController, playerList]);
 
   async function changeTurn() {
-    await townController.changeActivePlayer(controller).then(p => (controller.activePlayer = p));
+    await townController
+      .changeActivePlayer(controller)
+      .then(player => (controller.activePlayer = player));
     //console.log('new current Player: ' + p);
     console.log('current player: ' + controller.getActivePlayer());
     toast({
@@ -258,6 +260,7 @@ export function CheckerBoard({
       onClose={() => {
         close();
         townController.unPause();
+        townController.resetCheckerArea(controller).then(model => (controller.model = model));
       }}>
       <ModalOverlay />
       <ModalContent>

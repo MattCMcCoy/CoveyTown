@@ -52,8 +52,6 @@ export type CheckerAreaEvents = {
 export default class CheckerAreaController extends (EventEmitter as new () => TypedEmitter<CheckerAreaEvents>) {
   private _model: CheckerAreaModel;
 
-  private _players: string[] = [];
-
   /**
    * Constructs a new CheckerAreaController, initialized with the state of the provided checkerAreaModel.
    *
@@ -62,7 +60,6 @@ export default class CheckerAreaController extends (EventEmitter as new () => Ty
   constructor(checkerAreaModel: CheckerAreaModel) {
     super();
     this._model = checkerAreaModel;
-    this._players = [];
   }
 
   /**
@@ -72,6 +69,13 @@ export default class CheckerAreaController extends (EventEmitter as new () => Ty
    */
   public get id(): string {
     return this._model.id;
+  }
+
+  /**
+   * The CheckerAreaModel of this checker area.
+   */
+  public set model(checkerArea: CheckerAreaModel) {
+    this._model = checkerArea;
   }
 
   /**
