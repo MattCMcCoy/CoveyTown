@@ -9,7 +9,6 @@ import {
   TownEmitter,
   Color,
 } from '../types/CoveyTownSocket.d';
-import CheckerSquare from './CheckerParts/CheckerSquare';
 import InteractableArea from './InteractableArea';
 
 export default class CheckerArea extends InteractableArea {
@@ -142,7 +141,10 @@ export default class CheckerArea extends InteractableArea {
   }
 
   public updateMoveablePieces() {
-    this.squares.forEach(square => square.moves = this._generalMoves(square).concat(this._attackingMoves(square)));
+    this.squares.forEach(
+      // eslint-disable-next-line no-return-assign
+      square => (square.moves = this._generalMoves(square).concat(this._attackingMoves(square))),
+    );
   }
 
   public makeMove(moveFrom: string, moveTo: string) {
@@ -173,7 +175,9 @@ export default class CheckerArea extends InteractableArea {
       const jumpedXCoordinate = (moveFromSquare.x - moveToSquare.x) / 2;
       const jumpedYCoordinate = (moveFromSquare.y - moveToSquare.y) / 2;
       const jumpedSquare = this.squares.find(
-        square => square.id === `${moveToSquare.x + jumpedXCoordinate}${moveToSquare.y + jumpedYCoordinate}`,
+        square =>
+          square.id ===
+          `${moveToSquare.x + jumpedXCoordinate}${moveToSquare.y + jumpedYCoordinate}`,
       );
       if (jumpedSquare) {
         jumpedSquare.checker.id = 'empty';
@@ -189,19 +193,19 @@ export default class CheckerArea extends InteractableArea {
    * checkers game. The function then returns then returns the array of ids, attributed
    * the squares that the checker piece within the square being looked at can move to, without
    * attacking.
-   * 
-   * @param square This variable is the square's movement that is being looked into. 
+   *
+   * @param square This variable is the square's movement that is being looked into.
    * @returns the array of ids that are attributed to squares that can be moved to.
    */
   private _generalMoves(square: CheckerSquareModel): string[] {
-    let generalMoves = [];
+    const generalMoves = [];
     if (square.checker.type === 'red') {
       if (
         square.x + 1 < 8 &&
         square.y + 1 < 8 &&
-        this.squares.at(((square.x + 1) * 8) + (square.y + 1))?.checker.type === 'empty'
+        this.squares.at((square.x + 1) * 8 + (square.y + 1))?.checker.type === 'empty'
       ) {
-        const validMove = this.squares.at(((square.x + 1) * 8) + (square.y + 1))?.id;
+        const validMove = this.squares.at((square.x + 1) * 8 + (square.y + 1))?.id;
         if (validMove !== undefined) {
           generalMoves.push(validMove);
         }
@@ -209,9 +213,9 @@ export default class CheckerArea extends InteractableArea {
       if (
         square.x + 1 < 8 &&
         square.y - 1 >= 0 &&
-        this.squares.at(((square.x + 1) * 8) + (square.y - 1))?.checker.type === 'empty'
+        this.squares.at((square.x + 1) * 8 + (square.y - 1))?.checker.type === 'empty'
       ) {
-        const validMove = this.squares.at(((square.x + 1) * 8) + (square.y - 1))?.id;
+        const validMove = this.squares.at((square.x + 1) * 8 + (square.y - 1))?.id;
         if (validMove !== undefined) {
           generalMoves.push(validMove);
         }
@@ -221,9 +225,9 @@ export default class CheckerArea extends InteractableArea {
       if (
         square.x - 1 >= 0 &&
         square.y + 1 < 8 &&
-        this.squares.at(((square.x - 1) * 8) + (square.y + 1))?.checker.type === 'empty'
+        this.squares.at((square.x - 1) * 8 + (square.y + 1))?.checker.type === 'empty'
       ) {
-        const validMove = this.squares.at(((square.x - 1) * 8) + (square.y + 1))?.id;
+        const validMove = this.squares.at((square.x - 1) * 8 + (square.y + 1))?.id;
         if (validMove !== undefined) {
           generalMoves.push(validMove);
         }
@@ -231,9 +235,9 @@ export default class CheckerArea extends InteractableArea {
       if (
         square.x - 1 >= 0 &&
         square.y - 1 >= 0 &&
-        this.squares.at(((square.x - 1) * 8) + (square.y - 1))?.checker.type === 'empty'
+        this.squares.at((square.x - 1) * 8 + (square.y - 1))?.checker.type === 'empty'
       ) {
-        const validMove = this.squares.at(((square.x - 1) * 8) + (square.y - 1))?.id;
+        const validMove = this.squares.at((square.x - 1) * 8 + (square.y - 1))?.id;
         if (validMove !== undefined) {
           generalMoves.push(validMove);
         }
@@ -247,21 +251,21 @@ export default class CheckerArea extends InteractableArea {
    * checkers game. The function then returns then returns the array of ids, attributed to
    * the squares that the checker piece within the square being looked at can move to, while
    * attacking.
-   * 
-   * @param square This variable is the square's movement that is being looked into. 
+   *
+   * @param square This variable is the square's movement that is being looked into.
    * @returns the array of ids that are attributed to squares that can be moved to as well
    * as the squares that are being jumped.
    */
   private _attackingMoves(square: CheckerSquareModel): string[] {
-    let attackingMoves = [];
+    const attackingMoves = [];
     if (square.checker.type === 'red') {
       if (
         square.x + 2 < 8 &&
         square.y + 2 < 8 &&
-        this.squares.at(((square.x + 2) * 8) + (square.y + 2))?.checker.type === 'empty' &&
-        this.squares.at(((square.x + 1) * 8) + (square.y + 1))?.checker.type === 'black'
+        this.squares.at((square.x + 2) * 8 + (square.y + 2))?.checker.type === 'empty' &&
+        this.squares.at((square.x + 1) * 8 + (square.y + 1))?.checker.type === 'black'
       ) {
-        const validMove = this.squares.at(((square.x + 2) * 8) + (square.y + 2))?.id;
+        const validMove = this.squares.at((square.x + 2) * 8 + (square.y + 2))?.id;
         if (validMove !== undefined) {
           attackingMoves.push(validMove);
         }
@@ -269,10 +273,10 @@ export default class CheckerArea extends InteractableArea {
       if (
         square.x + 2 < 8 &&
         square.y - 2 >= 0 &&
-        this.squares.at(((square.x + 2) * 8) + (square.y - 2))?.checker.type === 'empty' &&
-        this.squares.at(((square.x + 1) * 8) + (square.y - 1))?.checker.type === 'black'
+        this.squares.at((square.x + 2) * 8 + (square.y - 2))?.checker.type === 'empty' &&
+        this.squares.at((square.x + 1) * 8 + (square.y - 1))?.checker.type === 'black'
       ) {
-        const validMove = this.squares.at(((square.x + 2) * 8) + (square.y - 2))?.id;
+        const validMove = this.squares.at((square.x + 2) * 8 + (square.y - 2))?.id;
         if (validMove !== undefined) {
           attackingMoves.push(validMove);
         }
@@ -282,10 +286,10 @@ export default class CheckerArea extends InteractableArea {
       if (
         square.x - 2 >= 0 &&
         square.y + 2 < 8 &&
-        this.squares.at(((square.x - 2) * 8) + (square.y + 2))?.checker.type === 'empty' &&
-        this.squares.at(((square.x - 1) * 8) + (square.y + 1))?.checker.type === 'red'
+        this.squares.at((square.x - 2) * 8 + (square.y + 2))?.checker.type === 'empty' &&
+        this.squares.at((square.x - 1) * 8 + (square.y + 1))?.checker.type === 'red'
       ) {
-        const validMove = this.squares.at(((square.x - 2) * 8) + (square.y + 2))?.id;
+        const validMove = this.squares.at((square.x - 2) * 8 + (square.y + 2))?.id;
         if (validMove !== undefined) {
           attackingMoves.push(validMove);
         }
@@ -293,10 +297,10 @@ export default class CheckerArea extends InteractableArea {
       if (
         square.x - 2 >= 0 &&
         square.y - 2 >= 0 &&
-        this.squares.at(((square.x - 2) * 8) + (square.y - 2))?.checker.type === 'empty' &&
-        this.squares.at(((square.x - 1) * 8) + (square.y - 1))?.checker.type === 'red'
+        this.squares.at((square.x - 2) * 8 + (square.y - 2))?.checker.type === 'empty' &&
+        this.squares.at((square.x - 1) * 8 + (square.y - 1))?.checker.type === 'red'
       ) {
-        const validMove = this.squares.at(((square.x - 2) * 8) + (square.y - 2))?.id;
+        const validMove = this.squares.at((square.x - 2) * 8 + (square.y - 2))?.id;
         if (validMove !== undefined) {
           attackingMoves.push(validMove);
         }
