@@ -79,6 +79,14 @@ export interface CheckerArea {
   squares: CheckerSquare[];
   blackScore: number;
   redScore: number;
+  leaderboard: CheckerLeaderboardItem[];
+}
+
+export interface CheckerLeaderboardItem {
+  position: number;
+  playerId: string;
+  wins: number;
+  losses: number;
 }
 
 export interface CheckerSquare {

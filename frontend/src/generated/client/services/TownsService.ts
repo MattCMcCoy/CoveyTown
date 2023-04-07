@@ -2,6 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { CheckerArea } from '../models/CheckerArea';
+import type { CheckerLeaderboardItem } from '../models/CheckerLeaderboardItem';
 import type { CheckerSquare } from '../models/CheckerSquare';
 import type { ConversationArea } from '../models/ConversationArea';
 import type { PosterSessionArea } from '../models/PosterSessionArea';
@@ -334,6 +335,36 @@ export class TownsService {
         return this.httpRequest.request({
             method: 'PATCH',
             url: '/towns/{townID}/{checkerAreaId}/initializeCheckerAreaBoard',
+            path: {
+                'townID': townId,
+                'checkerAreaId': checkerAreaId,
+            },
+            headers: {
+                'X-Session-Token': xSessionToken,
+            },
+            errors: {
+                400: `Invalid values specified`,
+            },
+        });
+    }
+
+    /**
+     * Gets the leaderboard of a given checker area.
+     * @param townId ID of the town in which to get the checker areas leaderboard.
+     * @param checkerAreaId interactable ID of the checker area
+     * @param xSessionToken token of the player making the request, must
+     * match the session token returned when the player joined the town
+     * @returns CheckerLeaderboardItem the leaderboard of the checker area
+     * @throws ApiError
+     */
+    public getCheckerLeaderBoard(
+        townId: string,
+        checkerAreaId: string,
+        xSessionToken: string,
+    ): CancelablePromise<Array<CheckerLeaderboardItem>> {
+        return this.httpRequest.request({
+            method: 'PATCH',
+            url: '/towns/{townID}/{checkerAreaId}/leaderboard',
             path: {
                 'townID': townId,
                 'checkerAreaId': checkerAreaId,
