@@ -83,7 +83,7 @@ function Board({
   let source: CheckerSquare;
   const [firstButtonClicked, setFirstButtonClicked] = useState(0);
   const [secondButtonClicked, setSecondButtonClicked] = useState(0);
-  if (squares == undefined) {
+  if (squares == undefined || squares.length == 0) {
     return <></>;
   }
 
@@ -96,7 +96,6 @@ function Board({
 
   async function changeTurn() {
     await townController.changeActivePlayer(controller).then(p => (controller.activePlayer = p));
-    //console.log('new current Player: ' + p);
     console.log('current player: ' + controller.getActivePlayer());
     toast({
       title: 'Switching turns',
@@ -118,7 +117,6 @@ function Board({
       setSecondButtonClicked(2);
       console.log('Dest square clicked: ' + square.id);
       setFirstButtonClicked(0);
-      console.log('SwitchTurn would be called');
       changeTurn();
 
       //rerender board
@@ -141,12 +139,8 @@ function Board({
   let row: JSX.Element[] = [];
   const board: JSX.Element[] = [];
 
-  console.log('Is active player: ' + controller.isActivePlayer(currPlayer));
-  console.log('Active player color: ' + color);
-
   squares.forEach(square => {
     // add squares to row
-    console.log('Rerendering squares');
     row.push(
       <Box
         as='button'
@@ -215,7 +209,6 @@ export function CheckerBoard({
   const squares = useSquares(controller);
   const [title, setTitle] = useState('Waiting for other players ...');
 
-  console.log('In CheckerBoard');
   console.log('Player list' + controller.players);
 
   async function initBoard() {
@@ -223,7 +216,6 @@ export function CheckerBoard({
       .initializeCheckerSessionAreaBoard(controller)
       .then(newBoard => (controller.squares = newBoard));
     if (controller.squares == undefined || controller.squares.length < 1) {
-      console.log('useEffect squares: ' + squares);
       toast({
         title: `Cant initialize Board`,
         status: 'error',
@@ -232,19 +224,15 @@ export function CheckerBoard({
   }
 
   useEffect(() => {
-    console.log('In first useEffect');
     townController.getCheckerAreaBoard(controller);
   }, [townController, controller]);
 
   useEffect(() => {
-    console.log('In second useEffect');
-    console.log('player list length: ' + playerList.length);
     function getPlayerColor(): string {
       return playerList.indexOf(townController.ourPlayer.id) == 0 ? 'red' : 'black';
     }
 
     if (playerList.length == MAX_PLAYERS && (squares == undefined || squares.length < 1)) {
-      console.log('INITIALIZING SQUARES');
       initBoard();
     }
 
@@ -329,8 +317,6 @@ export function JoinMenu({
               townController
                 .addCheckerPlayer(controller)
                 .then(players => (controller.players = players));
-              console.log('Adding player: ' + townController.ourPlayer.id);
-              console.log('New player list length: ' + controller.players.length);
               onOpen();
             }
           }}>
