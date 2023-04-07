@@ -107,7 +107,7 @@ const models: TsoaRoute.Models = {
             "x": {"dataType":"double","required":true},
             "y": {"dataType":"double","required":true},
             "checker": {"ref":"CheckerPiece","required":true},
-            "moves": {"dataType":"array","array":{"dataType":"double"},"required":true},
+            "moves": {"dataType":"array","array":{"dataType":"string"},"required":true},
         },
         "additionalProperties": false,
     },

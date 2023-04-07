@@ -86,7 +86,7 @@ export interface CheckerSquare {
   x: number;
   y: number;
   checker: CheckerPiece;
-  moves: number[];
+  moves: string[];
 }
 
 export enum Color {

@@ -43,7 +43,7 @@ describe('CheckerAreaController', () => {
         x: number;
         y: number;
         checker: CheckerPieceModel;
-        moves: number[];
+        moves: string[];
       }[] = [];
       testArea.squares = newSquares;
       expect(mockListeners.checkerSquareChange).toBeCalledWith(newSquares);
