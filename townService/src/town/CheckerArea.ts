@@ -170,8 +170,10 @@ export default class CheckerArea extends InteractableArea {
       moveToSquare.checker.id = moveFromSquare.checker.id;
       moveToSquare.checker.type = moveFromSquare.checker.type;
       // Color.EMPTY doesnt work?
+      const jumpedXCoordinate = (moveFromSquare.x - moveToSquare.x) / 2;
+      const jumpedYCoordinate = (moveFromSquare.y - moveToSquare.y) / 2;
       const jumpedSquare = this.squares.find(
-        square => square.id === `${moveToSquare.x - 1}${moveToSquare.y - 1}`,
+        square => square.id === `${moveToSquare.x + jumpedXCoordinate}${moveToSquare.y + jumpedYCoordinate}`,
       );
       if (jumpedSquare) {
         jumpedSquare.checker.id = 'empty';
@@ -182,7 +184,15 @@ export default class CheckerArea extends InteractableArea {
     }
   }
 
-  // check efficacy
+  /**
+   * This method serves to determine the valid general (non-attacking) moves in a
+   * checkers game. The function then returns then returns the array of ids, attributed
+   * the squares that the checker piece within the square being looked at can move to, without
+   * attacking.
+   * 
+   * @param square This variable is the square's movement that is being looked into. 
+   * @returns the array of ids that are attributed to squares that can be moved to.
+   */
   private _generalMoves(square: CheckerSquareModel): string[] {
     let generalMoves = [];
     if (square.checker.type === 'red') {
@@ -232,7 +242,16 @@ export default class CheckerArea extends InteractableArea {
     return generalMoves;
   }
 
-  //check efficacy
+  /**
+   * This method serves to determine the valid attacking moves in a
+   * checkers game. The function then returns then returns the array of ids, attributed to
+   * the squares that the checker piece within the square being looked at can move to, while
+   * attacking.
+   * 
+   * @param square This variable is the square's movement that is being looked into. 
+   * @returns the array of ids that are attributed to squares that can be moved to as well
+   * as the squares that are being jumped.
+   */
   private _attackingMoves(square: CheckerSquareModel): string[] {
     let attackingMoves = [];
     if (square.checker.type === 'red') {
