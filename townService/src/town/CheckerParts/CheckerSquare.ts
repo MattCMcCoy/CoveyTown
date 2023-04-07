@@ -1,6 +1,7 @@
 import {
   CheckerSquare as CheckerSquareModel,
   CheckerPiece as CheckerPieceModel,
+  Color,
 } from '../../types/CoveyTownSocket';
 
 export default class CheckerSquare {
@@ -10,7 +11,7 @@ export default class CheckerSquare {
 
   private _y: number;
 
-  private _checker: CheckerPieceModel = { id: 'empty', type: 'empty' };
+  private _checker: CheckerPieceModel = { id: 'empty', type: 'empty' as Color };
 
   constructor({ id, x, y }: CheckerSquareModel, checker: CheckerPieceModel) {
     this._id = id;
