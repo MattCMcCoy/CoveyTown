@@ -153,7 +153,7 @@ export default class CheckerArea extends InteractableArea {
     if (
       moveFromSquare &&
       moveToSquare &&
-      moveFromSquare.moves.includes(moveToSquare.id)
+      this._generalMoves(moveFromSquare).includes(moveToSquare.id)
     ) {
       moveToSquare.checker.id = moveFromSquare.checker.id;
       moveToSquare.checker.type = moveFromSquare.checker.type;
@@ -165,7 +165,7 @@ export default class CheckerArea extends InteractableArea {
     if (
       moveFromSquare &&
       moveToSquare &&
-      moveFromSquare.moves.includes(moveToSquare.id)
+      this._attackingMoves(moveFromSquare).includes(moveToSquare.id)
     ) {
       moveToSquare.checker.id = moveFromSquare.checker.id;
       moveToSquare.checker.type = moveFromSquare.checker.type;
