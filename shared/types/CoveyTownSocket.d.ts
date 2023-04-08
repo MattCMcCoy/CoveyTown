@@ -81,6 +81,14 @@ export interface CheckerArea {
   redScore: number;
   activePlayer: number;
   players: string[];
+  leaderboard: CheckerLeaderboardItem[];
+}
+
+export interface CheckerLeaderboardItem {
+  position: number;
+  playerId: string;
+  wins: number;
+  losses: number;
 }
 
 export interface CheckerSquare {

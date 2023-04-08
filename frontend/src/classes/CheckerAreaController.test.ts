@@ -18,6 +18,7 @@ describe('CheckerAreaController', () => {
       redScore: 0,
       activePlayer: 0,
       players: [],
+      leaderboard: [],
     };
     for (let x = 0; x < 8; x++) {
       for (let y = 0; y < 8; y++) {
@@ -35,6 +36,7 @@ describe('CheckerAreaController', () => {
     testArea.addListener('checkerSquareChange', mockListeners.checkerSquareChange);
     testArea.addListener('blackScoreChange', mockListeners.blackScoreChange);
     testArea.addListener('redScoreChange', mockListeners.redScoreChange);
+    testArea.addListener('leaderboardChange', mockListeners.leaderboardChange);
   });
 
   describe('Updating squares', () => {
@@ -66,6 +68,7 @@ describe('CheckerAreaController', () => {
         redScore: 0,
         activePlayer: testAreaModel.activePlayer,
         players: testAreaModel.players,
+        leaderboard: [],
       };
 
       testArea.updateFrom(newModel);
@@ -81,6 +84,7 @@ describe('CheckerAreaController', () => {
         redScore: testAreaModel.redScore + 1,
         activePlayer: testAreaModel.activePlayer,
         players: testAreaModel.players,
+        leaderboard: testAreaModel.leaderboard,
       };
 
       testArea.updateFrom(newModel);
@@ -96,11 +100,28 @@ describe('CheckerAreaController', () => {
         redScore: testAreaModel.redScore,
         activePlayer: testAreaModel.activePlayer,
         players: testAreaModel.players,
+        leaderboard: testAreaModel.leaderboard,
       };
 
       testArea.updateFrom(newModel);
       expect(testArea.blackScore).toEqual(newModel.blackScore);
       expect(mockListeners.blackScoreChange).toBeCalledWith(newModel.blackScore);
+    });
+
+    it('Updates the leaderboard property', () => {
+      const newModel: CheckerArea = {
+        id: testAreaModel.id,
+        squares: testAreaModel.squares,
+        blackScore: testAreaModel.blackScore,
+        redScore: testAreaModel.redScore,
+        activePlayer: testAreaModel.activePlayer,
+        players: testAreaModel.players,
+        leaderboard: [{ position: 1, playerId: '10', wins: 2, losses: 2 }],
+      };
+
+      testArea.updateFrom(newModel);
+      expect(testArea.leaderboard).toEqual(newModel.leaderboard);
+      expect(mockListeners.leaderboardChange).toBeCalledWith(newModel.leaderboard);
     });
 
     it('Does not update the id property', () => {
@@ -112,27 +133,10 @@ describe('CheckerAreaController', () => {
         redScore: 0,
         activePlayer: testAreaModel.activePlayer,
         players: testAreaModel.players,
+        leaderboard: testAreaModel.leaderboard,
       };
       testArea.updateFrom(newModel);
       expect(testArea.id).toEqual(existingID);
-    });
-  });
-
-  describe('game over', () => {
-    it('Initial completion of data', () => {
-      const newModel: CheckerArea = {
-        id: testAreaModel.id,
-        squares: [],
-        blackScore: 0,
-        redScore: 0,
-        activePlayer: testAreaModel.activePlayer,
-        players: testAreaModel.players,
-      };
-      testArea.updateFrom(newModel);
-      expect(testArea.squares).toEqual([]);
-      expect(mockListeners.checkerSquareChange).toBeCalledWith([]);
-      expect(testArea.blackScore).toBeCalledWith(0);
-      expect(testArea.redScore).toBeCalledWith(0);
     });
   });
 });

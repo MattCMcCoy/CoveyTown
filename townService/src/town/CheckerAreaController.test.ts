@@ -97,6 +97,7 @@ describe('TownsController integration tests', () => {
             redScore: 0,
             activePlayer: 0,
             players: [],
+            leaderboard: [],
           };
 
           await controller.createCheckerArea(testingTown.townID, sessionToken, newCheckerArea);
@@ -131,6 +132,7 @@ describe('TownsController integration tests', () => {
             redScore: 0,
             activePlayer: 0,
             players: [],
+            leaderboard: [],
           };
 
           expect(newCheckerArea.squares.length).toEqual(0);
@@ -159,6 +161,7 @@ describe('TownsController integration tests', () => {
           redScore: 0,
           activePlayer: 0,
           players: [],
+          leaderboard: [],
         };
         await expect(
           controller.createCheckerArea(nanoid(), sessionToken, newCheckerArea),
@@ -174,6 +177,7 @@ describe('TownsController integration tests', () => {
           redScore: 0,
           activePlayer: 0,
           players: [],
+          leaderboard: [],
         };
         await expect(
           controller.createCheckerArea(testingTown.townID, invalidSessionToken, newCheckerArea),

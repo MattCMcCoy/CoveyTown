@@ -19,6 +19,7 @@ import {
   ViewingArea as ViewingAreaModel,
   PosterSessionArea as PosterSessionAreaModel,
   CheckerArea as CheckerAreaModel,
+  CheckerLeaderboardItem,
 } from '../types/CoveyTownSocket';
 import {
   isConversationArea,
@@ -715,6 +716,7 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
         redScore: 0,
         activePlayer: 0,
         players: [],
+        leaderboard: [],
       });
       this.checkerAreas.push(newController);
       return newController;
@@ -766,7 +768,7 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
   /**
    * Get the checkerSquare from a specified checkerArea (specified via checker Area controller)
    * @param checkerArea the poster session area controller
-   * @returns a promise wrapping the contents of the poster session area's image (i.e. the string)
+   * @returns a promise wrapping the contents of the areas board
    */
   public async getCheckerAreaBoard(checkerArea: CheckerAreaController): Promise<CheckerSquare[]> {
     return this._townsService.getCheckerAreaSquares(this.townID, checkerArea.id, this.sessionToken);
@@ -832,6 +834,16 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
    */
   public async resetCheckerArea(checkerArea: CheckerAreaController): Promise<CheckerAreaModel> {
     return this._townsService.resetCheckerArea(this.townID, checkerArea.id, this.sessionToken);
+  }
+
+  /** Get the checkerLeaderboard from a specified checkerArea (specified via checker Area controller)
+   * @param checkerArea the poster session area controller
+   * @returns a promise wrapping the contents of the areas leaderboard
+   */
+  public async getCheckerLeaderboard(
+    checkerArea: CheckerAreaController,
+  ): Promise<CheckerLeaderboardItem[]> {
+    return this._townsService.getCheckerLeaderBoard(this.townID, checkerArea.id, this.sessionToken);
   }
 
   /**

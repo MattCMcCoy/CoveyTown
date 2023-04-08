@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { EventEmitter } from 'events';
 import TypedEmitter from 'typed-emitter';
 import { CheckerArea as CheckerAreaModel } from '../types/CoveyTownSocket';
-import { CheckerSquare } from '../generated/client';
+import { CheckerLeaderboardItem, CheckerSquare } from '../generated/client';
 
 /**
  * The events that a CheckerAreaController can emit.
@@ -39,6 +39,11 @@ export type CheckerAreaEvents = {
    * Listeners are passed the new state of the activePlayer.
    */
   playerListChange: (players: string[]) => void;
+
+  /** A leaderboardChange event that indicates that the leaderboard has changed.
+   * Listeners are passed the new state of the leaderboard.
+   */
+  leaderboardChange: (leaderboard: CheckerLeaderboardItem[]) => void;
 };
 
 /**
@@ -135,6 +140,17 @@ export default class CheckerAreaController extends (EventEmitter as new () => Ty
     }
   }
 
+  public get leaderboard(): CheckerLeaderboardItem[] {
+    return this._model.leaderboard;
+  }
+
+  public set leaderboard(leaderboard: CheckerLeaderboardItem[]) {
+    if (_.xor(this._model.leaderboard, leaderboard).length > 0) {
+      this._model.leaderboard = leaderboard;
+      this.emit('leaderboardChange', leaderboard);
+    }
+  }
+
   /**
    * The pleyer whose turn it is.
    */
@@ -196,9 +212,11 @@ export default class CheckerAreaController extends (EventEmitter as new () => Ty
    */
   public updateFrom(updatedModel: CheckerAreaModel): void {
     this.squares = updatedModel.squares;
-    this.blackScore = updatedModel.blackScore ?? 0;
-    this.redScore = updatedModel.redScore ?? 0;
+    this.blackScore = updatedModel.blackScore;
+    this.redScore = updatedModel.redScore;
     this.activePlayer = updatedModel.activePlayer;
+    this.players = updatedModel.players;
+    this.leaderboard = updatedModel.leaderboard;
   }
 }
 
@@ -265,4 +283,16 @@ export function usePlayers(controller: CheckerAreaController): string[] {
     };
   }, [controller]);
   return players;
+}
+
+export function useLeaderboard(controller: CheckerAreaController): CheckerLeaderboardItem[] {
+  const [leaderboard, setLeaderboard] = useState(controller.leaderboard);
+
+  useEffect(() => {
+    controller.addListener('leaderboardChange', setLeaderboard);
+    return () => {
+      controller.removeListener('leaderboardChange', setLeaderboard);
+    };
+  }, [controller]);
+  return leaderboard;
 }

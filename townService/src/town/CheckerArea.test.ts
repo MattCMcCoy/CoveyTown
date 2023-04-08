@@ -25,6 +25,7 @@ describe('CheckerArea', () => {
         redScore: 0,
         activePlayer: 0,
         players: [],
+        leaderboard: [],
       },
       testAreaBox,
       townEmitter,
@@ -67,6 +68,7 @@ describe('CheckerArea', () => {
         blackScore: 0,
         activePlayer: 0,
         players: [],
+        leaderboard: [],
       });
     });
 
@@ -85,6 +87,7 @@ describe('CheckerArea', () => {
         blackScore: 0,
         activePlayer: 0,
         players: [],
+        leaderboard: [],
       });
     });
   });
@@ -99,6 +102,7 @@ describe('CheckerArea', () => {
       blackScore: 0,
       activePlayer: 0,
       players: [],
+      leaderboard: [],
     });
   });
 
@@ -113,6 +117,7 @@ describe('CheckerArea', () => {
       redScore: 0,
       activePlayer: 0,
       players: [],
+      leaderboard: [],
     });
     expect(testArea.id).toBe(id);
     expect(testArea.squares).toBe(newSquares);

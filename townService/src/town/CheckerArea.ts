@@ -7,11 +7,14 @@ import {
   CheckerPiece as CheckerPieceModel,
   BoundingBox,
   TownEmitter,
+  CheckerLeaderboardItem,
 } from '../types/CoveyTownSocket';
 import InteractableArea from './InteractableArea';
 
 export default class CheckerArea extends InteractableArea {
   private _squares: CheckerSquareModel[] = [];
+
+  private _leaderboard: CheckerLeaderboardItem[] = [];
 
   private _redScore: number;
 
@@ -45,6 +48,10 @@ export default class CheckerArea extends InteractableArea {
     return this._players;
   }
 
+  public get leaderboard(): CheckerLeaderboardItem[] {
+    return this._leaderboard;
+  }
+
   /**
    * Creates a new checker area
    *
@@ -53,7 +60,7 @@ export default class CheckerArea extends InteractableArea {
    * @param townEmitter a broadcast emitter that can be used to emit updates to players
    */
   public constructor(
-    { id, squares, blackScore, redScore }: CheckerAreaModel,
+    { id, squares, blackScore, redScore, leaderboard }: CheckerAreaModel,
     coordinates: BoundingBox,
     townEmitter: TownEmitter,
   ) {
@@ -64,6 +71,7 @@ export default class CheckerArea extends InteractableArea {
     this._redScore = redScore;
     this._activePlayer = 0;
     this._players = [];
+    this._leaderboard = leaderboard;
   }
 
   /**
@@ -137,6 +145,7 @@ export default class CheckerArea extends InteractableArea {
       this._redScore = 0;
       this._activePlayer = 0;
       this._players = [];
+      this._leaderboard = [];
     }
     this._emitAreaChanged();
   }
@@ -147,6 +156,7 @@ export default class CheckerArea extends InteractableArea {
     this._redScore = checkerArea.redScore;
     this._activePlayer = checkerArea.activePlayer;
     this._players = checkerArea.players;
+    this._leaderboard = checkerArea.leaderboard;
   }
 
   public toModel(): Interactable {
@@ -157,6 +167,7 @@ export default class CheckerArea extends InteractableArea {
       redScore: this._redScore,
       activePlayer: this._activePlayer,
       players: this._players,
+      leaderboard: this._leaderboard,
     };
   }
 
@@ -180,6 +191,7 @@ export default class CheckerArea extends InteractableArea {
         redScore: 0,
         activePlayer: 0,
         players: [],
+        leaderboard: [],
       },
       rect,
       townEmitter,
