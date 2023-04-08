@@ -172,6 +172,7 @@ export function CheckerBoard({
   }, [townController, controller]);
 
   const squares = useSquares(controller);
+
   useEffect(() => {
     if (squares == undefined || squares.length < 1) {
       if (controller.squares.length < 1) {
@@ -186,6 +187,12 @@ export function CheckerBoard({
       }
     }
   }, [controller, squares, toast, townController]);
+
+  useEffect(() => {
+    townController
+      .getCheckerAreaBoard(controller)
+      .then(newBoard => (controller.squares = newBoard));
+  }, [controller, squares, townController]);
 
   return (
     <Modal

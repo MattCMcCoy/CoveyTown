@@ -140,13 +140,26 @@ export default class CheckerArea extends InteractableArea {
     };
   }
 
+  /**
+   * This method goes through each square on the board
+   * using for each and calls this._setSquareMoves so that each
+   * squares moves will be updated in real time.
+   */
   public updateMoveablePieces() {
-    this.squares.forEach(
-      // eslint-disable-next-line no-return-assign
-      square => (square.moves = this._generalMoves(square).concat(this._attackingMoves(square))),
-    );
+    this.squares.forEach(square => this._setSquareMoves(square));
   }
 
+  /**
+   * This method is called from the front end every time a move is being attempted.
+   * First it calls updateMoveablePieces to set the valid moves that are attributed
+   * to each square at this point in time. Next it then verifies that the checker
+   * that wants to be moved to is a valid move for the moveFrom checker. If the move
+   * is not valid no change will occur. If the move is valid the square are then
+   * updated accordingly and the frontend will then update the model.
+   *
+   * @param moveFrom The square that the checker is in currently.
+   * @param moveTo The square that the checker wants to be moved to.
+   */
   public makeMove(moveFrom: string, moveTo: string) {
     this.updateMoveablePieces();
     const moveFromSquare = this.squares.find(square => square.id === moveFrom);
@@ -159,7 +172,6 @@ export default class CheckerArea extends InteractableArea {
     ) {
       moveToSquare.checker.id = moveFromSquare.checker.id;
       moveToSquare.checker.type = moveFromSquare.checker.type;
-      // Color.EMPTY doesnt work?
       moveFromSquare.checker.id = 'empty';
       moveFromSquare.checker.type = 'empty' as Color;
     }
@@ -171,7 +183,8 @@ export default class CheckerArea extends InteractableArea {
     ) {
       moveToSquare.checker.id = moveFromSquare.checker.id;
       moveToSquare.checker.type = moveFromSquare.checker.type;
-      // Color.EMPTY doesnt work?
+      // The below snipped calculate where the piece being jumped is and then removes the checker that
+      // was in that position.
       const jumpedXCoordinate = (moveFromSquare.x - moveToSquare.x) / 2;
       const jumpedYCoordinate = (moveFromSquare.y - moveToSquare.y) / 2;
       const jumpedSquare = this.squares.find(
@@ -186,6 +199,20 @@ export default class CheckerArea extends InteractableArea {
         moveFromSquare.checker.type = 'empty' as Color;
       }
     }
+  }
+
+  /**
+   * This method serves to set the valid moves for a checker within a particular square
+   * on the board. This helper method is called by update moveable pieces for each
+   * square on the board. Once this method is called it then takes a square as input
+   * gets the general moves and attacking moves from the accompanying helper methods below.
+   * Once the lists for valid moves are calculated by the helper methods they are combined into
+   * an array and the moves for the square is set.
+   *
+   * @param square The square which is having its moves updated
+   */
+  private _setSquareMoves(square: CheckerSquareModel) {
+    square.moves = this._generalMoves(square).concat(this._attackingMoves(square));
   }
 
   /**
