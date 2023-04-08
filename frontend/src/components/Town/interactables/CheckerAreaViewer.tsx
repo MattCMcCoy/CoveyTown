@@ -83,7 +83,7 @@ function Board({
   const currPlayer = townController.ourPlayer.id;
   let source: CheckerSquare;
   const [firstButtonClicked, setFirstButtonClicked] = useState(0);
-  const [secondButtonClicked, setSecondButtonClicked] = useState(0);
+  const [, setSecondButtonClicked] = useState(0);
   if (squares == undefined || squares.length == 0) {
     return <></>;
   }
@@ -106,8 +106,8 @@ function Board({
 
   function handleFirstButtonClick(square: CheckerSquare) {
     setFirstButtonClicked(1);
-    console.log('Source square clicked: ' + square.id);
     source = square;
+    console.log('Source square clicked: ' + source.id);
   }
 
   function handleSecondButtonClick(square: CheckerSquare) {
@@ -119,9 +119,6 @@ function Board({
       console.log('Dest square clicked: ' + square.id);
       setFirstButtonClicked(0);
       changeTurn();
-
-      //rerender board
-      // Execute your event here
     }
   }
 
@@ -212,18 +209,6 @@ export function CheckerBoard({
 
   console.log('Player list: ' + controller.players);
 
-  async function initBoard() {
-    await townController
-      .initializeCheckerSessionAreaBoard(controller)
-      .then(newBoard => (controller.squares = newBoard));
-    if (controller.squares == undefined || controller.squares.length < 1) {
-      toast({
-        title: `Cant initialize Board`,
-        status: 'error',
-      });
-    }
-  }
-
   useEffect(() => {
     townController.getCheckerAreaBoard(controller);
   }, [townController, controller]);
@@ -233,6 +218,15 @@ export function CheckerBoard({
       return playerList.indexOf(townController.ourPlayer.id) == 0 ? 'red' : 'black';
     }
 
+    async function initBoard() {
+      await townController
+        .initializeCheckerSessionAreaBoard(controller)
+        .then(newBoard => (controller.squares = newBoard));
+      if (controller.squares == undefined || controller.squares.length < 1) {
+        console.log('Cant initialize Board');
+      }
+    }
+
     if (playerList.length == MAX_PLAYERS && (squares == undefined || squares.length < 1)) {
       initBoard();
     }
@@ -240,7 +234,7 @@ export function CheckerBoard({
     if (playerList.length >= MAX_PLAYERS) {
       setTitle('You are player ' + getPlayerColor());
     }
-  }, [townController, playerList]);
+  }, [townController, controller, playerList, squares]);
 
   async function changeTurn() {
     await townController
