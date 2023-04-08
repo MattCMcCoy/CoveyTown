@@ -32,7 +32,8 @@ const CHECKER_INNER_RED = '#C53030';
 const CHECKER_INNER_BLACK = '#1A202C';
 const CHECKER_OUTER_RED = '#9B2C2C';
 const CHECKER_OUTER_BLACK = 'black';
-const CHECKER_OUTER_SIZE = '70';
+const CHECKER_HIGHLIGHT_SIZE = '70';
+const CHECKER_OUTER_SIZE = '65';
 const CHECKER_INNER_SIZE = '50';
 
 function Score({ controller }: { controller: CheckerAreaController }): JSX.Element {
@@ -79,6 +80,8 @@ function Board({
       townController
         .makeCheckerMove(controller, moveFrom, moveTo)
         .then(newBoard => (controller.squares = newBoard));
+      setMoveFrom('');
+      setMoveTo('');
     }
   }, [controller, moveFrom, moveTo, townController]);
   if (squares == undefined) {
@@ -118,14 +121,19 @@ function Board({
         onClick={() => handleSquareClick(square.id)}>
         {square.checker.type !== 'empty' ? (
           <Circle
-            size={CHECKER_OUTER_SIZE}
+            size={CHECKER_HIGHLIGHT_SIZE}
             margin='auto'
-            bg={square.checker.type == 'red' ? CHECKER_OUTER_RED : CHECKER_OUTER_BLACK}>
+            bg={moveFrom == `${square.x}${square.y}` ? 'yellow' : 'transparent'}>
             <Circle
-              size={CHECKER_INNER_SIZE}
+              size={CHECKER_OUTER_SIZE}
               margin='auto'
-              bg={square.checker.type == 'red' ? CHECKER_INNER_RED : CHECKER_INNER_BLACK}
-              shadow='inner'></Circle>
+              bg={square.checker.type == 'red' ? CHECKER_OUTER_RED : CHECKER_OUTER_BLACK}>
+              <Circle
+                size={CHECKER_INNER_SIZE}
+                margin='auto'
+                bg={square.checker.type == 'red' ? CHECKER_INNER_RED : CHECKER_INNER_BLACK}
+                shadow='inner'></Circle>
+            </Circle>
           </Circle>
         ) : null}
       </Box>,
