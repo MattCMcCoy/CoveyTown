@@ -16,6 +16,7 @@ describe('CheckerAreaController', () => {
       squares: [],
       blackScore: 0,
       redScore: 0,
+      leaderboard: [],
     };
     for (let x = 0; x < 8; x++) {
       for (let y = 0; y < 8; y++) {
@@ -34,6 +35,7 @@ describe('CheckerAreaController', () => {
     testArea.addListener('checkerSquareChange', mockListeners.checkerSquareChange);
     testArea.addListener('blackScoreChange', mockListeners.blackScoreChange);
     testArea.addListener('redScoreChange', mockListeners.redScoreChange);
+    testArea.addListener('leaderboardChange', mockListeners.leaderboardChange);
   });
 
   describe('Updating squares', () => {
@@ -69,6 +71,7 @@ describe('CheckerAreaController', () => {
         squares: [],
         blackScore: 0,
         redScore: 0,
+        leaderboard: [],
       };
 
       testArea.updateFrom(newModel);
@@ -82,6 +85,7 @@ describe('CheckerAreaController', () => {
         squares: testAreaModel.squares,
         blackScore: testAreaModel.blackScore,
         redScore: testAreaModel.redScore + 1,
+        leaderboard: testAreaModel.leaderboard,
       };
 
       testArea.updateFrom(newModel);
@@ -95,11 +99,26 @@ describe('CheckerAreaController', () => {
         squares: testAreaModel.squares,
         blackScore: testAreaModel.blackScore + 1,
         redScore: testAreaModel.redScore,
+        leaderboard: testAreaModel.leaderboard,
       };
 
       testArea.updateFrom(newModel);
       expect(testArea.blackScore).toEqual(newModel.blackScore);
       expect(mockListeners.blackScoreChange).toBeCalledWith(newModel.blackScore);
+    });
+
+    it('Updates the leaderboard property', () => {
+      const newModel: CheckerArea = {
+        id: testAreaModel.id,
+        squares: testAreaModel.squares,
+        blackScore: testAreaModel.blackScore,
+        redScore: testAreaModel.redScore,
+        leaderboard: [{ position: 1, playerId: '10', wins: 2, losses: 2 }],
+      };
+
+      testArea.updateFrom(newModel);
+      expect(testArea.leaderboard).toEqual(newModel.leaderboard);
+      expect(mockListeners.leaderboardChange).toBeCalledWith(newModel.leaderboard);
     });
 
     it('Does not update the id property', () => {
@@ -109,6 +128,7 @@ describe('CheckerAreaController', () => {
         squares: testArea.squares,
         blackScore: 0,
         redScore: 0,
+        leaderboard: testAreaModel.leaderboard,
       };
       testArea.updateFrom(newModel);
       expect(testArea.id).toEqual(existingID);

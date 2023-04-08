@@ -25,6 +25,7 @@ import {
   PosterSessionArea,
   CheckerSquare,
   CheckerArea,
+  CheckerLeaderboardItem,
 } from '../types/CoveyTownSocket';
 import PosterSessionAreaReal from './PosterSessionArea';
 import CheckerAreaReal from './CheckerArea';
@@ -406,6 +407,37 @@ export class TownsController extends Controller {
     }
     (<CheckerAreaReal>checkerArea).makeMove(moveFrom, moveTo);
     return checkerArea.squares;
+  }
+  
+   /** Gets the leaderboard of a given checker area.
+   * @param townID ID of the town in which to get the checker areas leaderboard.
+   * @param checkerAreaId interactable ID of the checker area
+   * @param sessionToken token of the player making the request, must
+   *        match the session token returned when the player joined the town
+   * @returns the leaderboard of the checker area
+   *
+   * @throws InvalidParametersError if the session token is not valid, or if the
+   *          checker area specified does not exist
+   */
+  @Patch('{townID}/{checkerAreaId}/leaderboard')
+  @Response<InvalidParametersError>(400, 'Invalid values specified')
+  public async getCheckerLeaderBoard(
+    @Path() townID: string,
+    @Path() checkerAreaId: string,
+    @Header('X-Session-Token') sessionToken: string,
+  ): Promise<CheckerLeaderboardItem[] | undefined> {
+    const curTown = this._townsStore.getTownByID(townID);
+    if (!curTown) {
+      throw new InvalidParametersError('Invalid town ID');
+    }
+    if (!curTown.getPlayerBySessionToken(sessionToken)) {
+      throw new InvalidParametersError('Invalid session ID');
+    }
+    const checkerArea = curTown.getInteractable(checkerAreaId);
+    if (!checkerArea || !isCheckerArea(checkerArea)) {
+      throw new InvalidParametersError('Invalid checker area ID');
+    }
+    return (<CheckerAreaReal>checkerArea).leaderboard;
   }
 
   /**

@@ -8,11 +8,14 @@ import {
   BoundingBox,
   TownEmitter,
   Color,
+  CheckerLeaderboardItem,
 } from '../types/CoveyTownSocket.d';
 import InteractableArea from './InteractableArea';
 
 export default class CheckerArea extends InteractableArea {
   private _squares: CheckerSquareModel[] = [];
+
+  private _leaderboard: CheckerLeaderboardItem[] = [];
 
   private _redScore: number;
 
@@ -34,6 +37,10 @@ export default class CheckerArea extends InteractableArea {
     return this._blackScore;
   }
 
+  public get leaderboard(): CheckerLeaderboardItem[] {
+    return this._leaderboard;
+  }
+
   /**
    * Creates a new checker area
    *
@@ -42,7 +49,7 @@ export default class CheckerArea extends InteractableArea {
    * @param townEmitter a broadcast emitter that can be used to emit updates to players
    */
   public constructor(
-    { id, squares, blackScore, redScore }: CheckerAreaModel,
+    { id, squares, blackScore, redScore, leaderboard }: CheckerAreaModel,
     coordinates: BoundingBox,
     townEmitter: TownEmitter,
   ) {
@@ -51,6 +58,7 @@ export default class CheckerArea extends InteractableArea {
     this.squares = squares;
     this._blackScore = blackScore;
     this._redScore = redScore;
+    this._leaderboard = leaderboard;
   }
 
   /**
@@ -121,6 +129,7 @@ export default class CheckerArea extends InteractableArea {
       this.squares = [];
       this._blackScore = 0;
       this._redScore = 0;
+      this._leaderboard = [];
     }
     this._emitAreaChanged();
   }
@@ -129,6 +138,7 @@ export default class CheckerArea extends InteractableArea {
     this.squares = checkerArea.squares;
     this._blackScore = checkerArea.blackScore;
     this._redScore = checkerArea.redScore;
+    this._leaderboard = checkerArea.leaderboard;
   }
 
   public toModel(): Interactable {
@@ -137,6 +147,7 @@ export default class CheckerArea extends InteractableArea {
       squares: this.squares,
       blackScore: this._blackScore,
       redScore: this._redScore,
+      leaderboard: this._leaderboard,
     };
   }
 
@@ -349,7 +360,7 @@ export default class CheckerArea extends InteractableArea {
     }
     const rect: BoundingBox = { x: mapObject.x, y: mapObject.y, width, height };
     return new CheckerArea(
-      { id: name, squares: [], blackScore: 0, redScore: 0 },
+      { id: name, squares: [], blackScore: 0, redScore: 0, leaderboard: [] },
       rect,
       townEmitter,
     );

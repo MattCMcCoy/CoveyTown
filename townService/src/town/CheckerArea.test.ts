@@ -18,7 +18,7 @@ describe('CheckerArea', () => {
   beforeEach(() => {
     mockClear(townEmitter);
     testArea = new CheckerArea(
-      { id, squares: [], blackScore: 0, redScore: 0 },
+      { id, squares: [], blackScore: 0, redScore: 0, leaderboard: [] },
       testAreaBox,
       townEmitter,
     );
@@ -53,7 +53,13 @@ describe('CheckerArea', () => {
 
       expect(testArea.occupantsByID).toEqual([]);
       const lastEmittedUpdate = getLastEmittedEvent(townEmitter, 'interactableUpdate');
-      expect(lastEmittedUpdate).toEqual({ id, squares: [], redScore: 0, blackScore: 0 });
+      expect(lastEmittedUpdate).toEqual({
+        id,
+        squares: [],
+        redScore: 0,
+        blackScore: 0,
+        leaderboard: [],
+      });
     });
 
     it('Removes the player from the list of occupants and emits an interactableUpdate event', () => {
@@ -64,21 +70,33 @@ describe('CheckerArea', () => {
 
       expect(testArea.occupantsByID).toEqual([extraPlayer.id]);
       const lastEmittedUpdate = getLastEmittedEvent(townEmitter, 'interactableUpdate');
-      expect(lastEmittedUpdate).toEqual({ id, squares: [], redScore: 0, blackScore: 0 });
+      expect(lastEmittedUpdate).toEqual({
+        id,
+        squares: [],
+        redScore: 0,
+        blackScore: 0,
+        leaderboard: [],
+      });
     });
   });
 
   test('toModel sets the id and squares', () => {
     const model = testArea.toModel();
 
-    expect(model).toEqual({ id, squares: [], redScore: 0, blackScore: 0 });
+    expect(model).toEqual({ id, squares: [], redScore: 0, blackScore: 0, leaderboard: [] });
   });
 
   test('update model sets the squares', () => {
     const newSquares: CheckerSquare[] = [];
     const newId = 'newID';
 
-    testArea.updateModel({ id: newId, squares: newSquares, blackScore: 0, redScore: 0 });
+    testArea.updateModel({
+      id: newId,
+      squares: newSquares,
+      blackScore: 0,
+      redScore: 0,
+      leaderboard: [],
+    });
     expect(testArea.id).toBe(id);
     expect(testArea.squares).toBe(newSquares);
   });
