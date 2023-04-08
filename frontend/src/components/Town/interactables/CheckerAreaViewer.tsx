@@ -33,7 +33,8 @@ const CHECKER_INNER_RED = '#C53030';
 const CHECKER_INNER_BLACK = '#1A202C';
 const CHECKER_OUTER_RED = '#9B2C2C';
 const CHECKER_OUTER_BLACK = 'black';
-const CHECKER_OUTER_SIZE = '70';
+const CHECKER_HIGHLIGHT_SIZE = '70';
+const CHECKER_OUTER_SIZE = '65';
 const CHECKER_INNER_SIZE = '50';
 
 function Score({ controller }: { controller: CheckerAreaController }): JSX.Element {
@@ -64,7 +65,26 @@ function Score({ controller }: { controller: CheckerAreaController }): JSX.Eleme
     </Square>
   );
 }
-function Board({ squares }: { squares: CheckerSquare[] | undefined }): JSX.Element {
+function Board({
+  squares,
+  controller,
+}: {
+  squares: CheckerSquare[] | undefined;
+  controller: CheckerAreaController;
+}): JSX.Element {
+  const [moveFrom, setMoveFrom] = useState<string>('');
+  const [moveTo, setMoveTo] = useState<string>('');
+  const townController = useTownController();
+
+  useEffect(() => {
+    if (moveFrom && moveTo) {
+      townController
+        .makeCheckerMove(controller, moveFrom, moveTo)
+        .then(newBoard => (controller.squares = newBoard));
+      setMoveFrom('');
+      setMoveTo('');
+    }
+  }, [controller, moveFrom, moveTo, townController]);
   if (squares == undefined) {
     return <></>;
   }
@@ -79,20 +99,42 @@ function Board({ squares }: { squares: CheckerSquare[] | undefined }): JSX.Eleme
   let row: JSX.Element[] = [];
   const board: JSX.Element[] = [];
 
+  function handleSquareClick(id: string): void {
+    if (moveFrom == '') {
+      setMoveFrom(id);
+    } else if (moveTo == '') {
+      setMoveTo(id);
+    } else {
+      setMoveFrom(id);
+      setMoveTo('');
+    }
+  }
+
   squares.forEach(square => {
     // add squares to row
     row.push(
-      <Box w={'20'} h={'20'} bg={getSquareColor(square.x, square.y)} display='flex' key={square.id}>
+      <Box
+        w={'20'}
+        h={'20'}
+        bg={getSquareColor(square.x, square.y)}
+        display='flex'
+        key={square.id}
+        onClick={() => handleSquareClick(square.id)}>
         {square.checker.type !== 'empty' ? (
           <Circle
-            size={CHECKER_OUTER_SIZE}
+            size={CHECKER_HIGHLIGHT_SIZE}
             margin='auto'
-            bg={square.checker.type == 'red' ? CHECKER_OUTER_RED : CHECKER_OUTER_BLACK}>
+            bg={moveFrom == `${square.x}${square.y}` ? 'yellow' : 'transparent'}>
             <Circle
-              size={CHECKER_INNER_SIZE}
+              size={CHECKER_OUTER_SIZE}
               margin='auto'
-              bg={square.checker.type == 'red' ? CHECKER_INNER_RED : CHECKER_INNER_BLACK}
-              shadow='inner'></Circle>
+              bg={square.checker.type == 'red' ? CHECKER_OUTER_RED : CHECKER_OUTER_BLACK}>
+              <Circle
+                size={CHECKER_INNER_SIZE}
+                margin='auto'
+                bg={square.checker.type == 'red' ? CHECKER_INNER_RED : CHECKER_INNER_BLACK}
+                shadow='inner'></Circle>
+            </Circle>
           </Circle>
         ) : null}
       </Box>,
@@ -139,6 +181,7 @@ export function CheckerBoard({
   }, [townController, controller]);
 
   const squares = useSquares(controller);
+
   useEffect(() => {
     if (squares == undefined || squares.length < 1) {
       if (controller.squares.length < 1) {
@@ -153,6 +196,12 @@ export function CheckerBoard({
       }
     }
   }, [controller, squares, toast, townController]);
+
+  useEffect(() => {
+    townController
+      .getCheckerAreaBoard(controller)
+      .then(newBoard => (controller.squares = newBoard));
+  }, [controller, squares, townController]);
 
   return (
     <Modal
@@ -170,7 +219,7 @@ export function CheckerBoard({
         <Grid templateColumns='repeat(5, 1fr)'>
           <GridItem colSpan={4}>
             <Flex justify={'center'} padding={'5'}>
-              <Board squares={squares} />
+              <Board squares={squares} controller={controller} />
             </Flex>
           </GridItem>
           <GridItem colSpan={1} margin='auto'>

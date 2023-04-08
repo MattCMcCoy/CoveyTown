@@ -211,40 +211,20 @@
 					},
 					"checker": {
 						"$ref": "#/components/schemas/CheckerPiece"
+					},
+					"moves": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
 					}
 				},
 				"required": [
 					"id",
 					"x",
 					"y",
-					"checker"
-				],
-				"type": "object",
-				"additionalProperties": false
-			},
-			"CheckerLeaderboardItem": {
-				"properties": {
-					"position": {
-						"type": "number",
-						"format": "double"
-					},
-					"playerId": {
-						"type": "string"
-					},
-					"wins": {
-						"type": "number",
-						"format": "double"
-					},
-					"losses": {
-						"type": "number",
-						"format": "double"
-					}
-				},
-				"required": [
-					"position",
-					"playerId",
-					"wins",
-					"losses"
+					"checker",
+					"moves"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -267,20 +247,13 @@
 					"redScore": {
 						"type": "number",
 						"format": "double"
-					},
-					"leaderboard": {
-						"items": {
-							"$ref": "#/components/schemas/CheckerLeaderboardItem"
-						},
-						"type": "array"
 					}
 				},
 				"required": [
 					"id",
 					"squares",
 					"blackScore",
-					"redScore",
-					"leaderboard"
+					"redScore"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -951,17 +924,17 @@
 				]
 			}
 		},
-		"/towns/{townID}/{checkerAreaId}/leaderboard": {
+		"/towns/{townID}/{checkerAreaId}/makeCheckerMove/{moveFrom}/{moveTo}": {
 			"patch": {
-				"operationId": "GetCheckerLeaderBoard",
+				"operationId": "MakeCheckerMove",
 				"responses": {
 					"200": {
-						"description": "the leaderboard of the checker area",
+						"description": "Ok",
 						"content": {
 							"application/json": {
 								"schema": {
 									"items": {
-										"$ref": "#/components/schemas/CheckerLeaderboardItem"
+										"$ref": "#/components/schemas/CheckerSquare"
 									},
 									"type": "array"
 								}
@@ -979,14 +952,14 @@
 						}
 					}
 				},
-				"description": "Gets the leaderboard of a given checker area.",
+				"description": "Initializes the checker board of the given checkerBoard area.",
 				"tags": [
 					"towns"
 				],
 				"security": [],
 				"parameters": [
 					{
-						"description": "ID of the town in which to get the checker areas leaderboard.",
+						"description": "ID of the town in which to initialize the checker areas board.",
 						"in": "path",
 						"name": "townID",
 						"required": true,
@@ -1004,9 +977,25 @@
 						}
 					},
 					{
-						"description": "token of the player making the request, must\nmatch the session token returned when the player joined the town",
+						"description": "session token of the player making the request, must\nmatch the session token returned when the player joined the town",
 						"in": "header",
 						"name": "X-Session-Token",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "moveFrom",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "moveTo",
 						"required": true,
 						"schema": {
 							"type": "string"

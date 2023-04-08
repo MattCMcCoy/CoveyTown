@@ -802,6 +802,20 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
     );
   }
 
+  public async makeCheckerMove(
+    checkerArea: CheckerAreaController,
+    moveFrom: string,
+    moveTo: string,
+  ): Promise<CheckerSquare[]> {
+    return this._townsService.makeCheckerMove(
+      this.townID,
+      checkerArea.id,
+      this.sessionToken,
+      moveFrom,
+      moveTo,
+    );
+  }
+
   /**
    * Get the checkerLeaderboard from a specified checkerArea (specified via checker Area controller)
    * @param checkerArea the poster session area controller

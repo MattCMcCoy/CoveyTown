@@ -7,8 +7,9 @@ import {
   CheckerPiece as CheckerPieceModel,
   BoundingBox,
   TownEmitter,
+  Color,
   CheckerLeaderboardItem,
-} from '../types/CoveyTownSocket';
+} from '../types/CoveyTownSocket.d';
 import InteractableArea from './InteractableArea';
 
 export default class CheckerArea extends InteractableArea {
@@ -148,6 +149,202 @@ export default class CheckerArea extends InteractableArea {
       redScore: this._redScore,
       leaderboard: this._leaderboard,
     };
+  }
+
+  /**
+   * This method goes through each square on the board
+   * using for each and calls this._setSquareMoves so that each
+   * squares moves will be updated in real time.
+   */
+  public updateMoveablePieces() {
+    this.squares.forEach(square => this._setSquareMoves(square));
+  }
+
+  /**
+   * This method is called from the front end every time a move is being attempted.
+   * First it calls updateMoveablePieces to set the valid moves that are attributed
+   * to each square at this point in time. Next it then verifies that the checker
+   * that wants to be moved to is a valid move for the moveFrom checker. If the move
+   * is not valid no change will occur. If the move is valid the square are then
+   * updated accordingly and the frontend will then update the model.
+   *
+   * @param moveFrom The square that the checker is in currently.
+   * @param moveTo The square that the checker wants to be moved to.
+   */
+  public makeMove(moveFrom: string, moveTo: string) {
+    this.updateMoveablePieces();
+    const moveFromSquare = this.squares.find(square => square.id === moveFrom);
+    const moveToSquare = this.squares.find(square => square.id === moveTo);
+    // If the move is a general move.
+    if (
+      moveFromSquare &&
+      moveToSquare &&
+      this._generalMoves(moveFromSquare).includes(moveToSquare.id)
+    ) {
+      moveToSquare.checker.id = moveFromSquare.checker.id;
+      moveToSquare.checker.type = moveFromSquare.checker.type;
+      moveFromSquare.checker.id = 'empty';
+      moveFromSquare.checker.type = 'empty' as Color;
+    }
+    // If the move is an attacking move.
+    if (
+      moveFromSquare &&
+      moveToSquare &&
+      this._attackingMoves(moveFromSquare).includes(moveToSquare.id)
+    ) {
+      moveToSquare.checker.id = moveFromSquare.checker.id;
+      moveToSquare.checker.type = moveFromSquare.checker.type;
+      // The below snipped calculate where the piece being jumped is and then removes the checker that
+      // was in that position.
+      const jumpedXCoordinate = (moveFromSquare.x - moveToSquare.x) / 2;
+      const jumpedYCoordinate = (moveFromSquare.y - moveToSquare.y) / 2;
+      const jumpedSquare = this.squares.find(
+        square =>
+          square.id ===
+          `${moveToSquare.x + jumpedXCoordinate}${moveToSquare.y + jumpedYCoordinate}`,
+      );
+      if (jumpedSquare) {
+        jumpedSquare.checker.id = 'empty';
+        jumpedSquare.checker.type = 'empty' as Color;
+        moveFromSquare.checker.id = 'empty';
+        moveFromSquare.checker.type = 'empty' as Color;
+      }
+    }
+  }
+
+  /**
+   * This method serves to set the valid moves for a checker within a particular square
+   * on the board. This helper method is called by update moveable pieces for each
+   * square on the board. Once this method is called it then takes a square as input
+   * gets the general moves and attacking moves from the accompanying helper methods below.
+   * Once the lists for valid moves are calculated by the helper methods they are combined into
+   * an array and the moves for the square is set.
+   *
+   * @param square The square which is having its moves updated
+   */
+  private _setSquareMoves(square: CheckerSquareModel) {
+    square.moves = this._generalMoves(square).concat(this._attackingMoves(square));
+  }
+
+  /**
+   * This method serves to determine the valid general (non-attacking) moves in a
+   * checkers game. The function then returns then returns the array of ids, attributed
+   * the squares that the checker piece within the square being looked at can move to, without
+   * attacking.
+   *
+   * @param square This variable is the square's movement that is being looked into.
+   * @returns the array of ids that are attributed to squares that can be moved to.
+   */
+  private _generalMoves(square: CheckerSquareModel): string[] {
+    const generalMoves = [];
+    if (square.checker.type === 'red') {
+      if (
+        square.x + 1 < 8 &&
+        square.y + 1 < 8 &&
+        this.squares.at((square.x + 1) * 8 + (square.y + 1))?.checker.type === 'empty'
+      ) {
+        const validMove = this.squares.at((square.x + 1) * 8 + (square.y + 1))?.id;
+        if (validMove !== undefined) {
+          generalMoves.push(validMove);
+        }
+      }
+      if (
+        square.x + 1 < 8 &&
+        square.y - 1 >= 0 &&
+        this.squares.at((square.x + 1) * 8 + (square.y - 1))?.checker.type === 'empty'
+      ) {
+        const validMove = this.squares.at((square.x + 1) * 8 + (square.y - 1))?.id;
+        if (validMove !== undefined) {
+          generalMoves.push(validMove);
+        }
+      }
+    }
+    if (square.checker.type === 'black') {
+      if (
+        square.x - 1 >= 0 &&
+        square.y + 1 < 8 &&
+        this.squares.at((square.x - 1) * 8 + (square.y + 1))?.checker.type === 'empty'
+      ) {
+        const validMove = this.squares.at((square.x - 1) * 8 + (square.y + 1))?.id;
+        if (validMove !== undefined) {
+          generalMoves.push(validMove);
+        }
+      }
+      if (
+        square.x - 1 >= 0 &&
+        square.y - 1 >= 0 &&
+        this.squares.at((square.x - 1) * 8 + (square.y - 1))?.checker.type === 'empty'
+      ) {
+        const validMove = this.squares.at((square.x - 1) * 8 + (square.y - 1))?.id;
+        if (validMove !== undefined) {
+          generalMoves.push(validMove);
+        }
+      }
+    }
+    return generalMoves;
+  }
+
+  /**
+   * This method serves to determine the valid attacking moves in a
+   * checkers game. The function then returns then returns the array of ids, attributed to
+   * the squares that the checker piece within the square being looked at can move to, while
+   * attacking.
+   *
+   * @param square This variable is the square's movement that is being looked into.
+   * @returns the array of ids that are attributed to squares that can be moved to as well
+   * as the squares that are being jumped.
+   */
+  private _attackingMoves(square: CheckerSquareModel): string[] {
+    const attackingMoves = [];
+    if (square.checker.type === 'red') {
+      if (
+        square.x + 2 < 8 &&
+        square.y + 2 < 8 &&
+        this.squares.at((square.x + 2) * 8 + (square.y + 2))?.checker.type === 'empty' &&
+        this.squares.at((square.x + 1) * 8 + (square.y + 1))?.checker.type === 'black'
+      ) {
+        const validMove = this.squares.at((square.x + 2) * 8 + (square.y + 2))?.id;
+        if (validMove !== undefined) {
+          attackingMoves.push(validMove);
+        }
+      }
+      if (
+        square.x + 2 < 8 &&
+        square.y - 2 >= 0 &&
+        this.squares.at((square.x + 2) * 8 + (square.y - 2))?.checker.type === 'empty' &&
+        this.squares.at((square.x + 1) * 8 + (square.y - 1))?.checker.type === 'black'
+      ) {
+        const validMove = this.squares.at((square.x + 2) * 8 + (square.y - 2))?.id;
+        if (validMove !== undefined) {
+          attackingMoves.push(validMove);
+        }
+      }
+    }
+    if (square.checker.type === 'black') {
+      if (
+        square.x - 2 >= 0 &&
+        square.y + 2 < 8 &&
+        this.squares.at((square.x - 2) * 8 + (square.y + 2))?.checker.type === 'empty' &&
+        this.squares.at((square.x - 1) * 8 + (square.y + 1))?.checker.type === 'red'
+      ) {
+        const validMove = this.squares.at((square.x - 2) * 8 + (square.y + 2))?.id;
+        if (validMove !== undefined) {
+          attackingMoves.push(validMove);
+        }
+      }
+      if (
+        square.x - 2 >= 0 &&
+        square.y - 2 >= 0 &&
+        this.squares.at((square.x - 2) * 8 + (square.y - 2))?.checker.type === 'empty' &&
+        this.squares.at((square.x - 1) * 8 + (square.y - 1))?.checker.type === 'red'
+      ) {
+        const validMove = this.squares.at((square.x - 2) * 8 + (square.y - 2))?.id;
+        if (validMove !== undefined) {
+          attackingMoves.push(validMove);
+        }
+      }
+    }
+    return attackingMoves;
   }
 
   /**

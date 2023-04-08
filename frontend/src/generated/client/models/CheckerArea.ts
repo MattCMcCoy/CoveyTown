@@ -12,4 +12,3 @@ export type CheckerArea = {
     redScore: number;
     leaderboard: Array<CheckerLeaderboardItem>;
 };
-

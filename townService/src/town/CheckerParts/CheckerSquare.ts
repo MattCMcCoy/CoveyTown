@@ -11,7 +11,9 @@ export default class CheckerSquare {
 
   private _y: number;
 
-  private _checker: CheckerPieceModel = { id: 'empty', type: 'empty' as Color };
+  private _checker: CheckerPieceModel = { id: 'empty', type: Color.EMPTY };
+
+  private _moves: string[] = [];
 
   constructor({ id, x, y }: CheckerSquareModel, checker: CheckerPieceModel) {
     this._id = id;
@@ -38,5 +40,13 @@ export default class CheckerSquare {
 
   public set checker(checker: CheckerPieceModel) {
     this._checker = checker;
+  }
+
+  public get moves(): string[] {
+    return this._moves;
+  }
+
+  public set moves(moves: string[]) {
+    this._moves = moves;
   }
 }
