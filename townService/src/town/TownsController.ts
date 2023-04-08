@@ -380,6 +380,7 @@ export class TownsController extends Controller {
       redScore: checkerArea.redScore,
       activePlayer: newActivePlayer,
       players: checkerArea.players,
+      leaderboard: checkerArea.leaderboard,
     };
     (<CheckerAreaReal>checkerArea).updateModel(updatedCheckerArea);
     return newActivePlayer;
@@ -425,6 +426,7 @@ export class TownsController extends Controller {
       redScore: checkerArea.redScore,
       activePlayer: checkerArea.activePlayer,
       players: checkerArea.players,
+      leaderboard: checkerArea.leaderboard,
     };
     (<CheckerAreaReal>checkerArea).updateModel(updatedCheckerArea);
     return checkerArea.players;
@@ -468,6 +470,7 @@ export class TownsController extends Controller {
       redScore: 0,
       activePlayer: 0,
       players: [],
+      leaderboard: checkerArea.leaderboard,
     };
     (<CheckerAreaReal>checkerArea).updateModel(updatedCheckerArea);
     return updatedCheckerArea;

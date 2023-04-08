@@ -77,13 +77,6 @@ export default class CheckerAreaController extends (EventEmitter as new () => Ty
   }
 
   /**
-   * The CheckerAreaModel of this checker area.
-   */
-  public set model(checkerArea: CheckerAreaModel) {
-    this._model = checkerArea;
-  }
-
-  /**
    * The squares of this checker area.
    */
   public get squares(): CheckerSquare[] {

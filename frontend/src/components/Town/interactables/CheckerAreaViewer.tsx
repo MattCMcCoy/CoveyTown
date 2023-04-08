@@ -261,7 +261,7 @@ export function CheckerBoard({
       onClose={() => {
         close();
         townController.unPause();
-        townController.resetCheckerArea(controller).then(model => (controller.model = model));
+        townController.resetCheckerArea(controller).then(model => controller.updateFrom(model));
       }}>
       <ModalOverlay />
       <ModalContent>
