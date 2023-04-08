@@ -408,8 +408,8 @@ export class TownsController extends Controller {
     (<CheckerAreaReal>checkerArea).makeMove(moveFrom, moveTo);
     return checkerArea.squares;
   }
-  
-   /** Gets the leaderboard of a given checker area.
+
+  /** Gets the leaderboard of a given checker area.
    * @param townID ID of the town in which to get the checker areas leaderboard.
    * @param checkerAreaId interactable ID of the checker area
    * @param sessionToken token of the player making the request, must

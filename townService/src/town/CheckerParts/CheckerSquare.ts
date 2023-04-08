@@ -15,7 +15,6 @@ export default class CheckerSquare {
 
   private _moves: string[] = [];
 
-
   constructor({ id, x, y }: CheckerSquareModel, checker: CheckerPieceModel) {
     this._id = id;
     this._x = x;
