@@ -98,6 +98,25 @@ export default class CheckerAreaController extends (EventEmitter as new () => Ty
     this.squares = updatedModel.squares;
     this.leaderboard = updatedModel.leaderboard;
   }
+
+  /**
+   * This method is to be called from the CheckerAreaViewer to verify possible
+   * moveTo positions so that the user can have an easier experience.
+   *
+   * @param moveFrom This is the id that the possible moveTo will be tested against.
+   *
+   * @param moveTo  This is the id of the square that is being tested against the move
+   * values for the moveFrom square.
+   *
+   * @returns boolean value true if moveTo is in moveFrom's list of moves.
+   *
+   */
+  public _isValid(moveFrom: string, moveTo: string): boolean {
+    if (this.squares.find(square => square.id === moveFrom)?.moves.includes(moveTo) === true) {
+      return true;
+    }
+    return false;
+  }
 }
 
 /**

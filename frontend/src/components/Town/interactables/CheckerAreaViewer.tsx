@@ -134,6 +134,14 @@ function Board({
             </Circle>
           </Circle>
         ) : null}
+        {controller._isValid(moveFrom, square.id) ? (
+          <Circle
+            size={CHECKER_HIGHLIGHT_SIZE}
+            margin='auto'
+            bg='transparent'
+            border='4px'
+            borderColor='yellow'></Circle>
+        ) : null}
       </Box>,
     );
     // add row to checker board
@@ -252,6 +260,7 @@ export function CheckerGame({
       <Modal
         isOpen={!selectIsOpen}
         onClose={() => {
+          close();
           townController.unPause();
         }}>
         <ModalOverlay />

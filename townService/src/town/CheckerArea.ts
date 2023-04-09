@@ -12,7 +12,6 @@ import {
   CheckerColor,
 } from '../types/CoveyTownSocket.d';
 import InteractableArea from './InteractableArea';
-import InvalidParametersError from '../lib/InvalidParametersError';
 
 export default class CheckerArea extends InteractableArea {
   private _squares: CheckerSquareModel[] = [];
@@ -86,6 +85,7 @@ export default class CheckerArea extends InteractableArea {
     }
 
     this.squares = newSquares;
+    this.updateMoveablePieces();
   }
 
   /**
@@ -160,7 +160,6 @@ export default class CheckerArea extends InteractableArea {
    * @param moveTo The square that the checker wants to be moved to.
    */
   public makeMove(moveFrom: string, moveTo: string) {
-    this.updateMoveablePieces();
     const moveFromSquare = this.squares.find(square => square.id === moveFrom);
     const moveToSquare = this.squares.find(square => square.id === moveTo);
     // If the move is a general move.
@@ -201,6 +200,7 @@ export default class CheckerArea extends InteractableArea {
         this._crownKing(moveToSquare);
       }
     }
+    this.updateMoveablePieces();
   }
 
   private _crownKing(moveToSquare: CheckerSquareModel) {
