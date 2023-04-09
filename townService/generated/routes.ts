@@ -86,7 +86,12 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "Color": {
+    "CheckerType": {
+        "dataType": "refEnum",
+        "enums": ["king","pawn","empty"],
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "CheckerColor": {
         "dataType": "refEnum",
         "enums": ["red","black","empty"],
     },
@@ -94,8 +99,8 @@ const models: TsoaRoute.Models = {
     "CheckerPiece": {
         "dataType": "refObject",
         "properties": {
-            "id": {"dataType":"string","required":true},
-            "type": {"ref":"Color","required":true},
+            "type": {"ref":"CheckerType","required":true},
+            "color": {"ref":"CheckerColor","required":true},
         },
         "additionalProperties": false,
     },
@@ -112,13 +117,23 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "CheckerLeaderboardItem": {
+        "dataType": "refObject",
+        "properties": {
+            "position": {"dataType":"double","required":true},
+            "playerId": {"dataType":"string","required":true},
+            "wins": {"dataType":"double","required":true},
+            "losses": {"dataType":"double","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "CheckerArea": {
         "dataType": "refObject",
         "properties": {
             "id": {"dataType":"string","required":true},
             "squares": {"dataType":"array","array":{"dataType":"refObject","ref":"CheckerSquare"},"required":true},
-            "blackScore": {"dataType":"double","required":true},
-            "redScore": {"dataType":"double","required":true},
+            "leaderboard": {"dataType":"array","array":{"dataType":"refObject","ref":"CheckerLeaderboardItem"},"required":true},
         },
         "additionalProperties": false,
     },
@@ -474,6 +489,33 @@ export function RegisterRoutes(app: express.Router) {
 
 
               const promise = controller.makeCheckerMove.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.patch('/towns/:townID/:checkerAreaId/leaderboard',
+            ...(fetchMiddlewares<RequestHandler>(TownsController)),
+            ...(fetchMiddlewares<RequestHandler>(TownsController.prototype.getCheckerLeaderBoard)),
+
+            function TownsController_getCheckerLeaderBoard(request: any, response: any, next: any) {
+            const args = {
+                    townID: {"in":"path","name":"townID","required":true,"dataType":"string"},
+                    checkerAreaId: {"in":"path","name":"checkerAreaId","required":true,"dataType":"string"},
+                    sessionToken: {"in":"header","name":"X-Session-Token","required":true,"dataType":"string"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new TownsController();
+
+
+              const promise = controller.getCheckerLeaderBoard.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);

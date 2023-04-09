@@ -712,8 +712,6 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
       const newController = new CheckerAreaController({
         id: checkerArea.name,
         squares: [],
-        blackScore: 0,
-        redScore: 0,
         leaderboard: [],
       });
       this.checkerAreas.push(newController);

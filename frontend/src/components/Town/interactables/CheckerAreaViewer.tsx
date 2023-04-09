@@ -16,13 +16,10 @@ import {
   Grid,
   GridItem,
 } from '@chakra-ui/react';
+import { Crown } from '@styled-icons/fa-solid/Crown';
 import React, { useEffect, useState } from 'react';
 import { useInteractable, useCheckerAreaController } from '../../../classes/TownController';
-import CheckerAreaController, {
-  useBlackScore,
-  useRedScore,
-  useSquares,
-} from '../../../classes/CheckerAreaController';
+import CheckerAreaController, { useSquares } from '../../../classes/CheckerAreaController';
 import useTownController from '../../../hooks/useTownController';
 import CheckerAreaInteractable from './CheckerArea';
 import { CheckerSquare } from '../../../generated/client';
@@ -38,8 +35,6 @@ const CHECKER_OUTER_SIZE = '65';
 const CHECKER_INNER_SIZE = '50';
 
 function Score({ controller }: { controller: CheckerAreaController }): JSX.Element {
-  const blackScore = useBlackScore(controller);
-  const redScore = useRedScore(controller);
   return (
     <Square display={'grid'}>
       <Circle size={CHECKER_OUTER_SIZE} margin='auto' bg={CHECKER_OUTER_RED} marginBottom={5}>
@@ -49,7 +44,7 @@ function Score({ controller }: { controller: CheckerAreaController }): JSX.Eleme
           bg={CHECKER_INNER_RED}
           shadow='inner'
           textColor={'white'}>
-          {redScore}
+          {12 - controller.squares.filter(square => square.checker.color === 'black').length}
         </Circle>
       </Circle>
       <Circle size={CHECKER_OUTER_SIZE} margin='auto' bg={CHECKER_OUTER_BLACK}>
@@ -59,7 +54,7 @@ function Score({ controller }: { controller: CheckerAreaController }): JSX.Eleme
           bg={CHECKER_INNER_BLACK}
           shadow='inner'
           textColor={'white'}>
-          {blackScore}
+          {12 - controller.squares.filter(square => square.checker.color === 'red').length}
         </Circle>
       </Circle>
     </Square>
@@ -128,12 +123,14 @@ function Board({
             <Circle
               size={CHECKER_OUTER_SIZE}
               margin='auto'
-              bg={square.checker.type == 'red' ? CHECKER_OUTER_RED : CHECKER_OUTER_BLACK}>
+              bg={square.checker.color == 'red' ? CHECKER_OUTER_RED : CHECKER_OUTER_BLACK}>
               <Circle
                 size={CHECKER_INNER_SIZE}
                 margin='auto'
-                bg={square.checker.type == 'red' ? CHECKER_INNER_RED : CHECKER_INNER_BLACK}
-                shadow='inner'></Circle>
+                bg={square.checker.color == 'red' ? CHECKER_INNER_RED : CHECKER_INNER_BLACK}
+                shadow='inner'>
+                {square.checker.type == 'king' ? <Crown size={30} color='white' /> : null}
+              </Circle>
             </Circle>
           </Circle>
         ) : null}

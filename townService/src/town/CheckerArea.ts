@@ -7,8 +7,9 @@ import {
   CheckerPiece as CheckerPieceModel,
   BoundingBox,
   TownEmitter,
-  Color,
   CheckerLeaderboardItem,
+  CheckerType,
+  CheckerColor,
 } from '../types/CoveyTownSocket.d';
 import InteractableArea from './InteractableArea';
 
@@ -17,24 +18,12 @@ export default class CheckerArea extends InteractableArea {
 
   private _leaderboard: CheckerLeaderboardItem[] = [];
 
-  private _redScore: number;
-
-  private _blackScore: number;
-
   public get squares(): CheckerSquareModel[] {
     return this._squares;
   }
 
   public set squares(squares: CheckerSquareModel[]) {
     this._squares = squares;
-  }
-
-  public get redScore(): number {
-    return this._redScore;
-  }
-
-  public get blackScore(): number {
-    return this._blackScore;
   }
 
   public get leaderboard(): CheckerLeaderboardItem[] {
@@ -49,15 +38,13 @@ export default class CheckerArea extends InteractableArea {
    * @param townEmitter a broadcast emitter that can be used to emit updates to players
    */
   public constructor(
-    { id, squares, blackScore, redScore, leaderboard }: CheckerAreaModel,
+    { id, squares, leaderboard }: CheckerAreaModel,
     coordinates: BoundingBox,
     townEmitter: TownEmitter,
   ) {
     super(id, coordinates, townEmitter);
 
     this.squares = squares;
-    this._blackScore = blackScore;
-    this._redScore = redScore;
     this._leaderboard = leaderboard;
   }
 
@@ -91,7 +78,7 @@ export default class CheckerArea extends InteractableArea {
             id: `${x}${y}`,
             x,
             y,
-            checker: { id: 'empty', type: 'empty' },
+            checker: { type: 'empty', color: 'empty' },
           } as CheckerSquareModel);
         }
       }
@@ -108,9 +95,15 @@ export default class CheckerArea extends InteractableArea {
     const checkers: CheckerPieceModel[] = [];
     for (let i = 0; i < 24; i++) {
       if (i < 12) {
-        checkers.push({ id: `red ${i}`, type: 'red' } as CheckerPieceModel);
+        checkers.push({
+          type: 'pawn',
+          color: 'red',
+        } as CheckerPieceModel);
       } else {
-        checkers.push({ id: `black ${23 - i}`, type: 'black' } as CheckerPieceModel);
+        checkers.push({
+          type: 'pawn',
+          color: 'black',
+        } as CheckerPieceModel);
       }
     }
     return checkers;
@@ -127,8 +120,6 @@ export default class CheckerArea extends InteractableArea {
     super.remove(player);
     if (this._occupants.length === 0) {
       this.squares = [];
-      this._blackScore = 0;
-      this._redScore = 0;
       this._leaderboard = [];
     }
     this._emitAreaChanged();
@@ -136,8 +127,6 @@ export default class CheckerArea extends InteractableArea {
 
   updateModel(checkerArea: CheckerAreaModel) {
     this.squares = checkerArea.squares;
-    this._blackScore = checkerArea.blackScore;
-    this._redScore = checkerArea.redScore;
     this._leaderboard = checkerArea.leaderboard;
   }
 
@@ -145,8 +134,6 @@ export default class CheckerArea extends InteractableArea {
     return {
       id: this.id,
       squares: this.squares,
-      blackScore: this._blackScore,
-      redScore: this._redScore,
       leaderboard: this._leaderboard,
     };
   }
@@ -181,10 +168,12 @@ export default class CheckerArea extends InteractableArea {
       moveToSquare &&
       this._generalMoves(moveFromSquare).includes(moveToSquare.id)
     ) {
-      moveToSquare.checker.id = moveFromSquare.checker.id;
       moveToSquare.checker.type = moveFromSquare.checker.type;
-      moveFromSquare.checker.id = 'empty';
-      moveFromSquare.checker.type = 'empty' as Color;
+      moveToSquare.checker.color = moveFromSquare.checker.color;
+      moveFromSquare.checker.type = 'empty' as CheckerType;
+      moveFromSquare.checker.color = 'empty' as CheckerColor;
+
+      this._crownKing(moveToSquare);
     }
     // If the move is an attacking move.
     if (
@@ -192,8 +181,8 @@ export default class CheckerArea extends InteractableArea {
       moveToSquare &&
       this._attackingMoves(moveFromSquare).includes(moveToSquare.id)
     ) {
-      moveToSquare.checker.id = moveFromSquare.checker.id;
       moveToSquare.checker.type = moveFromSquare.checker.type;
+      moveToSquare.checker.color = moveFromSquare.checker.color;
       // The below snipped calculate where the piece being jumped is and then removes the checker that
       // was in that position.
       const jumpedXCoordinate = (moveFromSquare.x - moveToSquare.x) / 2;
@@ -204,10 +193,23 @@ export default class CheckerArea extends InteractableArea {
           `${moveToSquare.x + jumpedXCoordinate}${moveToSquare.y + jumpedYCoordinate}`,
       );
       if (jumpedSquare) {
-        jumpedSquare.checker.id = 'empty';
-        jumpedSquare.checker.type = 'empty' as Color;
-        moveFromSquare.checker.id = 'empty';
-        moveFromSquare.checker.type = 'empty' as Color;
+        jumpedSquare.checker.type = 'empty' as CheckerType;
+        jumpedSquare.checker.color = 'empty' as CheckerColor;
+        moveFromSquare.checker.type = 'empty' as CheckerType;
+        moveFromSquare.checker.color = 'empty' as CheckerColor;
+        this._crownKing(moveToSquare);
+      }
+    }
+  }
+
+  private _crownKing(moveToSquare: CheckerSquareModel) {
+    if (moveToSquare.checker.type !== 'king') {
+      if (moveToSquare.checker.color === 'black') {
+        if (moveToSquare.x === 0) {
+          moveToSquare.checker.type = 'king' as CheckerType;
+        }
+      } else if (moveToSquare.x === 7) {
+        moveToSquare.checker.type = 'king' as CheckerType;
       }
     }
   }
@@ -237,11 +239,11 @@ export default class CheckerArea extends InteractableArea {
    */
   private _generalMoves(square: CheckerSquareModel): string[] {
     const generalMoves = [];
-    if (square.checker.type === 'red') {
+    if (square.checker.color === 'red' || square.checker.type === 'king') {
       if (
         square.x + 1 < 8 &&
         square.y + 1 < 8 &&
-        this.squares.at((square.x + 1) * 8 + (square.y + 1))?.checker.type === 'empty'
+        this.squares.at((square.x + 1) * 8 + (square.y + 1))?.checker.color === 'empty'
       ) {
         const validMove = this.squares.at((square.x + 1) * 8 + (square.y + 1))?.id;
         if (validMove !== undefined) {
@@ -251,7 +253,7 @@ export default class CheckerArea extends InteractableArea {
       if (
         square.x + 1 < 8 &&
         square.y - 1 >= 0 &&
-        this.squares.at((square.x + 1) * 8 + (square.y - 1))?.checker.type === 'empty'
+        this.squares.at((square.x + 1) * 8 + (square.y - 1))?.checker.color === 'empty'
       ) {
         const validMove = this.squares.at((square.x + 1) * 8 + (square.y - 1))?.id;
         if (validMove !== undefined) {
@@ -259,11 +261,11 @@ export default class CheckerArea extends InteractableArea {
         }
       }
     }
-    if (square.checker.type === 'black') {
+    if (square.checker.color === 'black' || square.checker.type === 'king') {
       if (
         square.x - 1 >= 0 &&
         square.y + 1 < 8 &&
-        this.squares.at((square.x - 1) * 8 + (square.y + 1))?.checker.type === 'empty'
+        this.squares.at((square.x - 1) * 8 + (square.y + 1))?.checker.color === 'empty'
       ) {
         const validMove = this.squares.at((square.x - 1) * 8 + (square.y + 1))?.id;
         if (validMove !== undefined) {
@@ -273,7 +275,7 @@ export default class CheckerArea extends InteractableArea {
       if (
         square.x - 1 >= 0 &&
         square.y - 1 >= 0 &&
-        this.squares.at((square.x - 1) * 8 + (square.y - 1))?.checker.type === 'empty'
+        this.squares.at((square.x - 1) * 8 + (square.y - 1))?.checker.color === 'empty'
       ) {
         const validMove = this.squares.at((square.x - 1) * 8 + (square.y - 1))?.id;
         if (validMove !== undefined) {
@@ -295,13 +297,28 @@ export default class CheckerArea extends InteractableArea {
    * as the squares that are being jumped.
    */
   private _attackingMoves(square: CheckerSquareModel): string[] {
-    const attackingMoves = [];
-    if (square.checker.type === 'red') {
+    const attackingMoves: string[] = [];
+    switch (square.checker.type) {
+      case 'king':
+        this._kingMoves(square, attackingMoves);
+        this._pawnMoves(square, attackingMoves);
+        return attackingMoves;
+      case 'pawn':
+        this._pawnMoves(square, attackingMoves);
+        return attackingMoves;
+      default: {
+        return [];
+      }
+    }
+  }
+
+  private _pawnMoves(square: CheckerSquareModel, attackingMoves: string[]) {
+    if (square.checker.color === 'red') {
       if (
         square.x + 2 < 8 &&
         square.y + 2 < 8 &&
-        this.squares.at((square.x + 2) * 8 + (square.y + 2))?.checker.type === 'empty' &&
-        this.squares.at((square.x + 1) * 8 + (square.y + 1))?.checker.type === 'black'
+        this.squares.at((square.x + 2) * 8 + (square.y + 2))?.checker.color === 'empty' &&
+        this.squares.at((square.x + 1) * 8 + (square.y + 1))?.checker.color === 'black'
       ) {
         const validMove = this.squares.at((square.x + 2) * 8 + (square.y + 2))?.id;
         if (validMove !== undefined) {
@@ -311,8 +328,8 @@ export default class CheckerArea extends InteractableArea {
       if (
         square.x + 2 < 8 &&
         square.y - 2 >= 0 &&
-        this.squares.at((square.x + 2) * 8 + (square.y - 2))?.checker.type === 'empty' &&
-        this.squares.at((square.x + 1) * 8 + (square.y - 1))?.checker.type === 'black'
+        this.squares.at((square.x + 2) * 8 + (square.y - 2))?.checker.color === 'empty' &&
+        this.squares.at((square.x + 1) * 8 + (square.y - 1))?.checker.color === 'black'
       ) {
         const validMove = this.squares.at((square.x + 2) * 8 + (square.y - 2))?.id;
         if (validMove !== undefined) {
@@ -320,12 +337,12 @@ export default class CheckerArea extends InteractableArea {
         }
       }
     }
-    if (square.checker.type === 'black') {
+    if (square.checker.color === 'black') {
       if (
         square.x - 2 >= 0 &&
         square.y + 2 < 8 &&
-        this.squares.at((square.x - 2) * 8 + (square.y + 2))?.checker.type === 'empty' &&
-        this.squares.at((square.x - 1) * 8 + (square.y + 1))?.checker.type === 'red'
+        this.squares.at((square.x - 2) * 8 + (square.y + 2))?.checker.color === 'empty' &&
+        this.squares.at((square.x - 1) * 8 + (square.y + 1))?.checker.color === 'red'
       ) {
         const validMove = this.squares.at((square.x - 2) * 8 + (square.y + 2))?.id;
         if (validMove !== undefined) {
@@ -335,8 +352,8 @@ export default class CheckerArea extends InteractableArea {
       if (
         square.x - 2 >= 0 &&
         square.y - 2 >= 0 &&
-        this.squares.at((square.x - 2) * 8 + (square.y - 2))?.checker.type === 'empty' &&
-        this.squares.at((square.x - 1) * 8 + (square.y - 1))?.checker.type === 'red'
+        this.squares.at((square.x - 2) * 8 + (square.y - 2))?.checker.color === 'empty' &&
+        this.squares.at((square.x - 1) * 8 + (square.y - 1))?.checker.color === 'red'
       ) {
         const validMove = this.squares.at((square.x - 2) * 8 + (square.y - 2))?.id;
         if (validMove !== undefined) {
@@ -344,7 +361,57 @@ export default class CheckerArea extends InteractableArea {
         }
       }
     }
-    return attackingMoves;
+  }
+
+  private _kingMoves(square: CheckerSquareModel, attackingMoves: string[]) {
+    if (square.checker.color === 'black') {
+      if (
+        square.x + 2 < 8 &&
+        square.y + 2 < 8 &&
+        this.squares.at((square.x + 2) * 8 + (square.y + 2))?.checker.color === 'empty' &&
+        this.squares.at((square.x + 1) * 8 + (square.y + 1))?.checker.color === 'red'
+      ) {
+        const validMove = this.squares.at((square.x + 2) * 8 + (square.y + 2))?.id;
+        if (validMove !== undefined) {
+          attackingMoves.push(validMove);
+        }
+      }
+      if (
+        square.x + 2 < 8 &&
+        square.y - 2 >= 0 &&
+        this.squares.at((square.x + 2) * 8 + (square.y - 2))?.checker.color === 'empty' &&
+        this.squares.at((square.x + 1) * 8 + (square.y - 1))?.checker.color === 'red'
+      ) {
+        const validMove = this.squares.at((square.x + 2) * 8 + (square.y - 2))?.id;
+        if (validMove !== undefined) {
+          attackingMoves.push(validMove);
+        }
+      }
+    }
+    if (square.checker.color === 'red') {
+      if (
+        square.x - 2 >= 0 &&
+        square.y + 2 < 8 &&
+        this.squares.at((square.x - 2) * 8 + (square.y + 2))?.checker.color === 'empty' &&
+        this.squares.at((square.x - 1) * 8 + (square.y + 1))?.checker.color === 'black'
+      ) {
+        const validMove = this.squares.at((square.x - 2) * 8 + (square.y + 2))?.id;
+        if (validMove !== undefined) {
+          attackingMoves.push(validMove);
+        }
+      }
+      if (
+        square.x - 2 >= 0 &&
+        square.y - 2 >= 0 &&
+        this.squares.at((square.x - 2) * 8 + (square.y - 2))?.checker.color === 'empty' &&
+        this.squares.at((square.x - 1) * 8 + (square.y - 1))?.checker.color === 'black'
+      ) {
+        const validMove = this.squares.at((square.x - 2) * 8 + (square.y - 2))?.id;
+        if (validMove !== undefined) {
+          attackingMoves.push(validMove);
+        }
+      }
+    }
   }
 
   /**
@@ -359,10 +426,6 @@ export default class CheckerArea extends InteractableArea {
       throw new Error(`Malformed checker area ${name}`);
     }
     const rect: BoundingBox = { x: mapObject.x, y: mapObject.y, width, height };
-    return new CheckerArea(
-      { id: name, squares: [], blackScore: 0, redScore: 0, leaderboard: [] },
-      rect,
-      townEmitter,
-    );
+    return new CheckerArea({ id: name, squares: [], leaderboard: [] }, rect, townEmitter);
   }
 }

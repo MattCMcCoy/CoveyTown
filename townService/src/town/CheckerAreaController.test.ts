@@ -93,8 +93,6 @@ describe('TownsController integration tests', () => {
           const newCheckerArea: CheckerArea = {
             id: checkerArea.id,
             squares: fullSquares,
-            blackScore: 0,
-            redScore: 0,
             leaderboard: [],
           };
 
@@ -126,8 +124,6 @@ describe('TownsController integration tests', () => {
           const newCheckerArea: CheckerArea = {
             id: checkerArea.id,
             squares: [],
-            blackScore: 0,
-            redScore: 0,
             leaderboard: [],
           };
 
@@ -153,8 +149,6 @@ describe('TownsController integration tests', () => {
         const newCheckerArea: CheckerArea = {
           id: checkerArea.id,
           squares: [],
-          blackScore: 0,
-          redScore: 0,
           leaderboard: [],
         };
         await expect(
@@ -167,8 +161,6 @@ describe('TownsController integration tests', () => {
         const newCheckerArea: CheckerArea = {
           id: checkerArea.id,
           squares: [],
-          blackScore: 0,
-          redScore: 0,
           leaderboard: [],
         };
         await expect(

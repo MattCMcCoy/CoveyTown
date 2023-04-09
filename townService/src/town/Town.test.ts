@@ -921,8 +921,6 @@ describe('Town', () => {
         town.addCheckerArea({
           id: nanoid(),
           squares: [],
-          blackScore: 0,
-          redScore: 0,
           leaderboard: [],
         }),
       ).toBe(false);
@@ -933,8 +931,6 @@ describe('Town', () => {
         town.addCheckerArea({
           id: 'Name2',
           squares: [],
-          blackScore: 0,
-          redScore: 0,
           leaderboard: [],
         }),
       ).toBe(true);
@@ -942,8 +938,6 @@ describe('Town', () => {
         town.addCheckerArea({
           id: 'Name2',
           squares: [],
-          blackScore: 0,
-          redScore: 0,
           leaderboard: [],
         }),
       ).toBe(false);
@@ -952,8 +946,6 @@ describe('Town', () => {
       const newModel: CheckerAreaModel = {
         id: 'Name2',
         squares: [],
-        blackScore: 0,
-        redScore: 0,
         leaderboard: [],
       };
       beforeEach(() => {
