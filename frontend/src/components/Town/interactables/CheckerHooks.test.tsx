@@ -16,10 +16,13 @@ function renderCheckerArea(checkerArea: CheckerAreaController, townController: T
   const close = () => {
     selectIsOpen = false;
   };
+  const start = () => {
+    return <></>;
+  };
   return (
     <ChakraProvider>
       <TownControllerContext.Provider value={townController}>
-        <CheckerBoard controller={checkerArea} isOpen={!selectIsOpen} close={close} />
+        <CheckerBoard start={start} controller={checkerArea} isOpen={!selectIsOpen} close={close} />
       </TownControllerContext.Provider>
     </ChakraProvider>
   );

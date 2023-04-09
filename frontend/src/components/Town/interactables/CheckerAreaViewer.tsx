@@ -17,7 +17,7 @@ import {
   GridItem,
   Button,
 } from '@chakra-ui/react';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useInteractable, useCheckerAreaController } from '../../../classes/TownController';
 import CheckerAreaController, {
   useBlackScore,
@@ -149,6 +149,7 @@ function Board({
           controller.isActivePlayer(currPlayer)
             ? () => handleButtonAction(square, color)
             : () => {
+                console.log('Active player' + controller.getActivePlayer());
                 console.log('Not active player');
               }
         }
@@ -194,10 +195,12 @@ export function CheckerBoard({
   controller,
   isOpen,
   close,
+  start,
 }: {
   controller: CheckerAreaController;
   isOpen: boolean;
   close: () => void;
+  start: () => JSX.Element;
 }): JSX.Element {
   const townController = useTownController();
   const toast = useToast();
@@ -205,38 +208,52 @@ export function CheckerBoard({
   const playerList = usePlayers(controller);
   const squares = useSquares(controller);
   const [title, setTitle] = useState('Waiting for other players ...');
+  const [currentPlayerList, setCurrentPlayerList] = useState<string[]>(playerList);
+  const [currentActivePlayer, setActivePlayer] = useState<number>(activePlayer);
+  const [currentSquares, setCurrentSquares] = useState<CheckerSquare[] | undefined>(squares);
+  const [startGame, setStartGame] = useState(true);
 
   console.log('Player list: ' + controller.players);
 
-  useEffect(() => {
-    townController.getCheckerPlayers(controller).then(players => (controller.players = players));
-    townController
-      .getActiveCheckerPlayer(controller)
-      .then(player => (controller.activePlayer = player));
-  }, [townController, controller, playerList, activePlayer]);
-
-  useEffect(() => {
+  const updateGame = useCallback(() => {
     function getPlayerColor(): string {
-      return playerList.indexOf(townController.ourPlayer.id) == 0 ? 'red' : 'black';
+      return controller.players.indexOf(townController.ourPlayer.id) == 0 ? 'red' : 'black';
     }
-
-    async function initBoard() {
-      await townController
-        .initializeCheckerSessionAreaBoard(controller)
-        .then(newBoard => (controller.squares = newBoard));
-      if (controller.squares == undefined || controller.squares.length < 1) {
-        console.log('Cant initialize Board');
-      }
-    }
-
-    if (playerList.length == MAX_PLAYERS && (squares == undefined || squares.length < 1)) {
-      initBoard();
-    }
-
-    if (controller.players.length >= MAX_PLAYERS) {
+    if (controller.players.length == MAX_PLAYERS && startGame) {
+      setStartGame(false);
       setTitle('You are player ' + getPlayerColor());
     }
-  }, [townController, controller, playerList, squares]);
+    townController.getCheckerAreaBoard(controller).then(board => setCurrentSquares(board));
+    townController.getCheckerPlayers(controller).then(players => {
+      controller.players = players;
+      setCurrentPlayerList(players);
+    });
+    townController.getActiveCheckerPlayer(controller).then(player => {
+      controller.activePlayer = player;
+      setActivePlayer(player);
+    });
+  }, [controller, startGame, townController]);
+
+  useEffect(() => {
+    updateGame();
+    const timer = setInterval(updateGame, 2000);
+    return () => {
+      clearInterval(timer);
+    };
+  }, [updateGame]);
+
+  async function initBoard() {
+    await townController
+      .initializeCheckerSessionAreaBoard(controller)
+      .then(newBoard => (controller.squares = newBoard));
+    if (controller.squares == undefined || controller.squares.length < 1) {
+      console.log('Cant initialize Board');
+    }
+  }
+
+  if (currentPlayerList.length == MAX_PLAYERS && (squares == undefined || squares.length < 1)) {
+    initBoard();
+  }
 
   async function changeTurn() {
     await townController
@@ -249,6 +266,13 @@ export function CheckerBoard({
     });
   }
 
+  if (controller.players.length == 0 && startGame == false) {
+    setStartGame(true);
+    townController.resetCheckerArea(controller).then(model => controller.updateFrom(model));
+    townController.unPause();
+    close();
+    return start();
+  }
   return (
     <Modal
       isOpen={isOpen}
@@ -266,11 +290,11 @@ export function CheckerBoard({
         <Grid templateColumns='repeat(5, 1fr)' templateRows='repeat(2, 1fr)'>
           <GridItem colSpan={4} rowSpan={2}>
             <Flex justify={'center'} padding={'5'}>
-              <Board squares={squares} controller={controller} />
+              <Board squares={currentSquares} controller={controller} />
             </Flex>
           </GridItem>
           <GridItem colSpan={1}>
-            <Button onClick={() => changeTurn()}>{'Active Player: ' + activePlayer}</Button>
+            <Button onClick={() => changeTurn()}>{'Active Player: ' + currentActivePlayer}</Button>
           </GridItem>
           <GridItem colSpan={1} margin='auto'>
             <Score controller={controller} />
@@ -305,7 +329,7 @@ export function CheckerGame({
 
   console.log('checker players: ' + checkerAreaController.players);
 
-  function start(): JSX.Element {
+  const start = () => {
     return (
       <CheckerOptionModal
         checkerArea={checkerArea}
@@ -313,7 +337,7 @@ export function CheckerGame({
         openLeaderboard={() => openLeaderboard}
       />
     );
-  }
+  };
 
   // If a checkers game has started
   if (!selectIsOpen) {
@@ -339,12 +363,12 @@ export function CheckerGame({
   return (
     <>
       <CheckerBoard
+        start={start}
         controller={checkerAreaController}
         isOpen={selectIsOpen}
         close={() => {
           changeGameState(false);
           setSelectIsOpen(false);
-          start();
         }}
       />
     </>
