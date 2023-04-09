@@ -39,7 +39,7 @@ const CHECKER_OUTER_RED = '#9B2C2C';
 const CHECKER_OUTER_BLACK = 'black';
 const CHECKER_OUTER_SIZE = '70';
 const CHECKER_INNER_SIZE = '50';
-const MAX_PLAYERS = 1;
+const MAX_PLAYERS = 2;
 
 function Score({ controller }: { controller: CheckerAreaController }): JSX.Element {
   const blackScore = useBlackScore(controller);
@@ -210,8 +210,11 @@ export function CheckerBoard({
   console.log('Player list: ' + controller.players);
 
   useEffect(() => {
-    townController.getCheckerAreaBoard(controller);
-  }, [townController, controller]);
+    townController.getCheckerPlayers(controller).then(players => (controller.players = players));
+    townController
+      .getActiveCheckerPlayer(controller)
+      .then(player => (controller.activePlayer = player));
+  }, [townController, controller, playerList, activePlayer]);
 
   useEffect(() => {
     function getPlayerColor(): string {
@@ -231,7 +234,7 @@ export function CheckerBoard({
       initBoard();
     }
 
-    if (playerList.length >= MAX_PLAYERS) {
+    if (controller.players.length >= MAX_PLAYERS) {
       setTitle('You are player ' + getPlayerColor());
     }
   }, [townController, controller, playerList, squares]);
@@ -282,52 +285,6 @@ export function CheckerBoard({
   );
 }
 
-export function JoinMenu({
-  controller,
-  close,
-}: {
-  controller: CheckerAreaController;
-  close: () => void;
-}): JSX.Element {
-  const townController = useTownController();
-  const title = 'Checkers';
-  const currPlayerId = townController.ourPlayer.id;
-  const { isOpen, onOpen } = useDisclosure();
-  return (
-    <Modal
-      isOpen={true}
-      size={'4xl'}
-      onClose={() => {
-        close();
-        townController.unPause();
-      }}>
-      <ModalOverlay />
-      <ModalContent>
-        {<ModalHeader>{title} </ModalHeader>}
-        <ModalCloseButton />
-        <ModalBody pb={6}></ModalBody>
-        <Button
-          onClick={() => {
-            if (
-              controller.players.length < MAX_PLAYERS &&
-              !controller.players.includes(currPlayerId)
-            ) {
-              townController
-                .addCheckerPlayer(controller)
-                .then(players => (controller.players = players));
-              onOpen();
-            }
-          }}>
-          Join Game
-        </Button>
-        <CheckerBoard controller={controller} isOpen={isOpen} close={close} />
-        <ModalFooter />
-        {/* </form> */}
-      </ModalContent>
-    </Modal>
-  );
-}
-
 /**
  * The CheckerGame monitors the player's interaction with a CheckerArea on the map: displaying either
  * a popup to notifying the player that a game is in progress or if a game is not in progress a CheckerBoard modal to display the checkerBoard.
@@ -336,8 +293,12 @@ export function JoinMenu({
  */
 export function CheckerGame({
   checkerArea,
+  changeGameState,
+  openLeaderboard,
 }: {
   checkerArea: CheckerAreaInteractable;
+  changeGameState: (val: boolean) => void;
+  openLeaderboard: () => void;
 }): JSX.Element {
   const townController = useTownController();
   const checkerAreaController = useCheckerAreaController(checkerArea.name);
@@ -346,12 +307,23 @@ export function CheckerGame({
 
   console.log('checker players: ' + checkerAreaController.players);
 
+  function start(): JSX.Element {
+    return (
+      <CheckerOptionModal
+        checkerArea={checkerArea}
+        changeGameState={changeGameState}
+        openLeaderboard={() => openLeaderboard}
+      />
+    );
+  }
+
   // If a checkers game has started
   if (!selectIsOpen) {
     return (
       <Modal
         isOpen={!selectIsOpen}
         onClose={() => {
+          changeGameState(false);
           townController.unPause();
           townController.interactEnd(checkerArea);
         }}>
@@ -368,18 +340,64 @@ export function CheckerGame({
   }
   return (
     <>
-      <JoinMenu
+      <CheckerBoard
         controller={checkerAreaController}
+        isOpen={selectIsOpen}
         close={() => {
+          changeGameState(false);
           setSelectIsOpen(false);
-          // forces game to emit "checkerArea" event again so that
-          // repoening the modal works as expected
-          townController.interactEnd(checkerArea);
+          start();
         }}
       />
     </>
   );
 }
+
+// export function JoinMenu({
+//   controller,
+//   close,
+// }: {
+//   controller: CheckerAreaController;
+//   close: () => void;
+// }): JSX.Element {
+//   const townController = useTownController();
+//   const title = 'Checkers';
+//   const currPlayerId = townController.ourPlayer.id;
+//   const { isOpen, onOpen } = useDisclosure();
+//   return (
+//     <Modal
+//       isOpen={true}
+//       size={'4xl'}
+//       onClose={() => {
+//         close();
+//         townController.unPause();
+//       }}>
+//       <ModalOverlay />
+//       <ModalContent>
+//         {<ModalHeader>{title} </ModalHeader>}
+//         <ModalCloseButton />
+//         <ModalBody pb={6}></ModalBody>
+//         <Button
+//           onClick={() => {
+//             if (
+//               controller.players.length < MAX_PLAYERS &&
+//               !controller.players.includes(currPlayerId)
+//             ) {
+//               townController
+//                 .addCheckerPlayer(controller)
+//                 .then(players => (controller.players = players));
+//               onOpen();
+//             }
+//           }}>
+//           Join Game
+//         </Button>
+//         <CheckerBoard controller={controller} isOpen={isOpen} close={close} />
+//         <ModalFooter />
+//         {/* </form> */}
+//       </ModalContent>
+//     </Modal>
+//   );
+// }
 
 /**
  * The CheckerAreaWrapper is suitable to be *always* rendered inside of a town, and
@@ -392,8 +410,18 @@ export default function CheckerAreaWrapper(): JSX.Element {
   const changeGameState = (val: boolean) => {
     setBeginGame(val);
   };
+
+  // useEffect(() => {
+  // }, [beginGame]);
+
   if (checkerArea && beginGame) {
-    return <CheckerGame checkerArea={checkerArea} />;
+    return (
+      <CheckerGame
+        changeGameState={changeGameState}
+        openLeaderboard={() => setLeaderboardOpen(false)}
+        checkerArea={checkerArea}
+      />
+    );
   } else if (checkerArea) {
     if (isLeaderboardOpen) {
       return (
@@ -406,6 +434,7 @@ export default function CheckerAreaWrapper(): JSX.Element {
     }
     return (
       <CheckerOptionModal
+        checkerArea={checkerArea}
         changeGameState={changeGameState}
         openLeaderboard={() => setLeaderboardOpen(true)}
       />

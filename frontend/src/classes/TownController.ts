@@ -828,6 +828,28 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
   }
 
   /**
+   * Get the checker players from a specified checkerArea (specified via checker Area controller)
+   * @param checkerArea the checker area controller
+   * @returns a promise wrapping the board
+   */
+  public async getCheckerPlayers(checkerArea: CheckerAreaController): Promise<string[]> {
+    return this._townsService.getCheckerPlayers(this.townID, checkerArea.id, this.sessionToken);
+  }
+
+  /**
+   * Get the active player from a specified checkerArea (specified via checker Area controller)
+   * @param checkerArea the checker area controller
+   * @returns a promise wrapping the board
+   */
+  public async getActiveCheckerPlayer(checkerArea: CheckerAreaController): Promise<number> {
+    return this._townsService.getActiveCheckerPlayer(
+      this.townID,
+      checkerArea.id,
+      this.sessionToken,
+    );
+  }
+
+  /**
    * Resets the state of the given checkerBoard area (specified via checker area controller)
    * @param checkerArea the checker area controller
    * @returns a promise wrapping the board

@@ -412,6 +412,66 @@ xSessionToken: string,
     }
 
     /**
+     * Gets the players in a checker area in a given town
+     * @param townId ID of the town in which to get the checker area squares
+     * @param checkerAreaId interactable ID of the checker area
+     * @param xSessionToken session token of the player making the request, must
+ * match the session token returned when the player joined the town
+     * @returns string Ok
+     * @throws ApiError
+     */
+    public getCheckerPlayers(
+townId: string,
+checkerAreaId: string,
+xSessionToken: string,
+): CancelablePromise<Array<string>> {
+        return this.httpRequest.request({
+            method: 'PATCH',
+            url: '/towns/{townID}/{checkerAreaId}/getCheckerPlayers',
+            path: {
+                'townID': townId,
+                'checkerAreaId': checkerAreaId,
+            },
+            headers: {
+                'X-Session-Token': xSessionToken,
+            },
+            errors: {
+                400: `Invalid values specified`,
+            },
+        });
+    }
+
+     /**
+     * Gets the active player of a checker area in a given town
+     * @param townId ID of the town in which to get the checker area squares
+     * @param checkerAreaId interactable ID of the checker area
+     * @param xSessionToken session token of the player making the request, must
+ * match the session token returned when the player joined the town
+     * @returns string Ok
+     * @throws ApiError
+     */
+     public getActiveCheckerPlayer(
+        townId: string,
+        checkerAreaId: string,
+        xSessionToken: string,
+        ): CancelablePromise<number> {
+                return this.httpRequest.request({
+                    method: 'PATCH',
+                    url: '/towns/{townID}/{checkerAreaId}/getActiveCheckerPlayer',
+                    path: {
+                        'townID': townId,
+                        'checkerAreaId': checkerAreaId,
+                    },
+                    headers: {
+                        'X-Session-Token': xSessionToken,
+                    },
+                    errors: {
+                        400: `Invalid values specified`,
+                    },
+                });
+            }
+
+    /**
      * Initializes the checker board of the given checkerBoard area.
      * @param townId ID of the town in which to initialize the checker areas board.
      * @param checkerAreaId interactable ID of the checker area
@@ -446,15 +506,15 @@ xSessionToken: string,
      * @param townId ID of the town in which to get the checker areas leaderboard.
      * @param checkerAreaId interactable ID of the checker area
      * @param xSessionToken token of the player making the request, must
-     * match the session token returned when the player joined the town
+ * match the session token returned when the player joined the town
      * @returns CheckerLeaderboardItem the leaderboard of the checker area
      * @throws ApiError
      */
     public getCheckerLeaderBoard(
-        townId: string,
-        checkerAreaId: string,
-        xSessionToken: string,
-    ): CancelablePromise<Array<CheckerLeaderboardItem>> {
+townId: string,
+checkerAreaId: string,
+xSessionToken: string,
+): CancelablePromise<Array<CheckerLeaderboardItem>> {
         return this.httpRequest.request({
             method: 'PATCH',
             url: '/towns/{townID}/{checkerAreaId}/leaderboard',
