@@ -8,4 +8,3 @@ export type CheckerLeaderboardItem = {
     wins: number;
     losses: number;
 };
-

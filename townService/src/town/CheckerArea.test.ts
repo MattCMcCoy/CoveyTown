@@ -316,6 +316,24 @@ describe('CheckerArea', () => {
         testArea.squares.find(square => square.id === `${5}${6}`)?.moves.includes(`${4}${7}`),
       ).toEqual(true);
     });
+    it('Test AIMove method to verify that it grabs valid intial movements.', () => {
+      expect(testArea.squares).toEqual([]);
+      testArea.initializeBoard();
+      testArea.updateMoveablePieces();
+      expect(testArea.squares.length).toEqual(64);
+      testArea.squares.forEach(square => expect(square.id).toEqual(`${square.x}${square.y}`));
+      const aiMoveTest = testArea.AIMove();
+      expect(aiMoveTest.length).toEqual(2);
+      const aiMoveFrom = aiMoveTest.at(0);
+      const aiMoveTo = aiMoveTest.at(1);
+      expect(aiMoveFrom).toBeTruthy();
+      expect(aiMoveTo).toBeTruthy();
+      if (aiMoveTo) {
+        expect(
+          testArea.squares.find(square => square.id === aiMoveFrom)?.moves.includes(aiMoveTo),
+        ).toBeTruthy();
+      }
+    });
   });
 
   describe('fromMapObject', () => {

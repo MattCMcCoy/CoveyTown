@@ -12,6 +12,7 @@ import {
   CheckerColor,
 } from '../types/CoveyTownSocket.d';
 import InteractableArea from './InteractableArea';
+import InvalidParametersError from '../lib/InvalidParametersError';
 
 export default class CheckerArea extends InteractableArea {
   private _squares: CheckerSquareModel[] = [];
@@ -412,6 +413,45 @@ export default class CheckerArea extends InteractableArea {
         }
       }
     }
+  }
+
+  /**
+   * AIMove determines the move that the AI will make next. The method prioritzes attacking
+   * moves and randomizes the choice of move otherwise so that it is as difficult as possible
+   * to predict what moves the AI will make.
+   *
+   * @returns An array of length 2 that contains the ids of the AIs MoveFrom and MoveTo respectively.
+   */
+  public AIMove(): string[] {
+    const moveFromAndTo = [];
+    const hasAvailableMoves = this.squares.filter(square => this._generalMoves(square).length > 0);
+    const hasAttackingMoves = this.squares.filter(
+      square => this._attackingMoves(square).length > 0,
+    );
+    if (hasAttackingMoves.length > 0) {
+      let randNum = Math.floor(Math.random() * hasAttackingMoves.length);
+      const chosenStart = hasAttackingMoves.at(randNum);
+      if (chosenStart) {
+        randNum = Math.floor(Math.random() * this._attackingMoves(chosenStart).length);
+        const moveTo = this._attackingMoves(chosenStart).at(randNum);
+        if (chosenStart.id !== undefined && moveTo) {
+          moveFromAndTo.push(chosenStart.id);
+          moveFromAndTo.push(moveTo);
+        }
+      }
+    } else {
+      let randNum = Math.floor(Math.random() * hasAvailableMoves.length);
+      const chosenStart = hasAvailableMoves.at(randNum);
+      if (chosenStart) {
+        randNum = Math.floor(Math.random() * this._generalMoves(chosenStart).length);
+        const moveTo = this._generalMoves(chosenStart).at(randNum);
+        if (chosenStart.id !== undefined && moveTo !== undefined) {
+          moveFromAndTo.push(chosenStart.id);
+          moveFromAndTo.push(moveTo);
+        }
+      }
+    }
+    return moveFromAndTo;
   }
 
   /**

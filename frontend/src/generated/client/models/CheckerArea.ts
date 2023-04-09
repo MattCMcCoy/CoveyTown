@@ -10,4 +10,3 @@ export type CheckerArea = {
     squares: Array<CheckerSquare>;
     leaderboard: Array<CheckerLeaderboardItem>;
 };
-
