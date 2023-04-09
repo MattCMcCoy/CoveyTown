@@ -16,7 +16,6 @@ import {
   Grid,
   GridItem,
   Button,
-  useDisclosure,
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import { useInteractable, useCheckerAreaController } from '../../../classes/TownController';
@@ -243,7 +242,6 @@ export function CheckerBoard({
     await townController
       .changeActivePlayer(controller)
       .then(player => (controller.activePlayer = player));
-    //console.log('new current Player: ' + p);
     console.log('current player: ' + controller.getActivePlayer());
     toast({
       title: 'Switching turns',
@@ -353,52 +351,6 @@ export function CheckerGame({
   );
 }
 
-// export function JoinMenu({
-//   controller,
-//   close,
-// }: {
-//   controller: CheckerAreaController;
-//   close: () => void;
-// }): JSX.Element {
-//   const townController = useTownController();
-//   const title = 'Checkers';
-//   const currPlayerId = townController.ourPlayer.id;
-//   const { isOpen, onOpen } = useDisclosure();
-//   return (
-//     <Modal
-//       isOpen={true}
-//       size={'4xl'}
-//       onClose={() => {
-//         close();
-//         townController.unPause();
-//       }}>
-//       <ModalOverlay />
-//       <ModalContent>
-//         {<ModalHeader>{title} </ModalHeader>}
-//         <ModalCloseButton />
-//         <ModalBody pb={6}></ModalBody>
-//         <Button
-//           onClick={() => {
-//             if (
-//               controller.players.length < MAX_PLAYERS &&
-//               !controller.players.includes(currPlayerId)
-//             ) {
-//               townController
-//                 .addCheckerPlayer(controller)
-//                 .then(players => (controller.players = players));
-//               onOpen();
-//             }
-//           }}>
-//           Join Game
-//         </Button>
-//         <CheckerBoard controller={controller} isOpen={isOpen} close={close} />
-//         <ModalFooter />
-//         {/* </form> */}
-//       </ModalContent>
-//     </Modal>
-//   );
-// }
-
 /**
  * The CheckerAreaWrapper is suitable to be *always* rendered inside of a town, and
  * will activate only if the player begins interacting with checker area.
@@ -410,10 +362,6 @@ export default function CheckerAreaWrapper(): JSX.Element {
   const changeGameState = (val: boolean) => {
     setBeginGame(val);
   };
-
-  // useEffect(() => {
-  // }, [beginGame]);
-
   if (checkerArea && beginGame) {
     return (
       <CheckerGame
