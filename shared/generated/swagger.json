@@ -172,7 +172,15 @@
 				"type": "object",
 				"additionalProperties": false
 			},
-			"Color": {
+			"CheckerType": {
+				"enum": [
+					"king",
+					"pawn",
+					"empty"
+				],
+				"type": "string"
+			},
+			"CheckerColor": {
 				"enum": [
 					"red",
 					"black",
@@ -182,16 +190,16 @@
 			},
 			"CheckerPiece": {
 				"properties": {
-					"id": {
-						"type": "string"
-					},
 					"type": {
-						"$ref": "#/components/schemas/Color"
+						"$ref": "#/components/schemas/CheckerType"
+					},
+					"color": {
+						"$ref": "#/components/schemas/CheckerColor"
 					}
 				},
 				"required": [
-					"id",
-					"type"
+					"type",
+					"color"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -229,6 +237,33 @@
 				"type": "object",
 				"additionalProperties": false
 			},
+			"CheckerLeaderboardItem": {
+				"properties": {
+					"position": {
+						"type": "number",
+						"format": "double"
+					},
+					"playerId": {
+						"type": "string"
+					},
+					"wins": {
+						"type": "number",
+						"format": "double"
+					},
+					"losses": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"position",
+					"playerId",
+					"wins",
+					"losses"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"CheckerArea": {
 				"properties": {
 					"id": {
@@ -240,20 +275,17 @@
 						},
 						"type": "array"
 					},
-					"blackScore": {
-						"type": "number",
-						"format": "double"
-					},
-					"redScore": {
-						"type": "number",
-						"format": "double"
+					"leaderboard": {
+						"items": {
+							"$ref": "#/components/schemas/CheckerLeaderboardItem"
+						},
+						"type": "array"
 					}
 				},
 				"required": [
 					"id",
 					"squares",
-					"blackScore",
-					"redScore"
+					"leaderboard"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -996,6 +1028,70 @@
 					{
 						"in": "path",
 						"name": "moveTo",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/towns/{townID}/{checkerAreaId}/leaderboard": {
+			"patch": {
+				"operationId": "GetCheckerLeaderBoard",
+				"responses": {
+					"200": {
+						"description": "the leaderboard of the checker area",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/CheckerLeaderboardItem"
+									},
+									"type": "array"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid values specified",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/InvalidParametersError"
+								}
+							}
+						}
+					}
+				},
+				"description": "Gets the leaderboard of a given checker area.",
+				"tags": [
+					"towns"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "ID of the town in which to get the checker areas leaderboard.",
+						"in": "path",
+						"name": "townID",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "interactable ID of the checker area",
+						"in": "path",
+						"name": "checkerAreaId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "token of the player making the request, must\nmatch the session token returned when the player joined the town",
+						"in": "header",
+						"name": "X-Session-Token",
 						"required": true,
 						"schema": {
 							"type": "string"

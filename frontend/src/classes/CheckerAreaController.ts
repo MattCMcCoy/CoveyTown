@@ -16,18 +16,6 @@ export type CheckerAreaEvents = {
   checkerSquareChange: (squares: CheckerSquare[]) => void;
 
   /**
-   * A blackScoreChange event indicates that a red piece was taken.
-   * Listeners are passed the new state of the score.
-   */
-  blackScoreChange: (blackScore: number) => void;
-
-  /**
-   * A redScoreChange event indicates that a black piece was taken.
-   * Listeners are passed the new state of the score.
-   */
-  redScoreChange: (redScore: number) => void;
-
-  /**
    * A leaderboardChange event that indicates that the leaderboard has changed.
    * Listeners are passed the new state of the leaderboard.
    */
@@ -83,44 +71,6 @@ export default class CheckerAreaController extends (EventEmitter as new () => Ty
     }
   }
 
-  /**
-   * The score of the black checker player.
-   */
-  public get blackScore(): number {
-    return this._model.blackScore;
-  }
-
-  /**
-   * The state of the blackScore in a checker area.
-   *
-   * Changing this value will emit a 'blackScoreChange' event
-   */
-  public set blackScore(blackScore: number) {
-    if (this._model.blackScore != blackScore) {
-      this._model.blackScore = blackScore;
-      this.emit('blackScoreChange', blackScore);
-    }
-  }
-
-  /**
-   * The score of the red checker player.
-   */
-  public get redScore(): number {
-    return this._model.redScore;
-  }
-
-  /**
-   * The state of the redScore in a checker area.
-   *
-   * Changing this value will emit a 'redScoreChange' event
-   */
-  public set redScore(redScore: number) {
-    if (this._model.redScore != redScore) {
-      this._model.redScore = redScore;
-      this.emit('redScoreChange', redScore);
-    }
-  }
-
   public get leaderboard(): CheckerLeaderboardItem[] {
     return this._model.leaderboard;
   }
@@ -146,8 +96,6 @@ export default class CheckerAreaController extends (EventEmitter as new () => Ty
    */
   public updateFrom(updatedModel: CheckerAreaModel): void {
     this.squares = updatedModel.squares;
-    this.blackScore = updatedModel.blackScore;
-    this.redScore = updatedModel.redScore;
     this.leaderboard = updatedModel.leaderboard;
   }
 }
@@ -167,30 +115,6 @@ export function useSquares(controller: CheckerAreaController): CheckerSquare[] |
     };
   }, [controller]);
   return checkerSquares;
-}
-
-export function useBlackScore(controller: CheckerAreaController): number {
-  const [blackScore, setBlackScore] = useState(controller.blackScore);
-
-  useEffect(() => {
-    controller.addListener('blackScoreChange', setBlackScore);
-    return () => {
-      controller.removeListener('blackScoreChange', setBlackScore);
-    };
-  }, [controller]);
-  return blackScore;
-}
-
-export function useRedScore(controller: CheckerAreaController): number {
-  const [redScore, setRedScore] = useState(controller.redScore);
-
-  useEffect(() => {
-    controller.addListener('redScoreChange', setRedScore);
-    return () => {
-      controller.removeListener('redScoreChange', setRedScore);
-    };
-  }, [controller]);
-  return redScore;
 }
 
 export function useLeaderboard(controller: CheckerAreaController): CheckerLeaderboardItem[] {

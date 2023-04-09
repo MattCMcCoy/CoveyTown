@@ -2,9 +2,11 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import type { Color } from './Color';
+import type { CheckerColor } from './CheckerColor';
+import type { CheckerType } from './CheckerType';
 
 export type CheckerPiece = {
-    id: string;
-    type: Color;
+    type: CheckerType;
+    color: CheckerColor;
 };
+

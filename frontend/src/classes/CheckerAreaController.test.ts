@@ -14,8 +14,6 @@ describe('CheckerAreaController', () => {
     testAreaModel = {
       id: nanoid(),
       squares: [],
-      blackScore: 0,
-      redScore: 0,
       leaderboard: [],
     };
     for (let x = 0; x < 8; x++) {
@@ -24,7 +22,7 @@ describe('CheckerAreaController', () => {
           id: `${x}${y}`,
           x,
           y,
-          checker: { id: 'empty', type: 'empty' } as CheckerPieceModel,
+          checker: { color: 'empty', type: 'empty' } as CheckerPieceModel,
           moves: [],
         });
       }
@@ -33,8 +31,6 @@ describe('CheckerAreaController', () => {
     mockClear(townController);
     mockClear(mockListeners.checkerSquareChange);
     testArea.addListener('checkerSquareChange', mockListeners.checkerSquareChange);
-    testArea.addListener('blackScoreChange', mockListeners.blackScoreChange);
-    testArea.addListener('redScoreChange', mockListeners.redScoreChange);
     testArea.addListener('leaderboardChange', mockListeners.leaderboardChange);
   });
 
@@ -69,8 +65,6 @@ describe('CheckerAreaController', () => {
       const newModel: CheckerArea = {
         id: testAreaModel.id,
         squares: [],
-        blackScore: 0,
-        redScore: 0,
         leaderboard: [],
       };
 
@@ -79,40 +73,10 @@ describe('CheckerAreaController', () => {
       expect(mockListeners.checkerSquareChange).toBeCalledWith(newModel.squares);
     });
 
-    it('Updates the red score property', () => {
-      const newModel: CheckerArea = {
-        id: testAreaModel.id,
-        squares: testAreaModel.squares,
-        blackScore: testAreaModel.blackScore,
-        redScore: testAreaModel.redScore + 1,
-        leaderboard: testAreaModel.leaderboard,
-      };
-
-      testArea.updateFrom(newModel);
-      expect(testArea.redScore).toEqual(newModel.redScore);
-      expect(mockListeners.redScoreChange).toBeCalledWith(newModel.redScore);
-    });
-
-    it('Updates the black score property', () => {
-      const newModel: CheckerArea = {
-        id: testAreaModel.id,
-        squares: testAreaModel.squares,
-        blackScore: testAreaModel.blackScore + 1,
-        redScore: testAreaModel.redScore,
-        leaderboard: testAreaModel.leaderboard,
-      };
-
-      testArea.updateFrom(newModel);
-      expect(testArea.blackScore).toEqual(newModel.blackScore);
-      expect(mockListeners.blackScoreChange).toBeCalledWith(newModel.blackScore);
-    });
-
     it('Updates the leaderboard property', () => {
       const newModel: CheckerArea = {
         id: testAreaModel.id,
         squares: testAreaModel.squares,
-        blackScore: testAreaModel.blackScore,
-        redScore: testAreaModel.redScore,
         leaderboard: [{ position: 1, playerId: '10', wins: 2, losses: 2 }],
       };
 
@@ -126,8 +90,6 @@ describe('CheckerAreaController', () => {
       const newModel: CheckerArea = {
         id: nanoid(),
         squares: testArea.squares,
-        blackScore: 0,
-        redScore: 0,
         leaderboard: testAreaModel.leaderboard,
       };
       testArea.updateFrom(newModel);
