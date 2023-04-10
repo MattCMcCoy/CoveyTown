@@ -66,7 +66,7 @@ function Board({ squares }: { squares: CheckerSquare[] | undefined }): JSX.Eleme
     return <></>;
   }
 
-  // gets the color of a given square
+  // gets the color of a given squares
   const getSquareColor = (x: number, y: number) => {
     const lightBrown = '#e6b273';
     const brown = '#a5681e';
