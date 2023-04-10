@@ -57,6 +57,8 @@ describe('CheckerArea', () => {
         id,
         squares: [],
         leaderboard: [],
+        activePlayer: 0,
+        players: [],
       });
     });
 
@@ -72,6 +74,8 @@ describe('CheckerArea', () => {
         id,
         squares: [],
         leaderboard: [],
+        activePlayer: 0,
+        players: [],
       });
     });
   });
@@ -79,7 +83,7 @@ describe('CheckerArea', () => {
   test('toModel sets the id and squares', () => {
     const model = testArea.toModel();
 
-    expect(model).toEqual({ id, squares: [], leaderboard: [] });
+    expect(model).toEqual({ id, squares: [], leaderboard: [], activePlayer: 0, players: [] });
   });
 
   test('update model sets the squares', () => {
