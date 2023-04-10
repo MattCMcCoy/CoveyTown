@@ -30,7 +30,6 @@ import CheckerAreaInteractable from './CheckerArea';
 import { CheckerSquare } from '../../../generated/client';
 import CheckerOptionModal from './CheckerOptionModal';
 import CheckerLeaderboardModal from './CheckerLeaderboardModal';
-import _ from 'lodash';
 
 const CHECKER_INNER_RED = '#C53030';
 const CHECKER_INNER_BLACK = '#1A202C';
@@ -77,7 +76,6 @@ function Board({
   const [moveFrom, setMoveFrom] = useState<string>('');
   const [moveTo, setMoveTo] = useState<string>('');
   const [firstButtonClicked, setFirstButtonClicked] = useState(0);
-  const [switchTurns, setSwitchTurns] = useState(false);
   const [, setSecondButtonClicked] = useState(0);
   const townController = useTownController();
   const toast = useToast();
@@ -85,34 +83,29 @@ function Board({
   let source: CheckerSquare;
   const squareSize = '20';
 
-  async function changeTurn() {
-    await townController.changeActivePlayer(controller).then(p => (controller.activePlayer = p));
-    setSwitchTurns(false);
+  const changingTurn = useCallback(() => {
+    townController.changeActivePlayer(controller).then(p => (controller.activePlayer = p));
     console.log('current player: ' + controller.getActivePlayer());
     toast({
       title: 'Switching turns',
       status: 'info',
     });
-  }
-
-  // const changingTurn = useCallback(() => {
-  //   changeTurn();
-  // }, [controller, startGame, townController]);
+  }, [controller, toast, townController]);
 
   useEffect(() => {
     if (moveFrom && moveTo) {
       townController.makeCheckerMove(controller, moveFrom, moveTo).then(value => {
-        //console.log('Board Change: ' + _.xor(valnewBoard, controller.squares).length);
         console.log('In makeMove: ' + value.isValid);
         if (value.isValid) {
-          setSwitchTurns(true);
+          console.log('Switching  Turns');
+          changingTurn();
         }
         controller.squares = value.board;
       });
       setMoveFrom('');
       setMoveTo('');
     }
-  }, [controller, moveFrom, moveTo, townController]);
+  }, [changingTurn, controller, moveFrom, moveTo, townController]);
 
   // gets the color of a given square
   const getSquareColor = (x: number, y: number) => {
@@ -120,17 +113,6 @@ function Board({
     const brown = '#a5681e';
     return (x % 2 === 0 && y % 2 !== 0) || (x % 2 !== 0 && y % 2 === 0) ? brown : lightBrown;
   };
-
-  // function handleSquareClick(id: string): void {
-  //   if (moveFrom == '') {
-  //     setMoveFrom(id);
-  //   } else if (moveTo == '') {
-  //     setMoveTo(id);
-  //   } else {
-  //     setMoveFrom(id);
-  //     setMoveTo('');
-  //   }
-  // }
 
   function handleFirstButtonClick(square: CheckerSquare) {
     setFirstButtonClicked(1);
@@ -148,11 +130,6 @@ function Board({
       console.log('Dest square clicked: ' + square.id);
       setFirstButtonClicked(0);
       setMoveTo(square.id);
-      console.log('Switch Turns: ' + switchTurns);
-      if (switchTurns) {
-        console.log('Switching Turns');
-        changeTurn();
-      }
     }
   }
 
@@ -362,7 +339,7 @@ export function CheckerBoard({
         <ModalCloseButton />
         <ModalBody pb={6}></ModalBody>
         <Grid templateColumns='repeat(5, 1fr)'>
-          <GridItem colSpan={4}>
+          <GridItem colSpan={4} rowSpan={2}>
             <Flex justify={'center'} padding={'5'}>
               <Board squares={currentSquares} controller={controller} />
             </Flex>

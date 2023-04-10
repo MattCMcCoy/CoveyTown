@@ -95,7 +95,10 @@ export default function CheckerOptionModal({
               colorScheme='blue'
               mx={3}
               onClick={() => {
-                if (controller.players.length < 2 && !controller.players.includes(currPlayerId)) {
+                if (
+                  controller.players.length < MAX_PLAYERS &&
+                  !controller.players.includes(currPlayerId)
+                ) {
                   townController
                     .addCheckerPlayer(controller)
                     .then(players => (controller.players = players));
