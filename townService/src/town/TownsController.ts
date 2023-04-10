@@ -393,7 +393,7 @@ export class TownsController extends Controller {
     @Header('X-Session-Token') sessionToken: string,
     @Path() moveFrom: string,
     @Path() moveTo: string,
-  ): Promise<CheckerSquare[]> {
+  ): Promise<{ isValid: boolean; board: CheckerSquare[] }> {
     const curTown = this._townsStore.getTownByID(townID);
     if (!curTown) {
       throw new InvalidParametersError('Invalid town ID');
@@ -405,8 +405,8 @@ export class TownsController extends Controller {
     if (!checkerArea || !isCheckerArea(checkerArea)) {
       throw new InvalidParametersError('Invalid checker area ID');
     }
-    (<CheckerAreaReal>checkerArea).makeMove(moveFrom, moveTo);
-    return checkerArea.squares;
+    const validMove: boolean = (<CheckerAreaReal>checkerArea).makeMove(moveFrom, moveTo);
+    return { isValid: validMove, board: checkerArea.squares };
   }
 
   /** Gets the leaderboard of a given checker area.

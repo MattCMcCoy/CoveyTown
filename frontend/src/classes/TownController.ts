@@ -806,7 +806,7 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
     checkerArea: CheckerAreaController,
     moveFrom: string,
     moveTo: string,
-  ): Promise<CheckerSquare[]> {
+  ): Promise<{ isValid: boolean; board: CheckerSquare[] }> {
     return this._townsService.makeCheckerMove(
       this.townID,
       checkerArea.id,

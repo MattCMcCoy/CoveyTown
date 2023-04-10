@@ -30,6 +30,7 @@ import CheckerAreaInteractable from './CheckerArea';
 import { CheckerSquare } from '../../../generated/client';
 import CheckerOptionModal from './CheckerOptionModal';
 import CheckerLeaderboardModal from './CheckerLeaderboardModal';
+import _ from 'lodash';
 
 const CHECKER_INNER_RED = '#C53030';
 const CHECKER_INNER_BLACK = '#1A202C';
@@ -76,6 +77,7 @@ function Board({
   const [moveFrom, setMoveFrom] = useState<string>('');
   const [moveTo, setMoveTo] = useState<string>('');
   const [firstButtonClicked, setFirstButtonClicked] = useState(0);
+  const [switchTurns, setSwitchTurns] = useState(false);
   const [, setSecondButtonClicked] = useState(0);
   const townController = useTownController();
   const toast = useToast();
@@ -83,11 +85,30 @@ function Board({
   let source: CheckerSquare;
   const squareSize = '20';
 
+  async function changeTurn() {
+    await townController.changeActivePlayer(controller).then(p => (controller.activePlayer = p));
+    setSwitchTurns(false);
+    console.log('current player: ' + controller.getActivePlayer());
+    toast({
+      title: 'Switching turns',
+      status: 'info',
+    });
+  }
+
+  // const changingTurn = useCallback(() => {
+  //   changeTurn();
+  // }, [controller, startGame, townController]);
+
   useEffect(() => {
     if (moveFrom && moveTo) {
-      townController
-        .makeCheckerMove(controller, moveFrom, moveTo)
-        .then(newBoard => (controller.squares = newBoard));
+      townController.makeCheckerMove(controller, moveFrom, moveTo).then(value => {
+        //console.log('Board Change: ' + _.xor(valnewBoard, controller.squares).length);
+        console.log('In makeMove: ' + value.isValid);
+        if (value.isValid) {
+          setSwitchTurns(true);
+        }
+        controller.squares = value.board;
+      });
       setMoveFrom('');
       setMoveTo('');
     }
@@ -99,15 +120,6 @@ function Board({
     const brown = '#a5681e';
     return (x % 2 === 0 && y % 2 !== 0) || (x % 2 !== 0 && y % 2 === 0) ? brown : lightBrown;
   };
-
-  async function changeTurn() {
-    await townController.changeActivePlayer(controller).then(p => (controller.activePlayer = p));
-    console.log('current player: ' + controller.getActivePlayer());
-    toast({
-      title: 'Switching turns',
-      status: 'info',
-    });
-  }
 
   // function handleSquareClick(id: string): void {
   //   if (moveFrom == '') {
@@ -136,7 +148,11 @@ function Board({
       console.log('Dest square clicked: ' + square.id);
       setFirstButtonClicked(0);
       setMoveTo(square.id);
-      changeTurn();
+      console.log('Switch Turns: ' + switchTurns);
+      if (switchTurns) {
+        console.log('Switching Turns');
+        changeTurn();
+      }
     }
   }
 

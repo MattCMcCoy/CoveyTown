@@ -17,7 +17,11 @@ describe('CheckerArea', () => {
 
   beforeEach(() => {
     mockClear(townEmitter);
-    testArea = new CheckerArea({ id, squares: [], leaderboard: [] }, testAreaBox, townEmitter);
+    testArea = new CheckerArea(
+      { id, squares: [], leaderboard: [], activePlayer: 0, players: [] },
+      testAreaBox,
+      townEmitter,
+    );
     newPlayer = new Player(nanoid(), mock<TownEmitter>());
     testArea.add(newPlayer);
     squares = [];
@@ -86,6 +90,8 @@ describe('CheckerArea', () => {
       id: newId,
       squares: newSquares,
       leaderboard: [],
+      activePlayer: 0,
+      players: [],
     });
     expect(testArea.id).toBe(id);
     expect(testArea.squares).toBe(newSquares);

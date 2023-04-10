@@ -356,7 +356,7 @@ xSessionToken: string,
  * match the session token returned when the player joined the town
      * @param moveFrom 
      * @param moveTo 
-     * @returns CheckerSquare Ok
+     * @returns any Ok
      * @throws ApiError
      */
     public makeCheckerMove(
@@ -365,7 +365,10 @@ checkerAreaId: string,
 xSessionToken: string,
 moveFrom: string,
 moveTo: string,
-): CancelablePromise<Array<CheckerSquare>> {
+): CancelablePromise<{
+board: Array<CheckerSquare>;
+isValid: boolean;
+}> {
         return this.httpRequest.request({
             method: 'PATCH',
             url: '/towns/{townID}/{checkerAreaId}/makeCheckerMove/{moveFrom}/{moveTo}',

@@ -179,7 +179,7 @@ export default class CheckerArea extends InteractableArea {
    * @param moveFrom The square that the checker is in currently.
    * @param moveTo The square that the checker wants to be moved to.
    */
-  public makeMove(moveFrom: string, moveTo: string) {
+  public makeMove(moveFrom: string, moveTo: string): boolean {
     this.updateMoveablePieces();
     const moveFromSquare = this.squares.find(square => square.id === moveFrom);
     const moveToSquare = this.squares.find(square => square.id === moveTo);
@@ -195,6 +195,7 @@ export default class CheckerArea extends InteractableArea {
       moveFromSquare.checker.color = 'empty' as CheckerColor;
 
       this._crownKing(moveToSquare);
+      return true;
     }
     // If the move is an attacking move.
     if (
@@ -220,7 +221,10 @@ export default class CheckerArea extends InteractableArea {
         moveFromSquare.checker.color = 'empty' as CheckerColor;
         this._crownKing(moveToSquare);
       }
+      return true;
     }
+
+    return false;
   }
 
   private _crownKing(moveToSquare: CheckerSquareModel) {
