@@ -599,7 +599,7 @@ export class TownsController extends Controller {
     if (!checkerArea || !isCheckerArea(checkerArea)) {
       throw new InvalidParametersError('Invalid checker area ID');
     }
-    return checkerArea.players;
+    return checkerArea.players ?? [];
   }
 
   /**

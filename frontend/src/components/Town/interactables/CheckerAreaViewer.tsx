@@ -188,12 +188,10 @@ export function CheckerBoard({
   controller,
   isOpen,
   close,
-  start,
 }: {
   controller: CheckerAreaController;
   isOpen: boolean;
   close: () => void;
-  start: () => JSX.Element;
 }): JSX.Element {
   const townController = useTownController();
   const toast = useToast();
@@ -258,7 +256,6 @@ export function CheckerBoard({
     townController.resetCheckerArea(controller).then(model => controller.updateFrom(model));
     townController.unPause();
     close();
-    return start();
   }
 
   return (
@@ -304,26 +301,14 @@ export function CheckerBoard({
 export function CheckerGame({
   checkerArea,
   changeGameState,
-  openLeaderboard,
 }: {
   checkerArea: CheckerAreaInteractable;
   changeGameState: (val: boolean) => void;
-  openLeaderboard: () => void;
 }): JSX.Element {
   const townController = useTownController();
   const checkerAreaController = useCheckerAreaController(checkerArea.name);
   // selectIsOpen is true if the squares have not been initialized
   const [selectIsOpen, setSelectIsOpen] = useState(checkerAreaController.squares.length < 1);
-
-  const start = () => {
-    return (
-      <CheckerOptionModal
-        checkerArea={checkerArea}
-        changeGameState={changeGameState}
-        openLeaderboard={() => openLeaderboard}
-      />
-    );
-  };
 
   // If a checkers game has started
   if (!selectIsOpen) {
@@ -349,7 +334,7 @@ export function CheckerGame({
   return (
     <>
       <CheckerBoard
-        start={start}
+        //start={start}
         controller={checkerAreaController}
         isOpen={selectIsOpen}
         close={() => {
@@ -373,13 +358,7 @@ export default function CheckerAreaWrapper(): JSX.Element {
     setBeginGame(val);
   };
   if (checkerArea && beginGame) {
-    return (
-      <CheckerGame
-        changeGameState={changeGameState}
-        openLeaderboard={() => setLeaderboardOpen(false)}
-        checkerArea={checkerArea}
-      />
-    );
+    return <CheckerGame changeGameState={changeGameState} checkerArea={checkerArea} />;
   } else if (checkerArea) {
     if (isLeaderboardOpen) {
       return (
