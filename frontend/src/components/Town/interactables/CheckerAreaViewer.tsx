@@ -23,8 +23,8 @@ import CheckerAreaController, { useSquares } from '../../../classes/CheckerAreaC
 import useTownController from '../../../hooks/useTownController';
 import CheckerAreaInteractable from './CheckerArea';
 import { CheckerSquare } from '../../../generated/client';
-import CheckerOptionModal from './CheckerOptionModal';
-import CheckerLeaderboardModal from './CheckerLeaderboardModal';
+import CheckerOptionModal from './CheckerModals/CheckerOptionModal';
+import CheckerLeaderboardModal from './CheckerModals/CheckerLeaderboardModal';
 
 const CHECKER_INNER_RED = '#C53030';
 const CHECKER_INNER_BLACK = '#1A202C';

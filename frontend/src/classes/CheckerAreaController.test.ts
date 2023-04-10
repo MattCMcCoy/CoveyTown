@@ -77,7 +77,7 @@ describe('CheckerAreaController', () => {
       const newModel: CheckerArea = {
         id: testAreaModel.id,
         squares: testAreaModel.squares,
-        leaderboard: [{ position: 1, playerId: '10', wins: 2, losses: 2 }],
+        leaderboard: [{ playerId: '10', wins: 2, losses: 2 }],
       };
 
       testArea.updateFrom(newModel);

@@ -8,25 +8,25 @@ import {
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/react';
-import React, { useState } from 'react';
+
+import React from 'react';
 
 interface RuleItem {
   title: string;
   des: string;
 }
 
-export default function CheckerOptionModal({
-  changeGameState,
-  openLeaderboard,
+export function HowToPlayModal({
+  isOpen,
+  closeHowToPlay,
 }: {
-  changeGameState: (val: boolean) => void;
-  openLeaderboard: () => void;
-}): JSX.Element {
-  const [visibleState, setVisibleState] = useState(true);
+  isOpen: boolean;
+  closeHowToPlay: () => void;
+}) {
   const ruleList: RuleItem[] = [
     {
       title: 'Overview',
-      des: `Checkers is a two-player board game played on an 8x8 board with 64 squares of alternating colors (usually red and black). Each player starts with 12 pieces (usually black and white) placed on the first three rows of the board. The goal of the game is to capture all of your opponent's pieces or to block them from being able to move.`,
+      des: `Checkers is a two-player board game played on an 8x8 board with 64 squares of alternating colors. Each player starts with 12 pieces placed on the first three rows of the board. The goal of the game is to capture all of your opponent's pieces or to block them from being able to move.`,
     },
     {
       title: 'Gameplay',
@@ -46,27 +46,23 @@ export default function CheckerOptionModal({
     },
     {
       title: 'Rules',
-      des: `A player cannot move their pieces to a square occupied by one of their own pieces.
-        If a player has a legal move, they must make that move. If they cannot make a legal move, they forfeit their turn.
-        If a player touches one of their own pieces, they must move that piece if it has a legal move. If they touch one of their opponent's pieces, they must capture that piece if it is a legal move.
-        If a player makes an illegal move (such as moving a piece in a direction it cannot move), the opponent has the option to either accept the move or have the player undo the move and make a legal move instead.
-        If a player moves a piece to the opposite end of the board, they must crown it as a king before making their next move.
+      des: `A player cannot move their pieces to a square occupied by one of their own pieces or the opponents pieces, and must be moved diagonally to an adjacent square.
         And that's how to play checkers! Have fun playing!`,
     },
   ];
-  const onClose = () => {
-    setVisibleState(false);
-    changeGameState(true);
-  };
-
   return (
     <>
-      <Modal isOpen={visibleState} onClose={() => setVisibleState(false)}>
+      <Modal
+        isOpen={isOpen}
+        onClose={closeHowToPlay}
+        isCentered
+        size='4xl'
+        blockScrollOnMount={false}>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Game Rules</ModalHeader>
+          <ModalHeader>How to Play</ModalHeader>
           <ModalCloseButton />
-          <ModalBody>
+          <ModalBody width='4xl'>
             <ul>
               {ruleList.map((rule: RuleItem, index) => {
                 return (
@@ -78,15 +74,9 @@ export default function CheckerOptionModal({
               })}
             </ul>
           </ModalBody>
-          <ModalFooter>
-            <Button colorScheme='blue' onClick={onClose}>
-              Play With AI
-            </Button>
-            <Button colorScheme='blue' mx={3} onClick={onClose}>
-              Wait For Player
-            </Button>
-            <Button colorScheme='gray' onClick={openLeaderboard}>
-              Leaderboard
+          <ModalFooter mx='auto'>
+            <Button colorScheme='gray' width='36' marginRight='1' onClick={closeHowToPlay}>
+              Back
             </Button>
           </ModalFooter>
         </ModalContent>
