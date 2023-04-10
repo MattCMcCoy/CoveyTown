@@ -20,12 +20,11 @@ import {
 import React, { useCallback, useEffect, useState } from 'react';
 import { useInteractable, useCheckerAreaController } from '../../../classes/TownController';
 import CheckerAreaController, {
-  useBlackScore,
-  useRedScore,
   useActivePlayer,
   useSquares,
   usePlayers,
 } from '../../../classes/CheckerAreaController';
+import { Crown } from '@styled-icons/fa-solid/Crown';
 import useTownController from '../../../hooks/useTownController';
 import CheckerAreaInteractable from './CheckerArea';
 import { CheckerSquare } from '../../../generated/client';
@@ -36,13 +35,12 @@ const CHECKER_INNER_RED = '#C53030';
 const CHECKER_INNER_BLACK = '#1A202C';
 const CHECKER_OUTER_RED = '#9B2C2C';
 const CHECKER_OUTER_BLACK = 'black';
-const CHECKER_OUTER_SIZE = '70';
+const CHECKER_HIGHLIGHT_SIZE = '70';
+const CHECKER_OUTER_SIZE = '65';
 const CHECKER_INNER_SIZE = '50';
 const MAX_PLAYERS = 2;
 
 function Score({ controller }: { controller: CheckerAreaController }): JSX.Element {
-  const blackScore = useBlackScore(controller);
-  const redScore = useRedScore(controller);
   return (
     <Square display={'grid'}>
       <Circle size={CHECKER_OUTER_SIZE} margin='auto' bg={CHECKER_OUTER_RED} marginBottom={5}>
@@ -52,7 +50,7 @@ function Score({ controller }: { controller: CheckerAreaController }): JSX.Eleme
           bg={CHECKER_INNER_RED}
           shadow='inner'
           textColor={'white'}>
-          {redScore}
+          {12 - controller.squares.filter(square => square.checker.color === 'black').length}
         </Circle>
       </Circle>
       <Circle size={CHECKER_OUTER_SIZE} margin='auto' bg={CHECKER_OUTER_BLACK}>
@@ -62,7 +60,7 @@ function Score({ controller }: { controller: CheckerAreaController }): JSX.Eleme
           bg={CHECKER_INNER_BLACK}
           shadow='inner'
           textColor={'white'}>
-          {blackScore}
+          {12 - controller.squares.filter(square => square.checker.color === 'red').length}
         </Circle>
       </Circle>
     </Square>
@@ -83,6 +81,18 @@ function Board({
   let source: CheckerSquare;
   const [firstButtonClicked, setFirstButtonClicked] = useState(0);
   const [, setSecondButtonClicked] = useState(0);
+  const [moveFrom, setMoveFrom] = useState<string>('');
+  const [moveTo, setMoveTo] = useState<string>('');
+
+  useEffect(() => {
+    if (moveFrom && moveTo) {
+      townController
+        .makeCheckerMove(controller, moveFrom, moveTo)
+        .then(newBoard => (controller.squares = newBoard));
+      setMoveFrom('');
+      setMoveTo('');
+    }
+  }, [controller, moveFrom, moveTo, townController]);
   if (squares == undefined || squares.length == 0) {
     return <></>;
   }
@@ -106,6 +116,7 @@ function Board({
   function handleFirstButtonClick(square: CheckerSquare) {
     setFirstButtonClicked(1);
     source = square;
+    setMoveFrom(square.id);
     console.log('Source square clicked: ' + source.id);
   }
 
@@ -117,15 +128,16 @@ function Board({
       setSecondButtonClicked(2);
       console.log('Dest square clicked: ' + square.id);
       setFirstButtonClicked(0);
+      setMoveTo(square.id);
       changeTurn();
     }
   }
 
   function handleButtonAction(square: CheckerSquare, color: string) {
     console.log('In handleButtonAction');
-    if (square.checker.type == color) {
+    if (square.checker.color == color) {
       return handleFirstButtonClick(square);
-    } else if (square.checker.type == 'empty') {
+    } else if (square.checker.color == 'empty') {
       return handleSecondButtonClick(square);
     } else {
       return () => undefined;
@@ -136,10 +148,22 @@ function Board({
   let row: JSX.Element[] = [];
   const board: JSX.Element[] = [];
 
+  // function handleSquareClick(id: string): void {
+  //   if (moveFrom == '') {
+  //     setMoveFrom(id);
+  //   } else if (moveTo == '') {
+  //     setMoveTo(id);
+  //   } else {
+  //     setMoveFrom(id);
+  //     setMoveTo('');
+  //   }
+  // }
+
   squares.forEach(square => {
     // add squares to row
     row.push(
       <Box
+        //onKeyDown={}
         as='button'
         w={squareSize}
         h={squareSize}
@@ -156,14 +180,21 @@ function Board({
         key={square.id}>
         {square.checker.type !== 'empty' ? (
           <Circle
-            size={CHECKER_OUTER_SIZE}
+            size={CHECKER_HIGHLIGHT_SIZE}
             margin='auto'
-            bg={square.checker.type == 'red' ? CHECKER_OUTER_RED : CHECKER_OUTER_BLACK}>
+            bg={moveFrom == `${square.x}${square.y}` ? 'yellow' : 'transparent'}>
             <Circle
-              size={CHECKER_INNER_SIZE}
+              size={CHECKER_OUTER_SIZE}
               margin='auto'
-              bg={square.checker.type == 'red' ? CHECKER_INNER_RED : CHECKER_INNER_BLACK}
-              shadow='inner'></Circle>
+              bg={square.checker.color == 'red' ? CHECKER_OUTER_RED : CHECKER_OUTER_BLACK}>
+              <Circle
+                size={CHECKER_INNER_SIZE}
+                margin='auto'
+                bg={square.checker.color == 'red' ? CHECKER_INNER_RED : CHECKER_INNER_BLACK}
+                shadow='inner'>
+                {square.checker.type == 'king' ? <Crown size={30} color='white' /> : null}
+              </Circle>
+            </Circle>
           </Circle>
         ) : null}
       </Box>,

@@ -804,6 +804,20 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
     );
   }
 
+  public async makeCheckerMove(
+    checkerArea: CheckerAreaController,
+    moveFrom: string,
+    moveTo: string,
+  ): Promise<CheckerSquare[]> {
+    return this._townsService.makeCheckerMove(
+      this.townID,
+      checkerArea.id,
+      this.sessionToken,
+      moveFrom,
+      moveTo,
+    );
+  }
+
   /**
    * Switches the turn between the players of the given checkerBoard area. (specified via checker area controller)
    * @param checkerArea the checker area controller

@@ -47,7 +47,7 @@ describe('Checker Board Viewer', () => {
   let renderData: RenderResult;
   beforeEach(() => {
     mockClear(mockToast);
-    const piece = { id: '1', type: 'red' } as CheckerPiece;
+    const piece = { color: 'red', type: 'pawn' } as CheckerPiece;
     const checker = { id: '11', x: 1, y: 1, checker: piece } as CheckerSquare;
     checkerArea = new CheckerAreaController({
       id: `id-${nanoid()}`,
@@ -101,49 +101,9 @@ describe('Checker Board Viewer', () => {
   }
 
   describe('CheckerHooks', () => {
-    it('useRedScore Registers exactly one redScoreChange listener', () => {
-      act(() => {
-        checkerArea.emit('redScoreChange', 1);
-      });
-      act(() => {
-        checkerArea.emit('redScoreChange', 2);
-      });
-      act(() => {
-        checkerArea.emit('redScoreChange', 3);
-      });
-      getSingleListenerAdded('redScoreChange');
-    });
-    it('useRedScore Unregisters exactly the same redScoreChange listener on unmounting', () => {
-      act(() => {
-        checkerArea.emit('redScoreChange', 1);
-      });
-      const listenerAdded = getSingleListenerAdded('redScoreChange');
-      cleanup();
-      expect(getSingleListenerRemoved('redScoreChange')).toBe(listenerAdded);
-    });
-    it('useBlackScore Registers exactly one blackScoreChange listener', () => {
-      act(() => {
-        checkerArea.emit('blackScoreChange', 1);
-      });
-      act(() => {
-        checkerArea.emit('blackScoreChange', 2);
-      });
-      act(() => {
-        checkerArea.emit('blackScoreChange', 3);
-      });
-      getSingleListenerAdded('blackScoreChange');
-    });
-    it('useBlackScore Unregisters exactly the same blackScoreChange listener on unmounting', () => {
-      act(() => {
-        checkerArea.emit('blackScoreChange', 1);
-      });
-      const listenerAdded = getSingleListenerAdded('blackScoreChange');
-      cleanup();
-      expect(getSingleListenerRemoved('blackScoreChange')).toBe(listenerAdded);
-    });
     it('useSquares Registers exactly one checkerSquareChange listener', () => {
-      const piece = { id: '1', type: 'red' } as CheckerPiece;
-      const piece2 = { id: '2', type: 'black' } as CheckerPiece;
+      const piece = { color: 'red', type: 'pawn' } as CheckerPiece;
+      const piece2 = { color: 'black', type: 'pawn' } as CheckerPiece;
       const checker = { id: '11', x: 1, y: 1, checker: piece } as CheckerSquare;
       const checker2 = { id: '12', x: 1, y: 2, checker: piece2 } as CheckerSquare;
       act(() => {
@@ -167,32 +127,29 @@ describe('Checker Board Viewer', () => {
     });
     it('Removes the listeners and adds new ones if the controller changes', () => {
       const origCheckerChange = getSingleListenerAdded('checkerSquareChange');
-      const origRedScoreChange = getSingleListenerAdded('redScoreChange');
-      const origBlackScoreChange = getSingleListenerAdded('blackScoreChange');
-      const piece = { id: '1', type: 'red' } as CheckerPiece;
-      const piece2 = { id: '2', type: 'black' } as CheckerPiece;
+      const piece = { color: 'red', type: 'pawn' } as CheckerPiece;
+      const piece2 = { color: 'black', type: 'pawn' } as CheckerPiece;
       const checker = { id: '11', x: 1, y: 1, checker: piece } as CheckerSquare;
       const checker2 = { id: '12', x: 1, y: 2, checker: piece2 } as CheckerSquare;
 
       const newCheckerAreaController = new CheckerAreaController({
         id: nanoid(),
         squares: [checker, checker2],
+<<<<<<< HEAD
         blackScore: 10,
         redScore: 10,
         activePlayer: 0,
         players: [],
+=======
+>>>>>>> origin/main
         leaderboard: [{ position: 2, playerId: '123', wins: 3, losses: 2 }],
       });
       const newAddListenerSpy = jest.spyOn(newCheckerAreaController, 'addListener');
       renderData.rerender(renderCheckerArea(newCheckerAreaController, townController));
 
       expect(getSingleListenerRemoved('checkerSquareChange')).toBe(origCheckerChange);
-      expect(getSingleListenerRemoved('redScoreChange')).toBe(origRedScoreChange);
-      expect(getSingleListenerRemoved('blackScoreChange')).toBe(origBlackScoreChange);
 
       getSingleListenerAdded('checkerSquareChange', newAddListenerSpy);
-      getSingleListenerAdded('redScoreChange', newAddListenerSpy);
-      getSingleListenerAdded('blackScoreChange', newAddListenerSpy);
     });
   });
 });

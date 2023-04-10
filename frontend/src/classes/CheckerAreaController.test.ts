@@ -26,7 +26,8 @@ describe('CheckerAreaController', () => {
           id: `${x}${y}`,
           x,
           y,
-          checker: { id: 'empty', type: 'empty' } as CheckerPieceModel,
+          checker: { color: 'empty', type: 'empty' } as CheckerPieceModel,
+          moves: [],
         });
       }
     }
@@ -34,14 +35,18 @@ describe('CheckerAreaController', () => {
     mockClear(townController);
     mockClear(mockListeners.checkerSquareChange);
     testArea.addListener('checkerSquareChange', mockListeners.checkerSquareChange);
-    testArea.addListener('blackScoreChange', mockListeners.blackScoreChange);
-    testArea.addListener('redScoreChange', mockListeners.redScoreChange);
     testArea.addListener('leaderboardChange', mockListeners.leaderboardChange);
   });
 
   describe('Updating squares', () => {
     it('updates the property and emits a checkerSquareChange event if the property changes', () => {
-      const newSquares: { id: string; x: number; y: number; checker: CheckerPieceModel }[] = [];
+      const newSquares: {
+        id: string;
+        x: number;
+        y: number;
+        checker: CheckerPieceModel;
+        moves: string[];
+      }[] = [];
       testArea.squares = newSquares;
       expect(mockListeners.checkerSquareChange).toBeCalledWith(newSquares);
       expect(testArea.squares).toEqual(newSquares);
