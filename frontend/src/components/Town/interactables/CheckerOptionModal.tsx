@@ -9,20 +9,29 @@ import {
   ModalOverlay,
 } from '@chakra-ui/react';
 import React, { useState } from 'react';
+import CheckerAreaInteractable from './CheckerArea';
+import { useCheckerAreaController } from '../../../classes/TownController';
+import useTownController from '../../../hooks/useTownController';
 
+const MAX_PLAYERS = 2;
 interface RuleItem {
   title: string;
   des: string;
 }
 
 export default function CheckerOptionModal({
+  checkerArea,
   changeGameState,
   openLeaderboard,
 }: {
+  checkerArea: CheckerAreaInteractable;
   changeGameState: (val: boolean) => void;
   openLeaderboard: () => void;
 }): JSX.Element {
   const [visibleState, setVisibleState] = useState(true);
+  const townController = useTownController();
+  const currPlayerId = townController.ourPlayer.id;
+  const controller = useCheckerAreaController(checkerArea.name);
   const ruleList: RuleItem[] = [
     {
       title: 'Overview',
@@ -82,7 +91,19 @@ export default function CheckerOptionModal({
             <Button colorScheme='blue' onClick={onClose}>
               Play With AI
             </Button>
-            <Button colorScheme='blue' mx={3} onClick={onClose}>
+            <Button
+              colorScheme='blue'
+              mx={3}
+              onClick={() => {
+                if (controller.players.length < 2 && !controller.players.includes(currPlayerId)) {
+                  townController
+                    .addCheckerPlayer(controller)
+                    .then(players => (controller.players = players));
+                } else {
+                  console.log('too many players');
+                }
+                onClose();
+              }}>
               Wait For Player
             </Button>
             <Button colorScheme='gray' onClick={openLeaderboard}>

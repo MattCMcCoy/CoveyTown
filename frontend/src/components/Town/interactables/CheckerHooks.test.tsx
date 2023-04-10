@@ -16,10 +16,13 @@ function renderCheckerArea(checkerArea: CheckerAreaController, townController: T
   const close = () => {
     selectIsOpen = false;
   };
+  const start = () => {
+    return <></>;
+  };
   return (
     <ChakraProvider>
       <TownControllerContext.Provider value={townController}>
-        <CheckerBoard controller={checkerArea} isOpen={!selectIsOpen} close={close} />
+        <CheckerBoard start={start} controller={checkerArea} isOpen={!selectIsOpen} close={close} />
       </TownControllerContext.Provider>
     </ChakraProvider>
   );
@@ -50,6 +53,8 @@ describe('Checker Board Viewer', () => {
       id: `id-${nanoid()}`,
       squares: [checker],
       leaderboard: [],
+      activePlayer: 0,
+      players: [],
     });
     townController = mockTownController({ checkerAreas: [checkerArea] });
 
@@ -129,6 +134,8 @@ describe('Checker Board Viewer', () => {
         id: nanoid(),
         squares: [checker, checker2],
         leaderboard: [{ position: 2, playerId: '123', wins: 3, losses: 2 }],
+        activePlayer: 0,
+        players: [],
       });
       const newAddListenerSpy = jest.spyOn(newCheckerAreaController, 'addListener');
       renderData.rerender(renderCheckerArea(newCheckerAreaController, townController));

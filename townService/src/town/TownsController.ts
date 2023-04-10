@@ -441,6 +441,201 @@ export class TownsController extends Controller {
   }
 
   /**
+   * changes the active player of the checker game.
+   *
+   * @param townID ID of the town in which to get the players of the checker area
+   * @param checkerAreaId interactable ID of the checker area
+   * @param sessionToken session token of the player making the request, must
+   *        match the session token returned when the player joined the town
+   *
+   *
+   * @throws InvalidParametersError if the session token is not valid, or if the
+   *          checker area specified does not exist
+   */
+  @Patch('{townID}/{checkerAreaId}/changeActivePlayer')
+  @Response<InvalidParametersError>(400, 'Invalid values specified')
+  public async changeActivePlayer(
+    @Path() townID: string,
+    @Path() checkerAreaId: string,
+    @Header('X-Session-Token') sessionToken: string,
+  ): Promise<number> {
+    const curTown = this._townsStore.getTownByID(townID);
+    if (!curTown) {
+      throw new InvalidParametersError('Invalid town ID');
+    }
+    if (!curTown.getPlayerBySessionToken(sessionToken)) {
+      throw new InvalidParametersError('Invalid session ID');
+    }
+    const checkerArea = curTown.getInteractable(checkerAreaId);
+    if (!checkerArea || !isCheckerArea(checkerArea)) {
+      throw new InvalidParametersError('Invalid checker area ID');
+    }
+    const newActivePlayer = checkerArea.activePlayer === 0 ? 1 : 0;
+
+    const updatedCheckerArea = {
+      id: checkerArea.id,
+      squares: checkerArea.squares,
+      activePlayer: newActivePlayer,
+      players: checkerArea.players,
+      leaderboard: checkerArea.leaderboard,
+    };
+    (<CheckerAreaReal>checkerArea).updateModel(updatedCheckerArea);
+    return newActivePlayer;
+  }
+
+  /**
+   * changes the active player of the checker game.
+   *
+   * @param townID ID of the town in which to get the players of the checker area
+   * @param checkerAreaId interactable ID of the checker area
+   * @param sessionToken session token of the player making the request, must
+   *        match the session token returned when the player joined the town
+   *
+   *
+   * @throws InvalidParametersError if the session token is not valid, or if the
+   *          checker area specified does not exist
+   */
+  @Patch('{townID}/{checkerAreaId}/{playerId}/addCheckerPlayer')
+  @Response<InvalidParametersError>(400, 'Invalid values specified')
+  public async addCheckerPlayer(
+    @Path() townID: string,
+    @Path() checkerAreaId: string,
+    @Path() playerId: string,
+    @Header('X-Session-Token') sessionToken: string,
+  ): Promise<string[]> {
+    const curTown = this._townsStore.getTownByID(townID);
+    if (!curTown) {
+      throw new InvalidParametersError('Invalid town ID');
+    }
+    if (!curTown.getPlayerBySessionToken(sessionToken)) {
+      throw new InvalidParametersError('Invalid session ID');
+    }
+    const checkerArea = curTown.getInteractable(checkerAreaId);
+    if (!checkerArea || !isCheckerArea(checkerArea)) {
+      throw new InvalidParametersError('Invalid checker area ID');
+    }
+    checkerArea.players.push(playerId);
+
+    const updatedCheckerArea = {
+      id: checkerArea.id,
+      squares: checkerArea.squares,
+      activePlayer: checkerArea.activePlayer,
+      players: checkerArea.players,
+      leaderboard: checkerArea.leaderboard,
+    };
+    (<CheckerAreaReal>checkerArea).updateModel(updatedCheckerArea);
+    return checkerArea.players;
+  }
+
+  /**
+   * Resets the checker Area
+   *
+   * @param townID ID of the town in which to get the players of the checker area
+   * @param checkerAreaId interactable ID of the checker area
+   * @param sessionToken session token of the player making the request, must
+   *        match the session token returned when the player joined the town
+   *
+   *
+   * @throws InvalidParametersError if the session token is not valid, or if the
+   *          checker area specified does not exist
+   */
+  @Patch('{townID}/{checkerAreaId}/resetCheckerArea')
+  @Response<InvalidParametersError>(400, 'Invalid values specified')
+  public async resetCheckerArea(
+    @Path() townID: string,
+    @Path() checkerAreaId: string,
+    @Header('X-Session-Token') sessionToken: string,
+  ): Promise<CheckerArea> {
+    const curTown = this._townsStore.getTownByID(townID);
+    if (!curTown) {
+      throw new InvalidParametersError('Invalid town ID');
+    }
+    if (!curTown.getPlayerBySessionToken(sessionToken)) {
+      throw new InvalidParametersError('Invalid session ID');
+    }
+    const checkerArea = curTown.getInteractable(checkerAreaId);
+    if (!checkerArea || !isCheckerArea(checkerArea)) {
+      throw new InvalidParametersError('Invalid checker area ID');
+    }
+
+    const updatedCheckerArea = {
+      id: checkerArea.id,
+      squares: [],
+      activePlayer: 0,
+      players: [],
+      leaderboard: checkerArea.leaderboard,
+    };
+    (<CheckerAreaReal>checkerArea).updateModel(updatedCheckerArea);
+    return updatedCheckerArea;
+  }
+
+  /**
+   * Gets the players in a checker area in a given town
+   *
+   * @param townID ID of the town in which to get the checker area squares
+   * @param checkerAreaId interactable ID of the checker area
+   * @param sessionToken session token of the player making the request, must
+   *        match the session token returned when the player joined the town
+   *
+   *
+   * @throws InvalidParametersError if the session token is not valid, or if the
+   *          checker area specified does not exist
+   */
+  @Patch('{townID}/{checkerAreaId}/getCheckerPlayers')
+  @Response<InvalidParametersError>(400, 'Invalid values specified')
+  public async getCheckerPlayers(
+    @Path() townID: string,
+    @Path() checkerAreaId: string,
+    @Header('X-Session-Token') sessionToken: string,
+  ): Promise<string[] | undefined> {
+    const curTown = this._townsStore.getTownByID(townID);
+    if (!curTown) {
+      throw new InvalidParametersError('Invalid town ID');
+    }
+    if (!curTown.getPlayerBySessionToken(sessionToken)) {
+      throw new InvalidParametersError('Invalid session ID');
+    }
+    const checkerArea = curTown.getInteractable(checkerAreaId);
+    if (!checkerArea || !isCheckerArea(checkerArea)) {
+      throw new InvalidParametersError('Invalid checker area ID');
+    }
+    return checkerArea.players;
+  }
+
+  /**
+   * Gets the active player of a checker area in a given town
+   *
+   * @param townID ID of the town in which to get the checker area squares
+   * @param checkerAreaId interactable ID of the checker area
+   * @param sessionToken session token of the player making the request, must
+   *        match the session token returned when the player joined the town
+   *
+   *
+   * @throws InvalidParametersError if the session token is not valid, or if the
+   *          checker area specified does not exist
+   */
+  @Patch('{townID}/{checkerAreaId}/getActiveCheckerPlayer')
+  @Response<InvalidParametersError>(400, 'Invalid values specified')
+  public async getActiveCheckerPlayer(
+    @Path() townID: string,
+    @Path() checkerAreaId: string,
+    @Header('X-Session-Token') sessionToken: string,
+  ): Promise<number> {
+    const curTown = this._townsStore.getTownByID(townID);
+    if (!curTown) {
+      throw new InvalidParametersError('Invalid town ID');
+    }
+    if (!curTown.getPlayerBySessionToken(sessionToken)) {
+      throw new InvalidParametersError('Invalid session ID');
+    }
+    const checkerArea = curTown.getInteractable(checkerAreaId);
+    if (!checkerArea || !isCheckerArea(checkerArea)) {
+      throw new InvalidParametersError('Invalid checker area ID');
+    }
+    return checkerArea.activePlayer;
+  }
+
+  /**
    * Connects a client's socket to the requested town, or disconnects the socket if no such town exists
    *
    * @param socket A new socket connection, with the userName and townID parameters of the socket's

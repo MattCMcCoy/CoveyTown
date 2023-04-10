@@ -18,6 +18,10 @@ export default class CheckerArea extends InteractableArea {
 
   private _leaderboard: CheckerLeaderboardItem[] = [];
 
+  private _activePlayer: number;
+
+  private _players: string[];
+
   public get squares(): CheckerSquareModel[] {
     return this._squares;
   }
@@ -28,6 +32,14 @@ export default class CheckerArea extends InteractableArea {
 
   public get leaderboard(): CheckerLeaderboardItem[] {
     return this._leaderboard;
+  }
+
+  public get activePlayer(): number {
+    return this._activePlayer;
+  }
+
+  public get players(): string[] {
+    return this._players;
   }
 
   /**
@@ -46,12 +58,15 @@ export default class CheckerArea extends InteractableArea {
 
     this.squares = squares;
     this._leaderboard = leaderboard;
+    this._activePlayer = 0;
+    this._players = [];
   }
 
   /**
    * initializes the board with all of its base values, including checker pieces.
    */
   public initializeBoard() {
+    this._activePlayer = 0;
     const newSquares = [];
     const checkers: CheckerPieceModel[] = this._createCheckerPieces();
     let pieces = 0;
@@ -121,6 +136,8 @@ export default class CheckerArea extends InteractableArea {
     if (this._occupants.length === 0) {
       this.squares = [];
       this._leaderboard = [];
+      this._activePlayer = 0;
+      this._players = [];
     }
     this._emitAreaChanged();
   }
@@ -128,6 +145,8 @@ export default class CheckerArea extends InteractableArea {
   updateModel(checkerArea: CheckerAreaModel) {
     this.squares = checkerArea.squares;
     this._leaderboard = checkerArea.leaderboard;
+    this._activePlayer = checkerArea.activePlayer;
+    this._players = checkerArea.players;
   }
 
   public toModel(): Interactable {
@@ -135,6 +154,8 @@ export default class CheckerArea extends InteractableArea {
       id: this.id,
       squares: this.squares,
       leaderboard: this._leaderboard,
+      activePlayer: this._activePlayer,
+      players: this._players,
     };
   }
 
@@ -426,6 +447,10 @@ export default class CheckerArea extends InteractableArea {
       throw new Error(`Malformed checker area ${name}`);
     }
     const rect: BoundingBox = { x: mapObject.x, y: mapObject.y, width, height };
-    return new CheckerArea({ id: name, squares: [], leaderboard: [] }, rect, townEmitter);
+    return new CheckerArea(
+      { id: name, squares: [], leaderboard: [], activePlayer: 0, players: [] },
+      rect,
+      townEmitter,
+    );
   }
 }
