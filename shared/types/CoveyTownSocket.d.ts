@@ -96,24 +96,17 @@ export interface CheckerSquare {
   x: number;
   y: number;
   checker: CheckerPiece;
-  moves: string[];
 }
 
-export enum CheckerColor {
+export enum Color {
   RED = "red",
   BLACK = "black",
   EMPTY = "empty",
 }
 
-export enum CheckerType {
-  KING = "king",
-  PAWN = "pawn",
-  EMPTY = "empty",
-}
-
 export interface CheckerPiece {
-  type: CheckerType;
-  color: CheckerColor;
+  id: string;
+  type: Color;
 }
 
 export interface PosterSessionArea {

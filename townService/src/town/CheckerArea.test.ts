@@ -17,7 +17,6 @@ describe('CheckerArea', () => {
 
   beforeEach(() => {
     mockClear(townEmitter);
-<<<<<<< HEAD
     testArea = new CheckerArea(
       {
         id,
@@ -31,9 +30,6 @@ describe('CheckerArea', () => {
       testAreaBox,
       townEmitter,
     );
-=======
-    testArea = new CheckerArea({ id, squares: [], leaderboard: [] }, testAreaBox, townEmitter);
->>>>>>> origin/main
     newPlayer = new Player(nanoid(), mock<TownEmitter>());
     testArea.add(newPlayer);
     squares = [];
@@ -68,13 +64,10 @@ describe('CheckerArea', () => {
       expect(lastEmittedUpdate).toEqual({
         id,
         squares: [],
-<<<<<<< HEAD
         redScore: 0,
         blackScore: 0,
         activePlayer: 0,
         players: [],
-=======
->>>>>>> origin/main
         leaderboard: [],
       });
     });
@@ -90,13 +83,10 @@ describe('CheckerArea', () => {
       expect(lastEmittedUpdate).toEqual({
         id,
         squares: [],
-<<<<<<< HEAD
         redScore: 0,
         blackScore: 0,
         activePlayer: 0,
         players: [],
-=======
->>>>>>> origin/main
         leaderboard: [],
       });
     });
@@ -105,7 +95,6 @@ describe('CheckerArea', () => {
   test('toModel sets the id and squares', () => {
     const model = testArea.toModel();
 
-<<<<<<< HEAD
     expect(model).toEqual({
       id,
       squares: [],
@@ -115,9 +104,6 @@ describe('CheckerArea', () => {
       players: [],
       leaderboard: [],
     });
-=======
-    expect(model).toEqual({ id, squares: [], leaderboard: [] });
->>>>>>> origin/main
   });
 
   test('update model sets the squares', () => {
@@ -127,13 +113,10 @@ describe('CheckerArea', () => {
     testArea.updateModel({
       id: newId,
       squares: newSquares,
-<<<<<<< HEAD
       blackScore: 0,
       redScore: 0,
       activePlayer: 0,
       players: [],
-=======
->>>>>>> origin/main
       leaderboard: [],
     });
     expect(testArea.id).toBe(id);
@@ -154,216 +137,101 @@ describe('CheckerArea', () => {
       expect(testArea.squares.length).toEqual(64);
       testArea.squares.forEach(square => expect(square.id).toEqual(`${square.x}${square.y}`));
       expect(testArea.squares.at(1)?.checker).toEqual({
-        color: 'red',
-        type: 'pawn',
+        id: 'red 0',
+        type: 'red',
       } as CheckerPieceModel);
       expect(testArea.squares.at(3)?.checker).toEqual({
-        color: 'red',
-        type: 'pawn',
+        id: 'red 1',
+        type: 'red',
       } as CheckerPieceModel);
       expect(testArea.squares.at(5)?.checker).toEqual({
-        color: 'red',
-        type: 'pawn',
+        id: 'red 2',
+        type: 'red',
       } as CheckerPieceModel);
       expect(testArea.squares.at(7)?.checker).toEqual({
-        color: 'red',
-        type: 'pawn',
+        id: 'red 3',
+        type: 'red',
       } as CheckerPieceModel);
       expect(testArea.squares.at(8)?.checker).toEqual({
-        color: 'red',
-        type: 'pawn',
+        id: 'red 4',
+        type: 'red',
       } as CheckerPieceModel);
       expect(testArea.squares.at(10)?.checker).toEqual({
-        color: 'red',
-        type: 'pawn',
+        id: 'red 5',
+        type: 'red',
       } as CheckerPieceModel);
       expect(testArea.squares.at(12)?.checker).toEqual({
-        color: 'red',
-        type: 'pawn',
+        id: 'red 6',
+        type: 'red',
       } as CheckerPieceModel);
       expect(testArea.squares.at(14)?.checker).toEqual({
-        color: 'red',
-        type: 'pawn',
+        id: 'red 7',
+        type: 'red',
       } as CheckerPieceModel);
       expect(testArea.squares.at(17)?.checker).toEqual({
-        color: 'red',
-        type: 'pawn',
+        id: 'red 8',
+        type: 'red',
       } as CheckerPieceModel);
       expect(testArea.squares.at(19)?.checker).toEqual({
-        color: 'red',
-        type: 'pawn',
+        id: 'red 9',
+        type: 'red',
       } as CheckerPieceModel);
       expect(testArea.squares.at(21)?.checker).toEqual({
-        color: 'red',
-        type: 'pawn',
+        id: 'red 10',
+        type: 'red',
       } as CheckerPieceModel);
       expect(testArea.squares.at(23)?.checker).toEqual({
-        color: 'red',
-        type: 'pawn',
+        id: 'red 11',
+        type: 'red',
       } as CheckerPieceModel);
       expect(testArea.squares.at(40)?.checker).toEqual({
-        color: 'black',
-        type: 'pawn',
+        id: 'black 11',
+        type: 'black',
       } as CheckerPieceModel);
       expect(testArea.squares.at(42)?.checker).toEqual({
-        color: 'black',
-        type: 'pawn',
+        id: 'black 10',
+        type: 'black',
       } as CheckerPieceModel);
       expect(testArea.squares.at(44)?.checker).toEqual({
-        color: 'black',
-        type: 'pawn',
+        id: 'black 9',
+        type: 'black',
       } as CheckerPieceModel);
       expect(testArea.squares.at(46)?.checker).toEqual({
-        color: 'black',
-        type: 'pawn',
+        id: 'black 8',
+        type: 'black',
       } as CheckerPieceModel);
       expect(testArea.squares.at(49)?.checker).toEqual({
-        color: 'black',
-        type: 'pawn',
+        id: 'black 7',
+        type: 'black',
       } as CheckerPieceModel);
       expect(testArea.squares.at(51)?.checker).toEqual({
-        color: 'black',
-        type: 'pawn',
+        id: 'black 6',
+        type: 'black',
       } as CheckerPieceModel);
       expect(testArea.squares.at(53)?.checker).toEqual({
-        color: 'black',
-        type: 'pawn',
+        id: 'black 5',
+        type: 'black',
       } as CheckerPieceModel);
       expect(testArea.squares.at(55)?.checker).toEqual({
-        color: 'black',
-        type: 'pawn',
+        id: 'black 4',
+        type: 'black',
       } as CheckerPieceModel);
       expect(testArea.squares.at(56)?.checker).toEqual({
-        color: 'black',
-        type: 'pawn',
+        id: 'black 3',
+        type: 'black',
       } as CheckerPieceModel);
       expect(testArea.squares.at(58)?.checker).toEqual({
-        color: 'black',
-        type: 'pawn',
+        id: 'black 2',
+        type: 'black',
       } as CheckerPieceModel);
       expect(testArea.squares.at(60)?.checker).toEqual({
-        color: 'black',
-        type: 'pawn',
+        id: 'black 1',
+        type: 'black',
       } as CheckerPieceModel);
       expect(testArea.squares.at(62)?.checker).toEqual({
-        color: 'black',
-        type: 'pawn',
+        id: 'black 0',
+        type: 'black',
       } as CheckerPieceModel);
-    });
-
-    it('Verfies the valid moves are stored correctly at game start.', () => {
-      expect(testArea.squares).toEqual([]);
-      testArea.initializeBoard();
-      testArea.updateMoveablePieces();
-      expect(testArea.squares.length).toEqual(64);
-      testArea.squares.forEach(square => expect(square.id).toEqual(`${square.x}${square.y}`));
-      expect(testArea.squares.at(0)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(1)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(2)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(3)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(4)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(5)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(6)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(7)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(8)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(9)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(10)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(11)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(12)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(13)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(14)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(15)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(16)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(17)?.moves.length).toEqual(2);
-      expect(testArea.squares.at(18)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(19)?.moves.length).toEqual(2);
-      expect(testArea.squares.at(20)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(21)?.moves.length).toEqual(2);
-      expect(testArea.squares.at(22)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(23)?.moves.length).toEqual(1);
-      expect(testArea.squares.at(24)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(25)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(26)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(27)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(28)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(29)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(30)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(31)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(32)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(33)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(34)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(35)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(36)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(37)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(38)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(39)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(40)?.moves.length).toEqual(1);
-      expect(testArea.squares.at(41)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(42)?.moves.length).toEqual(2);
-      expect(testArea.squares.at(43)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(44)?.moves.length).toEqual(2);
-      expect(testArea.squares.at(45)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(46)?.moves.length).toEqual(2);
-      expect(testArea.squares.at(47)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(48)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(49)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(50)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(51)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(52)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(53)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(54)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(55)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(56)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(57)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(58)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(59)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(60)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(61)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(62)?.moves.length).toEqual(0);
-      expect(testArea.squares.at(63)?.moves.length).toEqual(0);
-
-      expect(
-        testArea.squares.find(square => square.id === `${2}${1}`)?.moves.includes(`${3}${0}`),
-      ).toEqual(true);
-      expect(
-        testArea.squares.find(square => square.id === `${2}${1}`)?.moves.includes(`${3}${2}`),
-      ).toEqual(true);
-      expect(
-        testArea.squares.find(square => square.id === `${2}${3}`)?.moves.includes(`${3}${2}`),
-      ).toEqual(true);
-      expect(
-        testArea.squares.find(square => square.id === `${2}${3}`)?.moves.includes(`${3}${4}`),
-      ).toEqual(true);
-      expect(
-        testArea.squares.find(square => square.id === `${2}${5}`)?.moves.includes(`${3}${4}`),
-      ).toEqual(true);
-      expect(
-        testArea.squares.find(square => square.id === `${2}${5}`)?.moves.includes(`${3}${6}`),
-      ).toEqual(true);
-      expect(
-        testArea.squares.find(square => square.id === `${2}${7}`)?.moves.includes(`${3}${6}`),
-      ).toEqual(true);
-      expect(
-        testArea.squares.find(square => square.id === `${5}${0}`)?.moves.includes(`${4}${1}`),
-      ).toEqual(true);
-      expect(
-        testArea.squares.find(square => square.id === `${5}${2}`)?.moves.includes(`${4}${1}`),
-      ).toEqual(true);
-      expect(
-        testArea.squares.find(square => square.id === `${5}${2}`)?.moves.includes(`${4}${3}`),
-      ).toEqual(true);
-      expect(
-        testArea.squares.find(square => square.id === `${5}${4}`)?.moves.includes(`${4}${3}`),
-      ).toEqual(true);
-      expect(
-        testArea.squares.find(square => square.id === `${5}${4}`)?.moves.includes(`${4}${5}`),
-      ).toEqual(true);
-      expect(
-        testArea.squares.find(square => square.id === `${5}${6}`)?.moves.includes(`${4}${5}`),
-      ).toEqual(true);
-      expect(
-        testArea.squares.find(square => square.id === `${5}${6}`)?.moves.includes(`${4}${7}`),
-      ).toEqual(true);
     });
   });
 

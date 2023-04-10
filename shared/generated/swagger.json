@@ -172,15 +172,7 @@
 				"type": "object",
 				"additionalProperties": false
 			},
-			"CheckerType": {
-				"enum": [
-					"king",
-					"pawn",
-					"empty"
-				],
-				"type": "string"
-			},
-			"CheckerColor": {
+			"Color": {
 				"enum": [
 					"red",
 					"black",
@@ -190,16 +182,16 @@
 			},
 			"CheckerPiece": {
 				"properties": {
-					"type": {
-						"$ref": "#/components/schemas/CheckerType"
+					"id": {
+						"type": "string"
 					},
-					"color": {
-						"$ref": "#/components/schemas/CheckerColor"
+					"type": {
+						"$ref": "#/components/schemas/Color"
 					}
 				},
 				"required": [
-					"type",
-					"color"
+					"id",
+					"type"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -219,20 +211,13 @@
 					},
 					"checker": {
 						"$ref": "#/components/schemas/CheckerPiece"
-					},
-					"moves": {
-						"items": {
-							"type": "string"
-						},
-						"type": "array"
 					}
 				},
 				"required": [
 					"id",
 					"x",
 					"y",
-					"checker",
-					"moves"
+					"checker"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -275,6 +260,14 @@
 						},
 						"type": "array"
 					},
+					"blackScore": {
+						"type": "number",
+						"format": "double"
+					},
+					"redScore": {
+						"type": "number",
+						"format": "double"
+					},
 					"leaderboard": {
 						"items": {
 							"$ref": "#/components/schemas/CheckerLeaderboardItem"
@@ -285,6 +278,8 @@
 				"required": [
 					"id",
 					"squares",
+					"blackScore",
+					"redScore",
 					"leaderboard"
 				],
 				"type": "object",
@@ -948,86 +943,6 @@
 						"description": "session token of the player making the request, must\nmatch the session token returned when the player joined the town",
 						"in": "header",
 						"name": "X-Session-Token",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/towns/{townID}/{checkerAreaId}/makeCheckerMove/{moveFrom}/{moveTo}": {
-			"patch": {
-				"operationId": "MakeCheckerMove",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"items": {
-										"$ref": "#/components/schemas/CheckerSquare"
-									},
-									"type": "array"
-								}
-							}
-						}
-					},
-					"400": {
-						"description": "Invalid values specified",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/InvalidParametersError"
-								}
-							}
-						}
-					}
-				},
-				"description": "Initializes the checker board of the given checkerBoard area.",
-				"tags": [
-					"towns"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"description": "ID of the town in which to initialize the checker areas board.",
-						"in": "path",
-						"name": "townID",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					},
-					{
-						"description": "interactable ID of the checker area",
-						"in": "path",
-						"name": "checkerAreaId",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					},
-					{
-						"description": "session token of the player making the request, must\nmatch the session token returned when the player joined the town",
-						"in": "header",
-						"name": "X-Session-Token",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					},
-					{
-						"in": "path",
-						"name": "moveFrom",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					},
-					{
-						"in": "path",
-						"name": "moveTo",
 						"required": true,
 						"schema": {
 							"type": "string"

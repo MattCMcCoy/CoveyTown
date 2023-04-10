@@ -95,6 +95,44 @@ export default class CheckerAreaController extends (EventEmitter as new () => Ty
     }
   }
 
+  /**
+   * The score of the black checker player.
+   */
+  public get blackScore(): number {
+    return this._model.blackScore;
+  }
+
+  /**
+   * The state of the blackScore in a checker area.
+   *
+   * Changing this value will emit a 'blackScoreChange' event
+   */
+  public set blackScore(blackScore: number) {
+    if (this._model.blackScore != blackScore) {
+      this._model.blackScore = blackScore;
+      this.emit('blackScoreChange', blackScore);
+    }
+  }
+
+  /**
+   * The score of the red checker player.
+   */
+  public get redScore(): number {
+    return this._model.redScore;
+  }
+
+  /**
+   * The state of the redScore in a checker area.
+   *
+   * Changing this value will emit a 'redScoreChange' event
+   */
+  public set redScore(redScore: number) {
+    if (this._model.redScore != redScore) {
+      this._model.redScore = redScore;
+      this.emit('redScoreChange', redScore);
+    }
+  }
+
   public get leaderboard(): CheckerLeaderboardItem[] {
     return this._model.leaderboard;
   }

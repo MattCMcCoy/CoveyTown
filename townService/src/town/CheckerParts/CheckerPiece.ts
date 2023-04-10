@@ -1,24 +1,20 @@
-import {
-  CheckerColor,
-  CheckerPiece as CheckerPieceModel,
-  CheckerType,
-} from '../../types/CoveyTownSocket';
+import { CheckerPiece as CheckerPieceModel } from '../../types/CoveyTownSocket';
 
 export default class CheckerPiece {
-  private _color: CheckerColor;
+  private _id: string;
 
-  private _type: CheckerType;
+  private _type: string;
 
-  constructor({ type, color }: CheckerPieceModel) {
+  constructor({ id, type }: CheckerPieceModel) {
+    this._id = id;
     this._type = type;
-    this._color = color;
   }
 
-  public get color(): CheckerColor {
-    return this._color;
+  public get id(): string {
+    return this._id;
   }
 
-  public get type(): CheckerType {
+  public get type(): string {
     return this._type;
   }
 }

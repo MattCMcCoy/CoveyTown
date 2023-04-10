@@ -2,8 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-export enum CheckerType {
-    KING = 'king',
-    PAWN = 'pawn',
+export enum Color {
+    RED = 'red',
+    BLACK = 'black',
     EMPTY = 'empty',
 }

@@ -86,12 +86,7 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "CheckerType": {
-        "dataType": "refEnum",
-        "enums": ["king","pawn","empty"],
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "CheckerColor": {
+    "Color": {
         "dataType": "refEnum",
         "enums": ["red","black","empty"],
     },
@@ -99,8 +94,8 @@ const models: TsoaRoute.Models = {
     "CheckerPiece": {
         "dataType": "refObject",
         "properties": {
-            "type": {"ref":"CheckerType","required":true},
-            "color": {"ref":"CheckerColor","required":true},
+            "id": {"dataType":"string","required":true},
+            "type": {"ref":"Color","required":true},
         },
         "additionalProperties": false,
     },
@@ -112,7 +107,6 @@ const models: TsoaRoute.Models = {
             "x": {"dataType":"double","required":true},
             "y": {"dataType":"double","required":true},
             "checker": {"ref":"CheckerPiece","required":true},
-            "moves": {"dataType":"array","array":{"dataType":"string"},"required":true},
         },
         "additionalProperties": false,
     },
@@ -133,6 +127,8 @@ const models: TsoaRoute.Models = {
         "properties": {
             "id": {"dataType":"string","required":true},
             "squares": {"dataType":"array","array":{"dataType":"refObject","ref":"CheckerSquare"},"required":true},
+            "blackScore": {"dataType":"double","required":true},
+            "redScore": {"dataType":"double","required":true},
             "leaderboard": {"dataType":"array","array":{"dataType":"refObject","ref":"CheckerLeaderboardItem"},"required":true},
         },
         "additionalProperties": false,
@@ -460,35 +456,6 @@ export function RegisterRoutes(app: express.Router) {
 
 
               const promise = controller.initializeCheckerAreaBoard.apply(controller, validatedArgs as any);
-              promiseHandler(controller, promise, response, undefined, next);
-            } catch (err) {
-                return next(err);
-            }
-        });
-        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.patch('/towns/:townID/:checkerAreaId/makeCheckerMove/:moveFrom/:moveTo',
-            ...(fetchMiddlewares<RequestHandler>(TownsController)),
-            ...(fetchMiddlewares<RequestHandler>(TownsController.prototype.makeCheckerMove)),
-
-            function TownsController_makeCheckerMove(request: any, response: any, next: any) {
-            const args = {
-                    townID: {"in":"path","name":"townID","required":true,"dataType":"string"},
-                    checkerAreaId: {"in":"path","name":"checkerAreaId","required":true,"dataType":"string"},
-                    sessionToken: {"in":"header","name":"X-Session-Token","required":true,"dataType":"string"},
-                    moveFrom: {"in":"path","name":"moveFrom","required":true,"dataType":"string"},
-                    moveTo: {"in":"path","name":"moveTo","required":true,"dataType":"string"},
-            };
-
-            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-
-            let validatedArgs: any[] = [];
-            try {
-                validatedArgs = getValidatedArgs(args, request, response);
-
-                const controller = new TownsController();
-
-
-              const promise = controller.makeCheckerMove.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);
