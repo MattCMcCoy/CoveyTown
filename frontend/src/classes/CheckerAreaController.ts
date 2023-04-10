@@ -22,6 +22,20 @@ export type CheckerAreaEvents = {
   leaderboardChange: (leaderboard: CheckerLeaderboardItem[]) => void;
 };
 
+function gameOver(controller: CheckerAreaController): boolean {
+  const blackChecker = controller.squares.find(square => square.checker?.color === 'black');
+  if (!blackChecker) {
+    return true;
+  }
+
+  const redChecker = controller.squares.find(square => square.checker?.color === 'red');
+  if (!redChecker) {
+    return true;
+  }
+
+  return false;
+}
+
 /**
  * A CheckerAreaController manages the state for a CheckerArea in the frontend app, serving as a bridge between the checker
  * board that is being displayed in the user's browser and the backend TownService, and ensuring that square updates are
@@ -68,6 +82,9 @@ export default class CheckerAreaController extends (EventEmitter as new () => Ty
     if (_.xor(this._model.squares, checkerSquares).length > 0) {
       this._model.squares = checkerSquares;
       this.emit('checkerSquareChange', checkerSquares);
+      if (gameOver(this)) {
+        console.log('Game over!');
+      }
     }
   }
 
