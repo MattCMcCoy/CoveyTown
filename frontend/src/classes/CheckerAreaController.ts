@@ -174,3 +174,17 @@ export function useRedScore(controller: CheckerAreaController): number {
   }, [controller]);
   return redScore;
 }
+
+export function gameOver(controller: CheckerAreaController): boolean {
+  const blackChecker = controller.squares.find(square => square.checker?.color === 'black');
+  if (!blackChecker) {
+    return true;
+  }
+
+  const redChecker = controller.squares.find(square => square.checker?.color === 'red');
+  if (!redChecker) {
+    return true;
+  }
+
+  return false;
+}

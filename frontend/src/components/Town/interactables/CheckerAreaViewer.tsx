@@ -18,15 +18,13 @@ import {
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import { useInteractable, useCheckerAreaController } from '../../../classes/TownController';
-import CheckerAreaController, {
-  useBlackScore,
-  useRedScore,
-  useSquares,
-} from '../../../classes/CheckerAreaController';
+import CheckerAreaController, { useSquares, gameOver } from '../../../classes/CheckerAreaController';
 import useTownController from '../../../hooks/useTownController';
 import CheckerAreaInteractable from './CheckerArea';
 import { CheckerSquare } from '../../../generated/client';
 import CheckerOptionModal from './CheckerOptionModal';
+import CheckerLeaderboardModal from './CheckerLeaderboardModal';
+import GameOverModal from './GameOverModal';
 
 const CHECKER_INNER_RED = '#C53030';
 const CHECKER_INNER_BLACK = '#1A202C';
@@ -132,6 +130,7 @@ export function CheckerBoard({
   const townController = useTownController();
   const toast = useToast();
   const title = 'Checkers';
+  const [gameOverState, setGameOverState] = useState(false);
 
   useEffect(() => {
     townController.getCheckerAreaBoard(controller);
@@ -153,9 +152,16 @@ export function CheckerBoard({
     }
   }, [controller, squares, toast, townController]);
 
+      .getCheckerAreaBoard(controller)
+      .then(newBoard => {
+        controller.squares = newBoard;
+        setGameOverState(gameOver(controller));
+        return newBoard;
+      });
+  }, [controller, squares, townController]);
+
   return (
     <Modal
-      isOpen={isOpen}
       size={'4xl'}
       onClose={() => {
         close();
@@ -169,7 +175,8 @@ export function CheckerBoard({
         <Grid templateColumns='repeat(5, 1fr)'>
           <GridItem colSpan={4}>
             <Flex justify={'center'} padding={'5'}>
-              <Board squares={squares} />
+              <Board squares={squares} controller={controller} />
+              <GameOverModal gameOverState={gameOverState}></GameOverModal>
             </Flex>
           </GridItem>
           <GridItem colSpan={1} margin='auto'>
