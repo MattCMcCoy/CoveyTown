@@ -257,6 +257,14 @@ export function CheckerBoard({
   const [currentSquares, setCurrentSquares] = useState<CheckerSquare[] | undefined>(squares);
   const [startGame, setStartGame] = useState(true);
 
+  // update board on player switch
+  useEffect(() => {
+    townController.getCheckerAreaBoard(controller).then(board => {
+      controller.squares = board;
+      setCurrentSquares(controller.squares);
+    });
+  }, [controller, controller.activePlayer, townController]);
+
   const updateGame = useCallback(() => {
     function getPlayerColor(): string {
       return controller.players.indexOf(townController.ourPlayer.id) == 0 ? 'red' : 'black';
@@ -265,10 +273,6 @@ export function CheckerBoard({
       setStartGame(false);
       setTitle('You are player ' + getPlayerColor());
     }
-    townController.getCheckerAreaBoard(controller).then(board => {
-      controller.squares = board;
-      setCurrentSquares(board);
-    });
     townController.getCheckerPlayers(controller).then(players => {
       controller.players = players;
       setCurrentPlayerList(players);
@@ -276,7 +280,25 @@ export function CheckerBoard({
     townController.getActiveCheckerPlayer(controller).then(player => {
       controller.activePlayer = player;
     });
-  }, [controller, startGame, townController]);
+
+    if (controller.players.length == 0 && startGame == false) {
+      setStartGame(true);
+      townController.unPause();
+      townController.resetCheckerArea(controller).then(model => {
+        controller.updateFrom(model);
+      });
+      close();
+      setCurrentSquares([]);
+      setCurrentPlayerList([]);
+    }
+
+    if (currentPlayerList.length == MAX_PLAYERS && (squares == undefined || squares.length < 1)) {
+      townController.initializeCheckerSessionAreaBoard(controller).then(newBoard => {
+        controller.squares = newBoard;
+        setCurrentSquares(newBoard);
+      });
+    }
+  }, [close, controller, currentPlayerList.length, squares, startGame, townController]);
 
   useEffect(() => {
     updateGame();
@@ -285,27 +307,6 @@ export function CheckerBoard({
       clearInterval(timer);
     };
   }, [updateGame]);
-
-  async function initBoard() {
-    await townController
-      .initializeCheckerSessionAreaBoard(controller)
-      .then(newBoard => (controller.squares = newBoard));
-  }
-
-  if (currentPlayerList.length == MAX_PLAYERS && (squares == undefined || squares.length < 1)) {
-    initBoard();
-  }
-
-  if (controller.players.length == 0 && startGame == false) {
-    setStartGame(true);
-    townController.unPause();
-    townController.resetCheckerArea(controller).then(model => {
-      controller.updateFrom(model);
-    });
-    setCurrentPlayerList([]);
-    close();
-    setCurrentSquares([]);
-  }
 
   const updateLeaderboardOnForfeit = () => {
     townController
@@ -374,12 +375,14 @@ export function CheckerBoard({
               ) : (
                 <Button
                   onClick={() => {
-                    close();
                     townController.unPause();
                     townController
                       .resetCheckerArea(controller)
                       .then(model => controller.updateFrom(model));
+                    setCurrentSquares([]);
+                    setCurrentPlayerList([]);
                     updateLeaderboardOnForfeit();
+                    close();
                   }}>
                   Forfeit
                 </Button>
