@@ -320,7 +320,7 @@ export class TownsController extends Controller {
    * @throws InvalidParametersError if the session token is not valid, or if the
    *          checker area specified does not exist
    */
-  @Patch('{townID}/{checkerAreaId}/squares')
+  @Get('{townID}/{checkerAreaId}/squares')
   @Response<InvalidParametersError>(400, 'Invalid values specified')
   public async getCheckerAreaSquares(
     @Path() townID: string,
@@ -419,7 +419,7 @@ export class TownsController extends Controller {
    * @throws InvalidParametersError if the session token is not valid, or if the
    *          checker area specified does not exist
    */
-  @Patch('{townID}/{checkerAreaId}/leaderboard')
+  @Get('{townID}/{checkerAreaId}/leaderboard')
   @Response<InvalidParametersError>(400, 'Invalid values specified')
   public async getCheckerLeaderBoard(
     @Path() townID: string,
@@ -581,7 +581,7 @@ export class TownsController extends Controller {
    * @throws InvalidParametersError if the session token is not valid, or if the
    *          checker area specified does not exist
    */
-  @Patch('{townID}/{checkerAreaId}/getCheckerPlayers')
+  @Get('{townID}/{checkerAreaId}/getCheckerPlayers')
   @Response<InvalidParametersError>(400, 'Invalid values specified')
   public async getCheckerPlayers(
     @Path() townID: string,
@@ -614,7 +614,7 @@ export class TownsController extends Controller {
    * @throws InvalidParametersError if the session token is not valid, or if the
    *          checker area specified does not exist
    */
-  @Patch('{townID}/{checkerAreaId}/getActiveCheckerPlayer')
+  @Get('{townID}/{checkerAreaId}/getActiveCheckerPlayer')
   @Response<InvalidParametersError>(400, 'Invalid values specified')
   public async getActiveCheckerPlayer(
     @Path() townID: string,

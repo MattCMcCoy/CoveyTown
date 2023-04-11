@@ -1,7 +1,6 @@
 import {
   Button,
   Modal,
-  ModalBody,
   ModalCloseButton,
   ModalContent,
   ModalFooter,
@@ -9,7 +8,7 @@ import {
   ModalOverlay,
 } from '@chakra-ui/react';
 import CheckerAreaInteractable from '../CheckerArea';
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { HowToPlayModal } from './CheckerHowToPlayModal';
 import useTownController from '../../../../hooks/useTownController';
 import { useCheckerAreaController } from '../../../../classes/TownController';
@@ -34,6 +33,17 @@ export default function CheckerOptionModal({
     setVisibleState(false);
     changeGameState(true);
   };
+  const updatePlayers = useCallback(() => {
+    townController.getCheckerPlayers(controller).then(players => (controller.players = players));
+  }, [controller, townController]);
+
+  useEffect(() => {
+    updatePlayers();
+    const timer = setInterval(updatePlayers, 2000);
+    return () => {
+      clearInterval(timer);
+    };
+  }, [updatePlayers]);
 
   return (
     <>
@@ -43,14 +53,13 @@ export default function CheckerOptionModal({
         <ModalContent>
           <ModalHeader>Checkers</ModalHeader>
           <ModalCloseButton />
-          <ModalBody> </ModalBody>
           <ModalFooter mx='auto'>
             <Button colorScheme='blue' width='36' marginRight='1' onClick={onClose}>
               Play With AI
             </Button>
             <Button
               colorScheme='blue'
-              mx={3}
+              marginLeft='1'
               onClick={() => {
                 if (
                   controller.players.length < MAX_PLAYERS &&

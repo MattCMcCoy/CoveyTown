@@ -840,7 +840,7 @@
 			}
 		},
 		"/towns/{townID}/{checkerAreaId}/squares": {
-			"patch": {
+			"get": {
 				"operationId": "GetCheckerAreaSquares",
 				"responses": {
 					"200": {
@@ -1060,7 +1060,7 @@
 			}
 		},
 		"/towns/{townID}/{checkerAreaId}/leaderboard": {
-			"patch": {
+			"get": {
 				"operationId": "GetCheckerLeaderBoard",
 				"responses": {
 					"200": {
@@ -1319,7 +1319,7 @@
 			}
 		},
 		"/towns/{townID}/{checkerAreaId}/getCheckerPlayers": {
-			"patch": {
+			"get": {
 				"operationId": "GetCheckerPlayers",
 				"responses": {
 					"200": {
@@ -1383,7 +1383,7 @@
 			}
 		},
 		"/towns/{townID}/{checkerAreaId}/getActiveCheckerPlayer": {
-			"patch": {
+			"get": {
 				"operationId": "GetActiveCheckerPlayer",
 				"responses": {
 					"200": {
