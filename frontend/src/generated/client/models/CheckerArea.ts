@@ -9,5 +9,6 @@ export type CheckerArea = {
     id: string;
     squares: Array<CheckerSquare>;
     leaderboard: Array<CheckerLeaderboardItem>;
+    activePlayer: number;
+    players: Array<string>;
 };
-

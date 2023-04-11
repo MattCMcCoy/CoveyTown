@@ -8,21 +8,30 @@ import {
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/react';
+import React, { useState } from 'react';
+import CheckerAreaInteractable from './CheckerArea';
+import { useCheckerAreaController } from '../../../classes/TownController';
+import useTownController from '../../../hooks/useTownController';
 
-import React from 'react';
-
+const MAX_PLAYERS = 2;
 interface RuleItem {
   title: string;
   des: string;
 }
 
-export function HowToPlayModal({
-  isOpen,
-  closeHowToPlay,
+export default function CheckerOptionModal({
+  checkerArea,
+  changeGameState,
+  openLeaderboard,
 }: {
-  isOpen: boolean;
-  closeHowToPlay: () => void;
-}) {
+  checkerArea: CheckerAreaInteractable;
+  changeGameState: (val: boolean) => void;
+  openLeaderboard: () => void;
+}): JSX.Element {
+  const [visibleState, setVisibleState] = useState(true);
+  const townController = useTownController();
+  const currPlayerId = townController.ourPlayer.id;
+  const controller = useCheckerAreaController(checkerArea.name);
   const ruleList: RuleItem[] = [
     {
       title: 'Overview',
@@ -74,9 +83,30 @@ export function HowToPlayModal({
               })}
             </ul>
           </ModalBody>
-          <ModalFooter mx='auto'>
-            <Button colorScheme='gray' width='36' marginRight='1' onClick={closeHowToPlay}>
-              Back
+          <ModalFooter>
+            <Button colorScheme='blue' onClick={onClose}>
+              Play With AI
+            </Button>
+            <Button
+              colorScheme='blue'
+              mx={3}
+              onClick={() => {
+                if (
+                  controller.players.length < MAX_PLAYERS &&
+                  !controller.players.includes(currPlayerId)
+                ) {
+                  townController
+                    .addCheckerPlayer(controller)
+                    .then(players => (controller.players = players));
+                } else {
+                  console.log('too many players');
+                }
+                onClose();
+              }}>
+              Wait For Player
+            </Button>
+            <Button colorScheme='gray' onClick={openLeaderboard}>
+              Leaderboard
             </Button>
           </ModalFooter>
         </ModalContent>
