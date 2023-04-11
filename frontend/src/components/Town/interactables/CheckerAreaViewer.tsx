@@ -110,14 +110,11 @@ function Board({
       controller.squares &&
       controller.squares.filter(
         square =>
-          square.checker.color.toString() === (controller.activePlayer == 0 ? 'red' : 'black'),
+          square.checker.color.toString() === (controller.activePlayer == 0 ? 'red' : 'black') &&
+          square.moves.length > 0,
       ).length == 0 &&
       controller.players.length > 1
     ) {
-      toast({
-        title: `${controller.activePlayer == 0 ? 'black wins' : 'red wins'}`,
-        status: 'info',
-      });
       townController
         .updateLeaderboard(
           controller,
@@ -143,7 +140,7 @@ function Board({
       townController.resetCheckerArea(controller).then(model => controller.updateFrom(model));
       close();
     }
-  }, [close, controller, currPlayer, toast, townController]);
+  }, [close, controller, currPlayer, townController]);
 
   useEffect(() => {
     checkGameOver();
@@ -385,8 +382,8 @@ export function CheckerGame({
         controller={checkerAreaController}
         isOpen={selectIsOpen}
         close={() => {
-          changeGameState(false);
           setSelectIsOpen(false);
+          changeGameState(false);
         }}
       />
     </>
