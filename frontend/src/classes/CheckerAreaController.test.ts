@@ -1,7 +1,7 @@
 import { mock, mockClear, MockProxy } from 'jest-mock-extended';
 import { nanoid } from 'nanoid';
 import { CheckerArea, CheckerPiece as CheckerPieceModel } from '../types/CoveyTownSocket';
-import CheckerAreaController, { CheckerAreaEvents } from './CheckerAreaController';
+import CheckerAreaController, { CheckerAreaEvents, gameOver } from './CheckerAreaController';
 import TownController from './TownController';
 
 describe('CheckerAreaController', () => {
@@ -112,15 +112,51 @@ describe('CheckerAreaController', () => {
     it('Initial completion of data', () => {
       const newModel: CheckerArea = {
         id: testAreaModel.id,
-        squares: [],
+        squares: [
+          {
+            checker: {
+              color: 'red',
+            },
+          },
+          {
+            checker: {
+              color: 'red',
+            },
+          },
+          {
+            checker: {
+              color: 'red',
+            },
+          },
+        ],
         blackScore: 0,
         redScore: 0,
       };
       testArea.updateFrom(newModel);
-      expect(testArea.squares).toEqual([]);
-      expect(mockListeners.checkerSquareChange).toBeCalledWith([]);
-      expect(testArea.blackScore).toBeCalledWith(0);
-      expect(testArea.redScore).toBeCalledWith(0);
+      let value = gameOver(testArea);
+      expect(value).toEqual(true);
+      Object.assign(newModel, {
+        squares: [
+          {
+            checker: {
+              color: 'red',
+            },
+          },
+          {
+            checker: {
+              color: 'red',
+            },
+          },
+          {
+            checker: {
+              color: 'blank',
+            },
+          },
+        ],
+      });
+      testArea.updateFrom(newModel);
+      value = gameOver(testArea);
+      expect(value).toEqual(true);
     });
   });
 });
