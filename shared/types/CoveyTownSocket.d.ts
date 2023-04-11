@@ -77,8 +77,16 @@ export interface ViewingArea {
 export interface CheckerArea {
   id: string;
   squares: CheckerSquare[];
-  blackScore: number;
-  redScore: number;
+  leaderboard: CheckerLeaderboardItem[];
+  activePlayer: number;
+  players: string[];
+}
+
+export interface CheckerLeaderboardItem {
+  position: number;
+  playerId: string;
+  wins: number;
+  losses: number;
 }
 
 export interface CheckerSquare {
@@ -86,17 +94,24 @@ export interface CheckerSquare {
   x: number;
   y: number;
   checker: CheckerPiece;
+  moves: string[];
 }
 
-export enum Color {
+export enum CheckerColor {
   RED = "red",
   BLACK = "black",
   EMPTY = "empty",
 }
 
+export enum CheckerType {
+  KING = "king",
+  PAWN = "pawn",
+  EMPTY = "empty",
+}
+
 export interface CheckerPiece {
-  id: string;
-  type: Color;
+  type: CheckerType;
+  color: CheckerColor;
 }
 
 export interface PosterSessionArea {

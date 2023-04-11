@@ -19,6 +19,7 @@ import {
   ViewingArea as ViewingAreaModel,
   PosterSessionArea as PosterSessionAreaModel,
   CheckerArea as CheckerAreaModel,
+  CheckerLeaderboardItem,
 } from '../types/CoveyTownSocket';
 import {
   isConversationArea,
@@ -711,8 +712,9 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
       const newController = new CheckerAreaController({
         id: checkerArea.name,
         squares: [],
-        blackScore: 0,
-        redScore: 0,
+        leaderboard: [],
+        activePlayer: 0,
+        players: [],
       });
       this.checkerAreas.push(newController);
       return newController;
@@ -764,7 +766,7 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
   /**
    * Get the checkerSquare from a specified checkerArea (specified via checker Area controller)
    * @param checkerArea the poster session area controller
-   * @returns a promise wrapping the contents of the poster session area's image (i.e. the string)
+   * @returns a promise wrapping the contents of the areas board
    */
   public async getCheckerAreaBoard(checkerArea: CheckerAreaController): Promise<CheckerSquare[]> {
     return this._townsService.getCheckerAreaSquares(this.townID, checkerArea.id, this.sessionToken);
@@ -798,6 +800,85 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
       checkerArea.id,
       this.sessionToken,
     );
+  }
+
+  public async makeCheckerMove(
+    checkerArea: CheckerAreaController,
+    moveFrom: string,
+    moveTo: string,
+  ): Promise<{ isValid: boolean; board: CheckerSquare[] }> {
+    return this._townsService.makeCheckerMove(
+      this.townID,
+      checkerArea.id,
+      this.sessionToken,
+      moveFrom,
+      moveTo,
+    );
+  }
+
+  /**
+   * Get the checkerLeaderboard from a specified checkerArea (specified via checker Area controller)
+   * @param checkerArea the poster session area controller
+   * @returns a promise wrapping the contents of the areas leaderboard
+   */
+  public async getCheckerLeaderboard(
+    checkerArea: CheckerAreaController,
+  ): Promise<CheckerLeaderboardItem[]> {
+    return this._townsService.getCheckerLeaderBoard(this.townID, checkerArea.id, this.sessionToken);
+  }
+
+  /**
+   * Switches the turn between the players of the given checkerBoard area. (specified via checker area controller)
+   * @param checkerArea the checker area controller
+   * @returns a promise wrapping the board
+   */
+  public async changeActivePlayer(checkerArea: CheckerAreaController): Promise<number> {
+    return this._townsService.changeActivePlayer(this.townID, checkerArea.id, this.sessionToken);
+  }
+
+  /**
+   * Adds a person to the players of the given checkerBoard area. (specified via checker area controller)
+   * @param checkerArea the checker area controller
+   * @returns a promise wrapping the board
+   */
+  public async addCheckerPlayer(checkerArea: CheckerAreaController): Promise<string[]> {
+    return this._townsService.addCheckerPlayer(
+      this.townID,
+      checkerArea.id,
+      this.ourPlayer.id,
+      this.sessionToken,
+    );
+  }
+
+  /**
+   * Get the checker players from a specified checkerArea (specified via checker Area controller)
+   * @param checkerArea the checker area controller
+   * @returns a promise wrapping the board
+   */
+  public async getCheckerPlayers(checkerArea: CheckerAreaController): Promise<string[]> {
+    return this._townsService.getCheckerPlayers(this.townID, checkerArea.id, this.sessionToken);
+  }
+
+  /**
+   * Get the active player from a specified checkerArea (specified via checker Area controller)
+   * @param checkerArea the checker area controller
+   * @returns a promise wrapping the board
+   */
+  public async getActiveCheckerPlayer(checkerArea: CheckerAreaController): Promise<number> {
+    return this._townsService.getActiveCheckerPlayer(
+      this.townID,
+      checkerArea.id,
+      this.sessionToken,
+    );
+  }
+
+  /**
+   * Resets the state of the given checkerBoard area (specified via checker area controller)
+   * @param checkerArea the checker area controller
+   * @returns a promise wrapping the board
+   */
+  public async resetCheckerArea(checkerArea: CheckerAreaController): Promise<CheckerAreaModel> {
+    return this._townsService.resetCheckerArea(this.townID, checkerArea.id, this.sessionToken);
   }
 
   /**
