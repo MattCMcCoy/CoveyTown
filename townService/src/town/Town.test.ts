@@ -922,6 +922,8 @@ describe('Town', () => {
           id: nanoid(),
           squares: [],
           leaderboard: [],
+          activePlayer: 0,
+          players: [],
         }),
       ).toBe(false);
     });
@@ -932,6 +934,8 @@ describe('Town', () => {
           id: 'Name2',
           squares: [],
           leaderboard: [],
+          activePlayer: 0,
+          players: [],
         }),
       ).toBe(true);
       expect(
@@ -939,6 +943,8 @@ describe('Town', () => {
           id: 'Name2',
           squares: [],
           leaderboard: [],
+          activePlayer: 0,
+          players: [],
         }),
       ).toBe(false);
     });
@@ -947,6 +953,8 @@ describe('Town', () => {
         id: 'Name2',
         squares: [],
         leaderboard: [],
+        activePlayer: 0,
+        players: [],
       };
       beforeEach(() => {
         playerTestData.moveTo(615, 125); // Inside of "Name2" area

@@ -15,11 +15,16 @@ import {
   Square,
   Grid,
   GridItem,
+  Button,
 } from '@chakra-ui/react';
 import { Crown } from '@styled-icons/fa-solid/Crown';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useInteractable, useCheckerAreaController } from '../../../classes/TownController';
-import CheckerAreaController, { useSquares } from '../../../classes/CheckerAreaController';
+import CheckerAreaController, {
+  useSquares,
+  useActivePlayer,
+  usePlayers,
+} from '../../../classes/CheckerAreaController';
 import useTownController from '../../../hooks/useTownController';
 import CheckerAreaInteractable from './CheckerArea';
 import { CheckerSquare } from '../../../generated/client';
@@ -33,6 +38,7 @@ const CHECKER_OUTER_BLACK = 'black';
 const CHECKER_HIGHLIGHT_SIZE = '70';
 const CHECKER_OUTER_SIZE = '65';
 const CHECKER_INNER_SIZE = '50';
+const MAX_PLAYERS = 2;
 
 function Score({ controller }: { controller: CheckerAreaController }): JSX.Element {
   return (
@@ -70,19 +76,30 @@ function Board({
   const [moveFrom, setMoveFrom] = useState<string>('');
   const [moveTo, setMoveTo] = useState<string>('');
   const townController = useTownController();
+  const toast = useToast();
+  const currPlayer = townController.ourPlayer.id;
+  const squareSize = '20';
+
+  const changingTurn = useCallback(() => {
+    townController.changeActivePlayer(controller).then(p => (controller.activePlayer = p));
+    toast({
+      title: 'Switching turns',
+      status: 'info',
+    });
+  }, [controller, toast, townController]);
 
   useEffect(() => {
     if (moveFrom && moveTo) {
-      townController
-        .makeCheckerMove(controller, moveFrom, moveTo)
-        .then(newBoard => (controller.squares = newBoard));
+      townController.makeCheckerMove(controller, moveFrom, moveTo).then(value => {
+        if (value.isValid) {
+          changingTurn();
+        }
+        controller.squares = value.board;
+      });
       setMoveFrom('');
       setMoveTo('');
     }
-  }, [controller, moveFrom, moveTo, townController]);
-  if (squares == undefined) {
-    return <></>;
-  }
+  }, [changingTurn, controller, moveFrom, moveTo, townController]);
 
   // gets the color of a given square
   const getSquareColor = (x: number, y: number) => {
@@ -91,30 +108,37 @@ function Board({
     return (x % 2 === 0 && y % 2 !== 0) || (x % 2 !== 0 && y % 2 === 0) ? brown : lightBrown;
   };
 
-  let row: JSX.Element[] = [];
-  const board: JSX.Element[] = [];
-
-  function handleSquareClick(id: string): void {
-    if (moveFrom == '') {
-      setMoveFrom(id);
-    } else if (moveTo == '') {
-      setMoveTo(id);
+  function handleButtonAction(square: CheckerSquare, color: string) {
+    if (square.checker.color == color) {
+      setMoveFrom(square.id);
+    } else if (square.checker.color == 'empty') {
+      setMoveTo(square.id);
     } else {
-      setMoveFrom(id);
-      setMoveTo('');
+      return () => undefined;
     }
   }
 
+  const color = controller.getActivePlayerColor();
+  let row: JSX.Element[] = [];
+  const board: JSX.Element[] = [];
+
+  if (squares == undefined || squares.length == 0) {
+    return <></>;
+  }
   squares.forEach(square => {
     // add squares to row
     row.push(
       <Box
-        w={'20'}
-        h={'20'}
+        onKeyDown={() => {}}
+        as='button'
+        w={squareSize}
+        h={squareSize}
         bg={getSquareColor(square.x, square.y)}
         display='flex'
-        key={square.id}
-        onClick={() => handleSquareClick(square.id)}>
+        onClick={
+          controller.isActivePlayer(currPlayer) ? () => handleButtonAction(square, color) : () => {}
+        }
+        key={square.id}>
         {square.checker.type !== 'empty' ? (
           <Circle
             size={CHECKER_HIGHLIGHT_SIZE}
@@ -171,34 +195,68 @@ export function CheckerBoard({
 }): JSX.Element {
   const townController = useTownController();
   const toast = useToast();
-  const title = 'Checkers';
-
-  useEffect(() => {
-    townController.getCheckerAreaBoard(controller);
-  }, [townController, controller]);
-
+  const activePlayer = useActivePlayer(controller);
+  const playerList = usePlayers(controller);
   const squares = useSquares(controller);
+  const [title, setTitle] = useState('Waiting for other players ...');
+  const [currentPlayerList, setCurrentPlayerList] = useState<string[]>(playerList);
+  const [currentActivePlayer, setActivePlayer] = useState<number>(activePlayer);
+  const [currentSquares, setCurrentSquares] = useState<CheckerSquare[] | undefined>(squares);
+  const [startGame, setStartGame] = useState(true);
 
-  useEffect(() => {
-    if (squares == undefined || squares.length < 1) {
-      if (controller.squares.length < 1) {
-        townController
-          .initializeCheckerSessionAreaBoard(controller)
-          .then(newBoard => (controller.squares = newBoard));
-      } else {
-        toast({
-          title: `Cant initialize Board`,
-          status: 'error',
-        });
-      }
+  const updateGame = useCallback(() => {
+    function getPlayerColor(): string {
+      return controller.players.indexOf(townController.ourPlayer.id) == 0 ? 'red' : 'black';
     }
-  }, [controller, squares, toast, townController]);
+    if (controller.players.length == MAX_PLAYERS && startGame) {
+      setStartGame(false);
+      setTitle('You are player ' + getPlayerColor());
+    }
+    townController.getCheckerAreaBoard(controller).then(board => setCurrentSquares(board));
+    townController.getCheckerPlayers(controller).then(players => {
+      controller.players = players;
+      setCurrentPlayerList(players);
+    });
+    townController.getActiveCheckerPlayer(controller).then(player => {
+      controller.activePlayer = player;
+      setActivePlayer(player);
+    });
+  }, [controller, startGame, townController]);
 
   useEffect(() => {
-    townController
-      .getCheckerAreaBoard(controller)
+    updateGame();
+    const timer = setInterval(updateGame, 2000);
+    return () => {
+      clearInterval(timer);
+    };
+  }, [updateGame]);
+
+  async function initBoard() {
+    await townController
+      .initializeCheckerSessionAreaBoard(controller)
       .then(newBoard => (controller.squares = newBoard));
-  }, [controller, squares, townController]);
+  }
+
+  if (currentPlayerList.length == MAX_PLAYERS && (squares == undefined || squares.length < 1)) {
+    initBoard();
+  }
+
+  async function changeTurn() {
+    await townController
+      .changeActivePlayer(controller)
+      .then(player => (controller.activePlayer = player));
+    toast({
+      title: 'Switching turns',
+      status: 'info',
+    });
+  }
+
+  if (controller.players.length == 0 && startGame == false) {
+    setStartGame(true);
+    townController.resetCheckerArea(controller).then(model => controller.updateFrom(model));
+    townController.unPause();
+    close();
+  }
 
   return (
     <Modal
@@ -207,6 +265,7 @@ export function CheckerBoard({
       onClose={() => {
         close();
         townController.unPause();
+        townController.resetCheckerArea(controller).then(model => controller.updateFrom(model));
       }}>
       <ModalOverlay />
       <ModalContent>
@@ -214,10 +273,13 @@ export function CheckerBoard({
         <ModalCloseButton />
         <ModalBody pb={6}></ModalBody>
         <Grid templateColumns='repeat(5, 1fr)'>
-          <GridItem colSpan={4}>
+          <GridItem colSpan={4} rowSpan={2}>
             <Flex justify={'center'} padding={'5'}>
-              <Board squares={squares} controller={controller} />
+              <Board squares={currentSquares} controller={controller} />
             </Flex>
+          </GridItem>
+          <GridItem colSpan={1}>
+            <Button onClick={() => changeTurn()}>{'Active Player: ' + currentActivePlayer}</Button>
           </GridItem>
           <GridItem colSpan={1} margin='auto'>
             <Score controller={controller} />
@@ -238,8 +300,10 @@ export function CheckerBoard({
  */
 export function CheckerGame({
   checkerArea,
+  changeGameState,
 }: {
   checkerArea: CheckerAreaInteractable;
+  changeGameState: (val: boolean) => void;
 }): JSX.Element {
   const townController = useTownController();
   const checkerAreaController = useCheckerAreaController(checkerArea.name);
@@ -252,7 +316,9 @@ export function CheckerGame({
       <Modal
         isOpen={!selectIsOpen}
         onClose={() => {
+          changeGameState(false);
           townController.unPause();
+          townController.interactEnd(checkerArea);
         }}>
         <ModalOverlay />
         <ModalContent>
@@ -268,13 +334,12 @@ export function CheckerGame({
   return (
     <>
       <CheckerBoard
+        //start={start}
         controller={checkerAreaController}
         isOpen={selectIsOpen}
         close={() => {
+          changeGameState(false);
           setSelectIsOpen(false);
-          // forces game to emit "checkerArea" event again so that
-          // repoening the modal works as expected
-          townController.interactEnd(checkerArea);
         }}
       />
     </>
@@ -293,7 +358,7 @@ export default function CheckerAreaWrapper(): JSX.Element {
     setBeginGame(val);
   };
   if (checkerArea && beginGame) {
-    return <CheckerGame checkerArea={checkerArea} />;
+    return <CheckerGame changeGameState={changeGameState} checkerArea={checkerArea} />;
   } else if (checkerArea) {
     if (isLeaderboardOpen) {
       return (
@@ -306,6 +371,7 @@ export default function CheckerAreaWrapper(): JSX.Element {
     }
     return (
       <CheckerOptionModal
+        checkerArea={checkerArea}
         changeGameState={changeGameState}
         openLeaderboard={() => setLeaderboardOpen(true)}
       />
