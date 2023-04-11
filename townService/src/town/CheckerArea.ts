@@ -98,7 +98,7 @@ export default class CheckerArea extends InteractableArea {
         }
       }
     }
-    this.updateMoveablePieces();
+
     this.squares = newSquares;
   }
 
@@ -180,6 +180,7 @@ export default class CheckerArea extends InteractableArea {
    * @param moveTo The square that the checker wants to be moved to.
    */
   public makeMove(moveFrom: string, moveTo: string): boolean {
+    this.updateMoveablePieces();
     const moveFromSquare = this.squares.find(square => square.id === moveFrom);
     const moveToSquare = this.squares.find(square => square.id === moveTo);
     // If the move is a general move.
@@ -192,7 +193,7 @@ export default class CheckerArea extends InteractableArea {
       moveToSquare.checker.color = moveFromSquare.checker.color;
       moveFromSquare.checker.type = 'empty' as CheckerType;
       moveFromSquare.checker.color = 'empty' as CheckerColor;
-      this.updateMoveablePieces();
+
       this._crownKing(moveToSquare);
       return true;
     }
@@ -206,319 +207,58 @@ export default class CheckerArea extends InteractableArea {
       moveToSquare.checker.color = moveFromSquare.checker.color;
       // The below snipped calculate where the piece being jumped is and then removes the checker that
       // was in that position.
-      this._jumpHelper(
-        moveFromSquare,
-        moveFromSquare.checker.type,
-        moveFromSquare.checker.color,
-        moveTo,
-      ).forEach(id => this._removeJumpedSquares(id, moveTo));
+      this._performMultiMoves(moveFromSquare, moveTo);
       moveFromSquare.checker.type = 'empty' as CheckerType;
       moveFromSquare.checker.color = 'empty' as CheckerColor;
       this._crownKing(moveToSquare);
-      this.updateMoveablePieces();
+      return true;
+    }
+
+    return false;
+  }
+
+  private _sortMoves(moves: string[]): string[] {
+    const seperatedMoves: string[] = [];
+    moves.forEach(string => seperatedMoves.push(string.substring(string.length - 2)));
+    return seperatedMoves;
+  }
+
+  private _performMultiMoves(moveFrom: CheckerSquareModel, moveTo: string): boolean {
+    const moves = this._attackingMoves(moveFrom).find(
+      string => string.substring(string.length - 2) === moveTo,
+    );
+    if (moves) {
+      this._performJumps(moveFrom, moves, 2);
       return true;
     }
     return false;
   }
 
-  private _jumpHelper(
-    moveFrom: CheckerSquareModel,
-    checkerType: CheckerType,
-    checkerColor: CheckerColor,
-    moveTo: string,
-  ): string[] {
-    const checkNextAttack = {
-      checker: {
-        type: checkerType,
-        color: checkerColor,
-      },
-      id: moveFrom.id,
-      moves: moveFrom.moves,
-      x: moveFrom.x,
-      y: moveFrom.y,
-    };
-    const jumpedPieces: string[] = [];
-    switch (checkNextAttack.checker.type) {
-      case 'king':
-        this._kingMovesRemovePieces(checkNextAttack, moveTo, jumpedPieces);
-        this._pawnMovesRemovePieces(checkNextAttack, moveTo, jumpedPieces);
-        return jumpedPieces;
-      case 'pawn':
-        this._pawnMovesRemovePieces(checkNextAttack, moveTo, jumpedPieces);
-        return jumpedPieces;
-      default: {
-        return [];
+  private _performJumps(moveFrom: CheckerSquareModel, moves: string, index: number) {
+    const moveFromX = moveFrom.x;
+    const moveFromY = moveFrom.y;
+    const moveTo = this._squares.find(
+      square => square.id === moves.substring(index - 2, index - 1),
+    );
+    const moveToX = this._squares.find(
+      square => square.id === moves.substring(index - 2, index - 1),
+    )?.x;
+    const moveToY = this._squares.find(
+      square => square.id === moves.substring(index - 2, index - 1),
+    )?.y;
+    if (moveFromX && moveFromY && moveToX && moveToY) {
+      const jumpedXCoordinate = moveToX + (moveFromX - moveToX) / 2;
+      const jumpedYCoordinate = moveToY + (moveFromY - moveToY) / 2;
+      const jumpedSquare = this.squares.find(
+        square => square.id === `${jumpedXCoordinate}${jumpedYCoordinate}`,
+      );
+      if (jumpedSquare !== undefined) {
+        jumpedSquare.checker.type = 'empty' as CheckerType;
+        jumpedSquare.checker.color = 'empty' as CheckerColor;
       }
     }
-  }
-
-  private _removeJumpedSquares(jumped: string, moveTo: string) {
-    const jumpedSquare = this._squares.find(square => square.id === jumped);
-    if (jumpedSquare && jumped !== moveTo) {
-      jumpedSquare.checker.type = 'empty' as CheckerType;
-      jumpedSquare.checker.color = 'empty' as CheckerColor;
-    }
-  }
-
-  private _pawnMovesRemovePieces(
-    moveFrom: CheckerSquareModel,
-    moveTo: string,
-    jumpedPieces: string[],
-  ) {
-    if (moveFrom.checker.color === 'red') {
-      if (
-        moveFrom.x + 2 < 8 &&
-        moveFrom.y + 2 < 8 &&
-        this.squares.at((moveFrom.x + 2) * 8 + (moveFrom.y + 2))?.checker.color === 'empty' &&
-        this.squares.at((moveFrom.x + 1) * 8 + (moveFrom.y + 1))?.checker.color === 'black'
-      ) {
-        const validMove = this.squares.at((moveFrom.x + 2) * 8 + (moveFrom.y + 2));
-        const intermediateMove = this.squares.at((moveFrom.x + 1) * 8 + (moveFrom.y + 1))?.id;
-        if (validMove?.id !== moveTo && validMove && intermediateMove) {
-          if (
-            this._jumpHelper(validMove, moveFrom.checker.type, moveFrom.checker.color, moveTo)
-              .length > 0 &&
-            this._jumpHelper(
-              validMove,
-              moveFrom.checker.type,
-              moveFrom.checker.color,
-              moveTo,
-            ).includes(moveTo)
-          ) {
-            jumpedPieces.push(intermediateMove);
-            jumpedPieces.concat(
-              this._jumpHelper(validMove, moveFrom.checker.type, moveFrom.checker.color, moveTo),
-            );
-          }
-          if (validMove.id === moveTo) {
-            jumpedPieces.push(intermediateMove);
-            jumpedPieces.push(moveTo);
-          }
-        }
-      }
-      if (
-        moveFrom.x + 2 < 8 &&
-        moveFrom.y - 2 >= 0 &&
-        this.squares.at((moveFrom.x + 2) * 8 + (moveFrom.y - 2))?.checker.color === 'empty' &&
-        this.squares.at((moveFrom.x + 1) * 8 + (moveFrom.y - 1))?.checker.color === 'black'
-      ) {
-        const validMove = this.squares.at((moveFrom.x + 2) * 8 + (moveFrom.y - 2));
-        const intermediateMove = this.squares.at((moveFrom.x + 1) * 8 + (moveFrom.y - 1))?.id;
-        if (validMove?.id !== moveTo && validMove && intermediateMove) {
-          if (
-            this._jumpHelper(validMove, moveFrom.checker.type, moveFrom.checker.color, moveTo)
-              .length > 0 &&
-            this._jumpHelper(
-              validMove,
-              moveFrom.checker.type,
-              moveFrom.checker.color,
-              moveTo,
-            ).includes(moveTo)
-          ) {
-            jumpedPieces.push(intermediateMove);
-            jumpedPieces.concat(
-              this._jumpHelper(validMove, moveFrom.checker.type, moveFrom.checker.color, moveTo),
-            );
-          }
-          if (validMove.id === moveTo) {
-            jumpedPieces.push(intermediateMove);
-            jumpedPieces.push(moveTo);
-          }
-        }
-      }
-    }
-    if (moveFrom.checker.color === 'black') {
-      if (
-        moveFrom.x - 2 >= 0 &&
-        moveFrom.y + 2 < 8 &&
-        this.squares.at((moveFrom.x - 2) * 8 + (moveFrom.y + 2))?.checker.color === 'empty' &&
-        this.squares.at((moveFrom.x - 1) * 8 + (moveFrom.y + 1))?.checker.color === 'red'
-      ) {
-        const validMove = this.squares.at((moveFrom.x - 2) * 8 + (moveFrom.y + 2));
-        const intermediateMove = this.squares.at((moveFrom.x - 1) * 8 + (moveFrom.y + 1))?.id;
-        if (validMove?.id !== moveTo && validMove && intermediateMove) {
-          if (
-            this._jumpHelper(validMove, moveFrom.checker.type, moveFrom.checker.color, moveTo)
-              .length > 0 &&
-            this._jumpHelper(
-              validMove,
-              moveFrom.checker.type,
-              moveFrom.checker.color,
-              moveTo,
-            ).includes(moveTo)
-          ) {
-            jumpedPieces.push(intermediateMove);
-            jumpedPieces.concat(
-              this._jumpHelper(validMove, moveFrom.checker.type, moveFrom.checker.color, moveTo),
-            );
-          }
-          if (validMove.id === moveTo && jumpedPieces.find(id => id === moveTo)) {
-            jumpedPieces.push(intermediateMove);
-            jumpedPieces.push(moveTo);
-          }
-        }
-      }
-      if (
-        moveFrom.x - 2 >= 0 &&
-        moveFrom.y - 2 >= 0 &&
-        this.squares.at((moveFrom.x - 2) * 8 + (moveFrom.y - 2))?.checker.color === 'empty' &&
-        this.squares.at((moveFrom.x - 1) * 8 + (moveFrom.y - 1))?.checker.color === 'red'
-      ) {
-        const validMove = this.squares.at((moveFrom.x - 2) * 8 + (moveFrom.y - 2));
-        const intermediateMove = this.squares.at((moveFrom.x - 1) * 8 + (moveFrom.y - 1))?.id;
-        if (validMove?.id !== moveTo && validMove && intermediateMove) {
-          if (
-            this._jumpHelper(validMove, moveFrom.checker.type, moveFrom.checker.color, moveTo)
-              .length > 0 &&
-            this._jumpHelper(
-              validMove,
-              moveFrom.checker.type,
-              moveFrom.checker.color,
-              moveTo,
-            ).includes(moveTo)
-          ) {
-            jumpedPieces.push(intermediateMove);
-            jumpedPieces.concat(
-              this._jumpHelper(validMove, moveFrom.checker.type, moveFrom.checker.color, moveTo),
-            );
-          }
-          if (validMove.id === moveTo) {
-            jumpedPieces.push(intermediateMove);
-            jumpedPieces.push(moveTo);
-          }
-        }
-      }
-    }
-  }
-
-  private _kingMovesRemovePieces(
-    moveFrom: CheckerSquareModel,
-    moveTo: string,
-    jumpedPieces: string[],
-  ) {
-    if (moveFrom.checker.color === 'black') {
-      if (
-        moveFrom.x + 2 < 8 &&
-        moveFrom.y + 2 < 8 &&
-        this.squares.at((moveFrom.x + 2) * 8 + (moveFrom.y + 2))?.checker.color === 'empty' &&
-        this.squares.at((moveFrom.x + 1) * 8 + (moveFrom.y + 1))?.checker.color === 'red'
-      ) {
-        const validMove = this.squares.at((moveFrom.x + 2) * 8 + (moveFrom.y + 2));
-        const intermediateMove = this.squares.at((moveFrom.x + 1) * 8 + (moveFrom.y + 1))?.id;
-        if (validMove?.id !== moveTo && validMove && intermediateMove) {
-          if (
-            this._jumpHelper(validMove, moveFrom.checker.type, moveFrom.checker.color, moveTo)
-              .length > 0 &&
-            this._jumpHelper(
-              validMove,
-              moveFrom.checker.type,
-              moveFrom.checker.color,
-              moveTo,
-            ).includes(moveTo)
-          ) {
-            jumpedPieces.push(intermediateMove);
-            jumpedPieces.concat(
-              this._jumpHelper(validMove, moveFrom.checker.type, moveFrom.checker.color, moveTo),
-            );
-          }
-          if (validMove.id === moveTo) {
-            jumpedPieces.push(intermediateMove);
-            jumpedPieces.push(moveTo);
-          }
-        }
-      }
-      if (
-        moveFrom.x + 2 < 8 &&
-        moveFrom.y - 2 >= 0 &&
-        this.squares.at((moveFrom.x + 2) * 8 + (moveFrom.y - 2))?.checker.color === 'empty' &&
-        this.squares.at((moveFrom.x + 1) * 8 + (moveFrom.y - 1))?.checker.color === 'red'
-      ) {
-        const validMove = this.squares.at((moveFrom.x + 2) * 8 + (moveFrom.y - 2));
-        const intermediateMove = this.squares.at((moveFrom.x + 1) * 8 + (moveFrom.y - 1))?.id;
-        if (validMove?.id !== moveTo && validMove && intermediateMove) {
-          if (
-            this._jumpHelper(validMove, moveFrom.checker.type, moveFrom.checker.color, moveTo)
-              .length > 0 &&
-            this._jumpHelper(
-              validMove,
-              moveFrom.checker.type,
-              moveFrom.checker.color,
-              moveTo,
-            ).includes(moveTo)
-          ) {
-            jumpedPieces.push(intermediateMove);
-            jumpedPieces.concat(
-              this._jumpHelper(validMove, moveFrom.checker.type, moveFrom.checker.color, moveTo),
-            );
-          }
-          if (validMove.id === moveTo) {
-            jumpedPieces.push(intermediateMove);
-            jumpedPieces.push(moveTo);
-          }
-        }
-      }
-    }
-    if (moveFrom.checker.color === 'red') {
-      if (
-        moveFrom.x - 2 >= 0 &&
-        moveFrom.y + 2 < 8 &&
-        this.squares.at((moveFrom.x - 2) * 8 + (moveFrom.y + 2))?.checker.color === 'empty' &&
-        this.squares.at((moveFrom.x - 1) * 8 + (moveFrom.y + 1))?.checker.color === 'black'
-      ) {
-        const validMove = this.squares.at((moveFrom.x - 2) * 8 + (moveFrom.y + 2));
-        const intermediateMove = this.squares.at((moveFrom.x - 1) * 8 + (moveFrom.y + 1))?.id;
-        if (validMove?.id !== moveTo && validMove && intermediateMove) {
-          if (
-            this._jumpHelper(validMove, moveFrom.checker.type, moveFrom.checker.color, moveTo)
-              .length > 0 &&
-            this._jumpHelper(
-              validMove,
-              moveFrom.checker.type,
-              moveFrom.checker.color,
-              moveTo,
-            ).includes(moveTo)
-          ) {
-            jumpedPieces.push(intermediateMove);
-            jumpedPieces.concat(
-              this._jumpHelper(validMove, moveFrom.checker.type, moveFrom.checker.color, moveTo),
-            );
-          }
-          if (validMove.id === moveTo) {
-            jumpedPieces.push(intermediateMove);
-            jumpedPieces.push(moveTo);
-          }
-        }
-      }
-      if (
-        moveFrom.x - 2 >= 0 &&
-        moveFrom.y - 2 >= 0 &&
-        this.squares.at((moveFrom.x - 2) * 8 + (moveFrom.y - 2))?.checker.color === 'empty' &&
-        this.squares.at((moveFrom.x - 1) * 8 + (moveFrom.y - 1))?.checker.color === 'black'
-      ) {
-        const validMove = this.squares.at((moveFrom.x - 2) * 8 + (moveFrom.y - 2));
-        const intermediateMove = this.squares.at((moveFrom.x - 1) * 8 + (moveFrom.y - 1))?.id;
-        if (validMove?.id !== moveTo && validMove && intermediateMove) {
-          if (
-            this._jumpHelper(validMove, moveFrom.checker.type, moveFrom.checker.color, moveTo)
-              .length > 0 &&
-            this._jumpHelper(
-              validMove,
-              moveFrom.checker.type,
-              moveFrom.checker.color,
-              moveTo,
-            ).includes(moveTo)
-          ) {
-            jumpedPieces.push(intermediateMove);
-            jumpedPieces.concat(
-              this._jumpHelper(validMove, moveFrom.checker.type, moveFrom.checker.color, moveTo),
-            );
-          }
-          if (validMove.id === moveTo) {
-            jumpedPieces.push(intermediateMove);
-            jumpedPieces.push(moveTo);
-          }
-        }
-      }
+    if (moves.length > index && moveTo) {
+      this._performJumps(moveTo, moves, index + 2);
     }
   }
 
@@ -545,7 +285,7 @@ export default class CheckerArea extends InteractableArea {
    * @param square The square which is having its moves updated
    */
   private _setSquareMoves(square: CheckerSquareModel) {
-    square.moves = this._generalMoves(square).concat(this._attackingMoves(square));
+    square.moves = this._generalMoves(square).concat(this._sortMoves(this._attackingMoves(square)));
   }
 
   /**
@@ -632,15 +372,21 @@ export default class CheckerArea extends InteractableArea {
     }
   }
 
-  private _multiAttack(
-    square: CheckerSquareModel,
-    type: CheckerType,
-    color: CheckerColor,
-  ): string[] {
-    const checkNextAttack = {
+  /**
+   * This method serves to determine the valid attacking moves in a
+   * checkers game. The function then returns then returns the array of ids, attributed to
+   * the squares that the checker piece within the square being looked at can move to, while
+   * attacking.
+   *
+   * @param square This variable is the square's movement that is being looked into.
+   * @returns the array of ids that are attributed to squares that can be moved to as well
+   * as the squares that are being jumped.
+   */
+  private _multiAttack(square: CheckerSquareModel, checker: CheckerPieceModel): string[] {
+    const thisSquare = {
       checker: {
-        type,
-        color,
+        type: checker.type,
+        color: checker.color,
       },
       id: square.id,
       moves: square.moves,
@@ -650,16 +396,22 @@ export default class CheckerArea extends InteractableArea {
     const attackingMoves: string[] = [];
     switch (square.checker.type) {
       case 'king':
-        this._kingMoves(checkNextAttack, attackingMoves);
-        this._pawnMoves(checkNextAttack, attackingMoves);
+        this._kingMoves(thisSquare, attackingMoves);
+        this._pawnMoves(thisSquare, attackingMoves);
         return attackingMoves;
       case 'pawn':
-        this._pawnMoves(checkNextAttack, attackingMoves);
+        this._pawnMoves(thisSquare, attackingMoves);
         return attackingMoves;
       default: {
         return [];
       }
     }
+  }
+
+  private _multiMoveTo(moves: string[], moveFrom: string): string[] {
+    const multi: string[] = [];
+    moves.forEach(string => multi.push(moveFrom + string));
+    return multi;
   }
 
   private _pawnMoves(square: CheckerSquareModel, attackingMoves: string[]) {
@@ -671,15 +423,19 @@ export default class CheckerArea extends InteractableArea {
         this.squares.at((square.x + 1) * 8 + (square.y + 1))?.checker.color === 'black'
       ) {
         const validMove = this.squares.at((square.x + 2) * 8 + (square.y + 2));
-        const intermediateMove = this.squares.at((square.x + 1) * 8 + (square.y + 1))?.id;
-        if (validMove?.id !== undefined && intermediateMove) {
-          if (this._multiAttack(validMove, square.checker.type, square.checker.color).length > 0) {
-            attackingMoves.concat(
-              this._multiAttack(validMove, square.checker.type, square.checker.color),
-            );
-          } else {
-            attackingMoves.push(validMove.id);
-          }
+        if (validMove !== undefined && this._multiAttack(validMove, square.checker).length > 0) {
+          const dest = this._multiMoveTo(
+            this._multiAttack(validMove, square.checker),
+            validMove.id,
+          );
+          attackingMoves.concat(dest);
+        }
+        if (
+          validMove?.id &&
+          !(this._multiAttack(validMove, square.checker).length > 0) &&
+          !attackingMoves.includes(validMove.id)
+        ) {
+          attackingMoves.push(validMove.id);
         }
       }
       if (
@@ -689,15 +445,19 @@ export default class CheckerArea extends InteractableArea {
         this.squares.at((square.x + 1) * 8 + (square.y - 1))?.checker.color === 'black'
       ) {
         const validMove = this.squares.at((square.x + 2) * 8 + (square.y - 2));
-        const intermediateMove = this.squares.at((square.x + 1) * 8 + (square.y - 1))?.id;
-        if (validMove?.id !== undefined && intermediateMove) {
-          if (this._multiAttack(validMove, square.checker.type, square.checker.color).length > 0) {
-            attackingMoves.concat(
-              this._multiAttack(validMove, square.checker.type, square.checker.color),
-            );
-          } else {
-            attackingMoves.push(validMove.id);
-          }
+        if (validMove !== undefined && this._multiAttack(validMove, square.checker).length > 0) {
+          const dest = this._multiMoveTo(
+            this._multiAttack(validMove, square.checker),
+            validMove.id,
+          );
+          attackingMoves.concat(dest);
+        }
+        if (
+          validMove?.id &&
+          !(this._multiAttack(validMove, square.checker).length > 0) &&
+          !attackingMoves.includes(validMove.id)
+        ) {
+          attackingMoves.push(validMove.id);
         }
       }
     }
@@ -709,15 +469,19 @@ export default class CheckerArea extends InteractableArea {
         this.squares.at((square.x - 1) * 8 + (square.y + 1))?.checker.color === 'red'
       ) {
         const validMove = this.squares.at((square.x - 2) * 8 + (square.y + 2));
-        const intermediateMove = this.squares.at((square.x - 1) * 8 + (square.y + 1))?.id;
-        if (validMove?.id !== undefined && intermediateMove) {
-          if (this._multiAttack(validMove, square.checker.type, square.checker.color).length > 0) {
-            attackingMoves.concat(
-              this._multiAttack(validMove, square.checker.type, square.checker.color),
-            );
-          } else {
-            attackingMoves.push(validMove.id);
-          }
+        if (validMove !== undefined && this._multiAttack(validMove, square.checker).length > 0) {
+          const dest = this._multiMoveTo(
+            this._multiAttack(validMove, square.checker),
+            validMove.id,
+          );
+          attackingMoves.concat(dest);
+        }
+        if (
+          validMove?.id &&
+          !(this._multiAttack(validMove, square.checker).length > 0) &&
+          !attackingMoves.includes(validMove.id)
+        ) {
+          attackingMoves.push(validMove.id);
         }
       }
       if (
@@ -727,15 +491,19 @@ export default class CheckerArea extends InteractableArea {
         this.squares.at((square.x - 1) * 8 + (square.y - 1))?.checker.color === 'red'
       ) {
         const validMove = this.squares.at((square.x - 2) * 8 + (square.y - 2));
-        const intermediateMove = this.squares.at((square.x - 1) * 8 + (square.y - 1))?.id;
-        if (validMove?.id !== undefined && intermediateMove) {
-          if (this._multiAttack(validMove, square.checker.type, square.checker.color).length > 0) {
-            attackingMoves.concat(
-              this._multiAttack(validMove, square.checker.type, square.checker.color),
-            );
-          } else {
-            attackingMoves.push(validMove.id);
-          }
+        if (validMove !== undefined && this._multiAttack(validMove, square.checker).length > 0) {
+          const dest = this._multiMoveTo(
+            this._multiAttack(validMove, square.checker),
+            validMove.id,
+          );
+          attackingMoves.concat(dest);
+        }
+        if (
+          validMove?.id &&
+          !(this._multiAttack(validMove, square.checker).length > 0) &&
+          !attackingMoves.includes(validMove.id)
+        ) {
+          attackingMoves.push(validMove.id);
         }
       }
     }
@@ -750,13 +518,19 @@ export default class CheckerArea extends InteractableArea {
         this.squares.at((square.x + 1) * 8 + (square.y + 1))?.checker.color === 'red'
       ) {
         const validMove = this.squares.at((square.x + 2) * 8 + (square.y + 2));
-        const intermediateMove = this.squares.at((square.x + 1) * 8 + (square.y + 1))?.id;
-        if (validMove?.id !== undefined && intermediateMove) {
-          if (this._multiAttack(validMove, square.checker.type, square.checker.color).length > 0) {
-            this._multiAttack(validMove, square.checker.type, square.checker.color);
-          } else {
-            attackingMoves.push(validMove.id);
-          }
+        if (validMove !== undefined && this._multiAttack(validMove, square.checker).length > 0) {
+          const dest = this._multiMoveTo(
+            this._multiAttack(validMove, square.checker),
+            validMove.id,
+          );
+          attackingMoves.concat(dest);
+        }
+        if (
+          validMove?.id &&
+          !(this._multiAttack(validMove, square.checker).length > 0) &&
+          !attackingMoves.includes(validMove.id)
+        ) {
+          attackingMoves.push(validMove.id);
         }
       }
       if (
@@ -766,15 +540,19 @@ export default class CheckerArea extends InteractableArea {
         this.squares.at((square.x + 1) * 8 + (square.y - 1))?.checker.color === 'red'
       ) {
         const validMove = this.squares.at((square.x + 2) * 8 + (square.y - 2));
-        const intermediateMove = this.squares.at((square.x + 1) * 8 + (square.y - 1))?.id;
-        if (validMove?.id !== undefined && intermediateMove) {
-          if (this._multiAttack(validMove, square.checker.type, square.checker.color).length > 0) {
-            attackingMoves.concat(
-              this._multiAttack(validMove, square.checker.type, square.checker.color),
-            );
-          } else {
-            attackingMoves.push(validMove.id);
-          }
+        if (validMove !== undefined && this._multiAttack(validMove, square.checker).length > 0) {
+          const dest = this._multiMoveTo(
+            this._multiAttack(validMove, square.checker),
+            validMove.id,
+          );
+          attackingMoves.concat(dest);
+        }
+        if (
+          validMove?.id &&
+          !(this._multiAttack(validMove, square.checker).length > 0) &&
+          !attackingMoves.includes(validMove.id)
+        ) {
+          attackingMoves.push(validMove.id);
         }
       }
     }
@@ -786,15 +564,19 @@ export default class CheckerArea extends InteractableArea {
         this.squares.at((square.x - 1) * 8 + (square.y + 1))?.checker.color === 'black'
       ) {
         const validMove = this.squares.at((square.x - 2) * 8 + (square.y + 2));
-        const intermediateMove = this.squares.at((square.x - 1) * 8 + (square.y + 1))?.id;
-        if (validMove?.id !== undefined && intermediateMove) {
-          if (this._multiAttack(validMove, square.checker.type, square.checker.color).length > 0) {
-            attackingMoves.concat(
-              this._multiAttack(validMove, square.checker.type, square.checker.color),
-            );
-          } else {
-            attackingMoves.push(validMove.id);
-          }
+        if (validMove !== undefined && this._multiAttack(validMove, square.checker).length > 0) {
+          const dest = this._multiMoveTo(
+            this._multiAttack(validMove, square.checker),
+            validMove.id,
+          );
+          attackingMoves.concat(dest);
+        }
+        if (
+          validMove?.id &&
+          !(this._multiAttack(validMove, square.checker).length > 0) &&
+          !attackingMoves.includes(validMove.id)
+        ) {
+          attackingMoves.push(validMove.id);
         }
       }
       if (
@@ -804,15 +586,19 @@ export default class CheckerArea extends InteractableArea {
         this.squares.at((square.x - 1) * 8 + (square.y - 1))?.checker.color === 'black'
       ) {
         const validMove = this.squares.at((square.x - 2) * 8 + (square.y - 2));
-        const intermediateMove = this.squares.at((square.x - 1) * 8 + (square.y - 1))?.id;
-        if (validMove?.id !== undefined && intermediateMove) {
-          if (this._multiAttack(validMove, square.checker.type, square.checker.color).length > 0) {
-            attackingMoves.concat(
-              this._multiAttack(validMove, square.checker.type, square.checker.color),
-            );
-          } else {
-            attackingMoves.push(validMove.id);
-          }
+        if (validMove !== undefined && this._multiAttack(validMove, square.checker).length > 0) {
+          const dest = this._multiMoveTo(
+            this._multiAttack(validMove, square.checker),
+            validMove.id,
+          );
+          attackingMoves.concat(dest);
+        }
+        if (
+          validMove?.id &&
+          !(this._multiAttack(validMove, square.checker).length > 0) &&
+          !attackingMoves.includes(validMove.id)
+        ) {
+          attackingMoves.push(validMove.id);
         }
       }
     }
