@@ -25,6 +25,7 @@ import CheckerAreaController, {
   gameOver,
   useActivePlayer,
   usePlayers,
+  gameOver
 } from '../../../classes/CheckerAreaController';
 import useTownController from '../../../hooks/useTownController';
 import CheckerAreaInteractable from './CheckerArea';
@@ -102,7 +103,7 @@ function Board({
     }
   }, [changingTurn, controller, moveFrom, moveTo, townController]);
 
-  // gets the color of a given square
+  // gets the color of a given squares
   const getSquareColor = (x: number, y: number) => {
     const lightBrown = '#e6b273';
     const brown = '#a5681e';
