@@ -112,23 +112,7 @@ describe('CheckerAreaController', () => {
     it('Initial completion of data', () => {
       const newModel: CheckerArea = {
         id: testAreaModel.id,
-        squares: [
-          {
-            checker: {
-              color: 'red',
-            },
-          },
-          {
-            checker: {
-              color: 'red',
-            },
-          },
-          {
-            checker: {
-              color: 'red',
-            },
-          },
-        ],
+        squares: [],
         blackScore: 0,
         redScore: 0,
       };
