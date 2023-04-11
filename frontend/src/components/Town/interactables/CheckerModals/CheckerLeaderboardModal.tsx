@@ -58,37 +58,49 @@ export default function CheckerLeaderboardModal({
         <ModalCloseButton onClick={closeLeaderboard} />
         <ModalBody>
           <Grid templateColumns='repeat(4, 1fr)' boxShadow='dark-lg'>
-            <GridItem pl='1'>Position</GridItem>
-            <GridItem>Player</GridItem>
-            <GridItem>Wins</GridItem>
-            <GridItem>Losses</GridItem>
+            <GridItem textAlign='center'>Position</GridItem>
+            <GridItem textAlign='center'>Player</GridItem>
+            <GridItem textAlign='center'>Wins</GridItem>
+            <GridItem textAlign='center'>Losses</GridItem>
           </Grid>
           {leaderboard.length > 0 ? (
             <Grid templateColumns='repeat(4, 1fr)' boxShadow='dark-lg'>
               <GridItem>
                 {leaderboard.map((player, index) => (
-                  <Box pl='1' key={player.playerId} bgColor={index % 2 != 0 ? 'gray.100' : 'white'}>
+                  <Box
+                    textAlign='center'
+                    key={player.playerId}
+                    bgColor={index % 2 != 0 ? 'gray.100' : 'white'}>
                     {index}
                   </Box>
                 ))}
               </GridItem>
               <GridItem>
                 {leaderboard.map((player, index) => (
-                  <Box pl='1' key={player.playerId} bgColor={index % 2 != 0 ? 'gray.100' : 'white'}>
+                  <Box
+                    textAlign='center'
+                    key={player.playerId}
+                    bgColor={index % 2 != 0 ? 'gray.100' : 'white'}>
                     {player.userName}
                   </Box>
                 ))}
               </GridItem>
               <GridItem>
                 {leaderboard.map((player, index) => (
-                  <Box key={player.playerId} bgColor={index % 2 != 0 ? 'gray.100' : 'white'}>
+                  <Box
+                    textAlign='center'
+                    key={player.playerId}
+                    bgColor={index % 2 != 0 ? 'gray.100' : 'white'}>
                     {player.wins}
                   </Box>
                 ))}
               </GridItem>
               <GridItem>
                 {leaderboard.map((player, index) => (
-                  <Box key={player.playerId} bgColor={index % 2 != 0 ? 'gray.100' : 'white'}>
+                  <Box
+                    textAlign='center'
+                    key={player.playerId}
+                    bgColor={index % 2 != 0 ? 'gray.100' : 'white'}>
                     {player.losses}
                   </Box>
                 ))}

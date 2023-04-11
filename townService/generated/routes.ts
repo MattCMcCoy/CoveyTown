@@ -414,7 +414,7 @@ export function RegisterRoutes(app: express.Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.patch('/towns/:townID/:checkerAreaId/squares',
+        app.get('/towns/:townID/:checkerAreaId/squares',
             ...(fetchMiddlewares<RequestHandler>(TownsController)),
             ...(fetchMiddlewares<RequestHandler>(TownsController.prototype.getCheckerAreaSquares)),
 
@@ -497,7 +497,7 @@ export function RegisterRoutes(app: express.Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.patch('/towns/:townID/:checkerAreaId/leaderboard',
+        app.get('/towns/:townID/:checkerAreaId/leaderboard',
             ...(fetchMiddlewares<RequestHandler>(TownsController)),
             ...(fetchMiddlewares<RequestHandler>(TownsController.prototype.getCheckerLeaderBoard)),
 
@@ -606,7 +606,7 @@ export function RegisterRoutes(app: express.Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.patch('/towns/:townID/:checkerAreaId/getCheckerPlayers',
+        app.get('/towns/:townID/:checkerAreaId/getCheckerPlayers',
             ...(fetchMiddlewares<RequestHandler>(TownsController)),
             ...(fetchMiddlewares<RequestHandler>(TownsController.prototype.getCheckerPlayers)),
 
@@ -633,7 +633,7 @@ export function RegisterRoutes(app: express.Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.patch('/towns/:townID/:checkerAreaId/getActiveCheckerPlayer',
+        app.get('/towns/:townID/:checkerAreaId/getActiveCheckerPlayer',
             ...(fetchMiddlewares<RequestHandler>(TownsController)),
             ...(fetchMiddlewares<RequestHandler>(TownsController.prototype.getActiveCheckerPlayer)),
 

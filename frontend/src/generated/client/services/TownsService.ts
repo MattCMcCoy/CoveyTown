@@ -303,7 +303,7 @@ export class TownsService {
         xSessionToken: string,
     ): CancelablePromise<Array<CheckerSquare>> {
         return this.httpRequest.request({
-            method: 'PATCH',
+            method: 'GET',
             url: '/towns/{townID}/{checkerAreaId}/squares',
             path: {
                 'townID': townId,
@@ -402,7 +402,7 @@ export class TownsService {
         xSessionToken: string,
     ): CancelablePromise<Array<CheckerLeaderboardItem>> {
         return this.httpRequest.request({
-            method: 'PATCH',
+            method: 'GET',
             url: '/towns/{townID}/{checkerAreaId}/leaderboard',
             path: {
                 'townID': townId,
@@ -525,7 +525,7 @@ export class TownsService {
         xSessionToken: string,
     ): CancelablePromise<Array<string>> {
         return this.httpRequest.request({
-            method: 'PATCH',
+            method: 'GET',
             url: '/towns/{townID}/{checkerAreaId}/getCheckerPlayers',
             path: {
                 'townID': townId,
@@ -555,7 +555,7 @@ export class TownsService {
         xSessionToken: string,
     ): CancelablePromise<number> {
         return this.httpRequest.request({
-            method: 'PATCH',
+            method: 'GET',
             url: '/towns/{townID}/{checkerAreaId}/getActiveCheckerPlayer',
             path: {
                 'townID': townId,

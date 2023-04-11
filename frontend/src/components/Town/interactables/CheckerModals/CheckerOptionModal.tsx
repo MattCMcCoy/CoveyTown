@@ -1,7 +1,6 @@
 import {
   Button,
   Modal,
-  ModalBody,
   ModalCloseButton,
   ModalContent,
   ModalFooter,
@@ -43,14 +42,13 @@ export default function CheckerOptionModal({
         <ModalContent>
           <ModalHeader>Checkers</ModalHeader>
           <ModalCloseButton />
-          <ModalBody> </ModalBody>
           <ModalFooter mx='auto'>
             <Button colorScheme='blue' width='36' marginRight='1' onClick={onClose}>
               Play With AI
             </Button>
             <Button
               colorScheme='blue'
-              mx={3}
+              marginLeft='1'
               onClick={() => {
                 if (
                   controller.players.length < MAX_PLAYERS &&
