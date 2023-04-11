@@ -3,8 +3,8 @@
 /* eslint-disable */
 
 export type CheckerLeaderboardItem = {
-    position: number;
     playerId: string;
+    userName: string;
     wins: number;
     losses: number;
 };

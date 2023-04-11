@@ -14,6 +14,8 @@ describe('CheckerAreaController', () => {
     testAreaModel = {
       id: nanoid(),
       squares: [],
+      activePlayer: 0,
+      players: [],
       leaderboard: [],
     };
     for (let x = 0; x < 8; x++) {
@@ -65,6 +67,8 @@ describe('CheckerAreaController', () => {
       const newModel: CheckerArea = {
         id: testAreaModel.id,
         squares: [],
+        activePlayer: testAreaModel.activePlayer,
+        players: testAreaModel.players,
         leaderboard: [],
       };
 
@@ -77,7 +81,9 @@ describe('CheckerAreaController', () => {
       const newModel: CheckerArea = {
         id: testAreaModel.id,
         squares: testAreaModel.squares,
-        leaderboard: [{ position: 1, playerId: '10', wins: 2, losses: 2 }],
+        activePlayer: testAreaModel.activePlayer,
+        players: testAreaModel.players,
+        leaderboard: [{ playerId: '10', userName: '', wins: 2, losses: 2 }],
       };
 
       testArea.updateFrom(newModel);
@@ -90,6 +96,8 @@ describe('CheckerAreaController', () => {
       const newModel: CheckerArea = {
         id: nanoid(),
         squares: testArea.squares,
+        activePlayer: testAreaModel.activePlayer,
+        players: testAreaModel.players,
         leaderboard: testAreaModel.leaderboard,
       };
       testArea.updateFrom(newModel);

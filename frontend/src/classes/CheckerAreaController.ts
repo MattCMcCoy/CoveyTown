@@ -16,6 +16,19 @@ export type CheckerAreaEvents = {
   checkerSquareChange: (squares: CheckerSquare[]) => void;
 
   /**
+   * A playerTurnChange event indicates that a players are changing turns.
+   * Listeners are passed the new state of the activePlayer.
+   */
+  playerTurnChange: (player: number) => void;
+
+  /**
+   * A playerListChange event indicates that a players participating
+   * in the game are changing.
+   * Listeners are passed the new state of the activePlayer.
+   */
+  playerListChange: (players: string[]) => void;
+
+  /**
    * A leaderboardChange event that indicates that the leaderboard has changed.
    * Listeners are passed the new state of the leaderboard.
    */
@@ -83,6 +96,53 @@ export default class CheckerAreaController extends (EventEmitter as new () => Ty
   }
 
   /**
+   * The pleyer whose turn it is.
+   */
+  public get activePlayer(): number {
+    return this._model.activePlayer;
+  }
+
+  /**
+   * The state of the currentPlayer in a checker area.
+   *
+   * Changing this value will emit a 'playerTurnChange' event
+   */
+  public set activePlayer(activePlayer: number) {
+    if (this._model.activePlayer != activePlayer) {
+      this._model.activePlayer = activePlayer;
+      this.emit('playerTurnChange', activePlayer);
+    }
+  }
+
+  public get players(): string[] {
+    return this._model.players;
+  }
+
+  /**
+   * The state of the currentPlayer in a checker area.
+   *
+   * Changing this value will emit a 'playerTurnChange' event
+   */
+  public set players(players: string[]) {
+    if (this._model.players != players) {
+      this._model.players = players;
+      this.emit('playerListChange', players);
+    }
+  }
+
+  public getActivePlayer(): string {
+    return this.players[this.activePlayer];
+  }
+
+  public isActivePlayer(playerId: string): boolean {
+    return this.players[this.activePlayer] == playerId;
+  }
+
+  public getActivePlayerColor(): string {
+    return this.activePlayer == 0 ? 'red' : 'black';
+  }
+
+  /**
    * @returns CheckerArea that represents the current state of this CheckerArea
    */
   public checkerAreaModel(): CheckerAreaModel {
@@ -97,6 +157,27 @@ export default class CheckerAreaController extends (EventEmitter as new () => Ty
   public updateFrom(updatedModel: CheckerAreaModel): void {
     this.squares = updatedModel.squares;
     this.leaderboard = updatedModel.leaderboard;
+    this.activePlayer = updatedModel.activePlayer;
+    this.players = updatedModel.players;
+  }
+
+  /**
+   * This method is to be called from the CheckerAreaViewer to verify possible
+   * moveTo positions so that the user can have an easier experience.
+   *
+   * @param moveFrom This is the id that the possible moveTo will be tested against.
+   *
+   * @param moveTo  This is the id of the square that is being tested against the move
+   * values for the moveFrom square.
+   *
+   * @returns boolean value true if moveTo is in moveFrom's list of moves.
+   *
+   */
+  public _isValid(moveFrom: string, moveTo: string): boolean {
+    if (this.squares.find(square => square.id === moveFrom)?.moves.includes(moveTo) === true) {
+      return true;
+    }
+    return false;
   }
 
   /**
@@ -134,6 +215,30 @@ export function useSquares(controller: CheckerAreaController): CheckerSquare[] |
     };
   }, [controller]);
   return checkerSquares;
+}
+
+export function useActivePlayer(controller: CheckerAreaController): number {
+  const [activePlayer, setActivePlayer] = useState(controller.activePlayer);
+
+  useEffect(() => {
+    controller.addListener('playerTurnChange', setActivePlayer);
+    return () => {
+      controller.removeListener('playerTurnChange', setActivePlayer);
+    };
+  }, [controller]);
+  return activePlayer;
+}
+
+export function usePlayers(controller: CheckerAreaController): string[] {
+  const [players, setPlayers] = useState(controller.players);
+
+  useEffect(() => {
+    controller.addListener('playerListChange', setPlayers);
+    return () => {
+      controller.removeListener('playerListChange', setPlayers);
+    };
+  }, [controller]);
+  return players;
 }
 
 export function useLeaderboard(controller: CheckerAreaController): CheckerLeaderboardItem[] {

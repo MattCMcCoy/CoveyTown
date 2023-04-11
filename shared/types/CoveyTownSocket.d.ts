@@ -78,11 +78,13 @@ export interface CheckerArea {
   id: string;
   squares: CheckerSquare[];
   leaderboard: CheckerLeaderboardItem[];
+  activePlayer: number;
+  players: string[];
 }
 
 export interface CheckerLeaderboardItem {
-  position: number;
   playerId: string;
+  userName: string;
   wins: number;
   losses: number;
 }
