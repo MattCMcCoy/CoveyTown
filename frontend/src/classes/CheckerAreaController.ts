@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { EventEmitter } from 'events';
 import TypedEmitter from 'typed-emitter';
 import { CheckerArea as CheckerAreaModel } from '../types/CoveyTownSocket';
-import { CheckerSquare } from '../generated/client';
+import { CheckerLeaderboardItem, CheckerSquare } from '../generated/client';
 
 /**
  * The events that a CheckerAreaController can emit.
@@ -16,16 +16,23 @@ export type CheckerAreaEvents = {
   checkerSquareChange: (squares: CheckerSquare[]) => void;
 
   /**
-   * A blackScoreChange event indicates that a red piece was taken.
-   * Listeners are passed the new state of the score.
+   * A playerTurnChange event indicates that a players are changing turns.
+   * Listeners are passed the new state of the activePlayer.
    */
-  blackScoreChange: (blackScore: number) => void;
+  playerTurnChange: (player: number) => void;
 
   /**
-   * A redScoreChange event indicates that a black piece was taken.
-   * Listeners are passed the new state of the score.
+   * A playerListChange event indicates that a players participating
+   * in the game are changing.
+   * Listeners are passed the new state of the activePlayer.
    */
-  redScoreChange: (redScore: number) => void;
+  playerListChange: (players: string[]) => void;
+
+  /**
+   * A leaderboardChange event that indicates that the leaderboard has changed.
+   * Listeners are passed the new state of the leaderboard.
+   */
+  leaderboardChange: (leaderboard: CheckerLeaderboardItem[]) => void;
 };
 
 /**
@@ -77,42 +84,62 @@ export default class CheckerAreaController extends (EventEmitter as new () => Ty
     }
   }
 
-  /**
-   * The score of the black checker player.
-   */
-  public get blackScore(): number {
-    return this._model.blackScore;
+  public get leaderboard(): CheckerLeaderboardItem[] {
+    return this._model.leaderboard;
   }
 
-  /**
-   * The state of the blackScore in a checker area.
-   *
-   * Changing this value will emit a 'blackScoreChange' event
-   */
-  public set blackScore(blackScore: number) {
-    if (this._model.blackScore != blackScore) {
-      this._model.blackScore = blackScore;
-      this.emit('blackScoreChange', blackScore);
+  public set leaderboard(leaderboard: CheckerLeaderboardItem[]) {
+    if (_.xor(this._model.leaderboard, leaderboard).length > 0) {
+      this._model.leaderboard = leaderboard;
+      this.emit('leaderboardChange', leaderboard);
     }
   }
 
   /**
-   * The score of the red checker player.
+   * The pleyer whose turn it is.
    */
-  public get redScore(): number {
-    return this._model.redScore;
+  public get activePlayer(): number {
+    return this._model.activePlayer;
   }
 
   /**
-   * The state of the redScore in a checker area.
+   * The state of the currentPlayer in a checker area.
    *
-   * Changing this value will emit a 'redScoreChange' event
+   * Changing this value will emit a 'playerTurnChange' event
    */
-  public set redScore(redScore: number) {
-    if (this._model.redScore != redScore) {
-      this._model.redScore = redScore;
-      this.emit('redScoreChange', redScore);
+  public set activePlayer(activePlayer: number) {
+    if (this._model.activePlayer != activePlayer) {
+      this._model.activePlayer = activePlayer;
+      this.emit('playerTurnChange', activePlayer);
     }
+  }
+
+  public get players(): string[] {
+    return this._model.players;
+  }
+
+  /**
+   * The state of the currentPlayer in a checker area.
+   *
+   * Changing this value will emit a 'playerTurnChange' event
+   */
+  public set players(players: string[]) {
+    if (this._model.players != players) {
+      this._model.players = players;
+      this.emit('playerListChange', players);
+    }
+  }
+
+  public getActivePlayer(): string {
+    return this.players[this.activePlayer];
+  }
+
+  public isActivePlayer(playerId: string): boolean {
+    return this.players[this.activePlayer] == playerId;
+  }
+
+  public getActivePlayerColor(): string {
+    return this.activePlayer == 0 ? 'red' : 'black';
   }
 
   /**
@@ -129,8 +156,9 @@ export default class CheckerAreaController extends (EventEmitter as new () => Ty
    */
   public updateFrom(updatedModel: CheckerAreaModel): void {
     this.squares = updatedModel.squares;
-    this.blackScore = updatedModel.blackScore ?? 0;
-    this.redScore = updatedModel.redScore ?? 0;
+    this.leaderboard = updatedModel.leaderboard;
+    this.activePlayer = updatedModel.activePlayer;
+    this.players = updatedModel.players;
   }
 }
 
@@ -151,28 +179,40 @@ export function useSquares(controller: CheckerAreaController): CheckerSquare[] |
   return checkerSquares;
 }
 
-export function useBlackScore(controller: CheckerAreaController): number {
-  const [blackScore, setBlackScore] = useState(controller.blackScore);
+export function useActivePlayer(controller: CheckerAreaController): number {
+  const [activePlayer, setActivePlayer] = useState(controller.activePlayer);
 
   useEffect(() => {
-    controller.addListener('blackScoreChange', setBlackScore);
+    controller.addListener('playerTurnChange', setActivePlayer);
     return () => {
-      controller.removeListener('blackScoreChange', setBlackScore);
+      controller.removeListener('playerTurnChange', setActivePlayer);
     };
   }, [controller]);
-  return blackScore;
+  return activePlayer;
 }
 
-export function useRedScore(controller: CheckerAreaController): number {
-  const [redScore, setRedScore] = useState(controller.redScore);
+export function usePlayers(controller: CheckerAreaController): string[] {
+  const [players, setPlayers] = useState(controller.players);
 
   useEffect(() => {
-    controller.addListener('redScoreChange', setRedScore);
+    controller.addListener('playerListChange', setPlayers);
     return () => {
-      controller.removeListener('redScoreChange', setRedScore);
+      controller.removeListener('playerListChange', setPlayers);
     };
   }, [controller]);
-  return redScore;
+  return players;
+}
+
+export function useLeaderboard(controller: CheckerAreaController): CheckerLeaderboardItem[] {
+  const [leaderboard, setLeaderboard] = useState(controller.leaderboard);
+
+  useEffect(() => {
+    controller.addListener('leaderboardChange', setLeaderboard);
+    return () => {
+      controller.removeListener('leaderboardChange', setLeaderboard);
+    };
+  }, [controller]);
+  return leaderboard;
 }
 
 export function gameOver(controller: CheckerAreaController): boolean {

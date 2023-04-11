@@ -8,19 +8,30 @@ import {
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/react';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
+import CheckerAreaInteractable from './CheckerArea';
+import { useCheckerAreaController } from '../../../classes/TownController';
+import useTownController from '../../../hooks/useTownController';
 
+const MAX_PLAYERS = 2;
 interface RuleItem {
   title: string;
   des: string;
 }
 
-export function CheckerViewer({
+export default function CheckerOptionModal({
+  checkerArea,
   changeGameState,
+  openLeaderboard,
 }: {
+  checkerArea: CheckerAreaInteractable;
   changeGameState: (val: boolean) => void;
+  openLeaderboard: () => void;
 }): JSX.Element {
   const [visibleState, setVisibleState] = useState(true);
+  const townController = useTownController();
+  const currPlayerId = townController.ourPlayer.id;
+  const controller = useCheckerAreaController(checkerArea.name);
   const ruleList: RuleItem[] = [
     {
       title: 'Overview',
@@ -56,34 +67,50 @@ export function CheckerViewer({
     setVisibleState(false);
     changeGameState(true);
   };
-  const onWait = () => {
-    onClose();
-  };
+
   return (
     <>
-      <Modal isOpen={visibleState} onClose={onClose}>
+      <Modal isOpen={visibleState} onClose={() => setVisibleState(false)}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Game Rules</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <ul className='rule-detail'>
+            <ul>
               {ruleList.map((rule: RuleItem, index) => {
                 return (
-                  <li className='rule-item' key={index}>
-                    <p className='rule-title'>{rule.title}</p>
-                    <p className='rule-des'>{rule.des}</p>
+                  <li key={index}>
+                    <p>{rule.title}</p>
+                    <p>{rule.des}</p>
                   </li>
                 );
               })}
             </ul>
           </ModalBody>
           <ModalFooter>
-            <Button colorScheme='blue' mr={3} onClick={onClose}>
+            <Button colorScheme='blue' onClick={onClose}>
               Play With AI
             </Button>
-            <Button variant='ghost' onClick={onWait}>
-              Wait
+            <Button
+              colorScheme='blue'
+              mx={3}
+              onClick={() => {
+                if (
+                  controller.players.length < MAX_PLAYERS &&
+                  !controller.players.includes(currPlayerId)
+                ) {
+                  townController
+                    .addCheckerPlayer(controller)
+                    .then(players => (controller.players = players));
+                } else {
+                  console.log('too many players');
+                }
+                onClose();
+              }}>
+              Wait For Player
+            </Button>
+            <Button colorScheme='gray' onClick={openLeaderboard}>
+              Leaderboard
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -91,5 +118,3 @@ export function CheckerViewer({
     </>
   );
 }
-
-export default CheckerViewer;
