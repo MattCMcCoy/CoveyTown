@@ -110,8 +110,9 @@ describe('CheckerAreaController', () => {
       const newModel: CheckerArea = {
         id: testAreaModel.id,
         squares: [],
-        blackScore: 0,
-        redScore: 0,
+        activePlayer: 0,
+        players: [],
+        leaderboard: [],
       };
       testArea.updateFrom(newModel);
       let value = gameOver(testArea);

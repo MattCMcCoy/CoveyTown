@@ -24,8 +24,7 @@ import CheckerAreaController, {
   useSquares,
   gameOver,
   useActivePlayer,
-  usePlayers,
-  gameOver
+  usePlayers
 } from '../../../classes/CheckerAreaController';
 import useTownController from '../../../hooks/useTownController';
 import CheckerAreaInteractable from './CheckerArea';
