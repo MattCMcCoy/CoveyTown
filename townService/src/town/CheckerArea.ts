@@ -439,6 +439,35 @@ export default class CheckerArea extends InteractableArea {
     }
   }
 
+  public updateLeaderBoard(leaderboardUpdate: {
+    playerId: string;
+    isLoser: boolean;
+    userName: string;
+  }) {
+    const player = this.leaderboard.find(
+      leaderboardItem => leaderboardItem.playerId === leaderboardUpdate.playerId,
+    );
+
+    if (player) {
+      player.wins += leaderboardUpdate.isLoser ? 0 : 1;
+      player.losses += leaderboardUpdate.isLoser ? 1 : 0;
+      this._leaderboard = this.leaderboard.filter(
+        leaderboardItem => leaderboardItem.playerId !== leaderboardUpdate.playerId,
+      );
+      this._leaderboard.push(player);
+      return;
+    }
+
+    const leaderboardItem: CheckerLeaderboardItem = {
+      playerId: leaderboardUpdate.playerId,
+      userName: leaderboardUpdate.userName,
+      wins: leaderboardUpdate.isLoser ? 0 : 1,
+      losses: leaderboardUpdate.isLoser ? 1 : 0,
+    };
+
+    this._leaderboard.push(leaderboardItem);
+  }
+
   /**
    * Creates a new CheckerArea object that will represent a Checker Area object in the town map.
    * @param mapObject An ITiledMapObject that represents a rectangle in which this checker area exists

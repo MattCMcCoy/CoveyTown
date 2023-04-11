@@ -83,7 +83,7 @@ describe('CheckerAreaController', () => {
         squares: testAreaModel.squares,
         activePlayer: testAreaModel.activePlayer,
         players: testAreaModel.players,
-        leaderboard: [{ playerId: '10', wins: 2, losses: 2 }],
+        leaderboard: [{ playerId: '10', userName: '', wins: 2, losses: 2 }],
       };
 
       testArea.updateFrom(newModel);

@@ -37,7 +37,7 @@ export default function CheckerLeaderboardModal({
         .then(
           newLeaderboard =>
             (checkerAreaController.leaderboard = newLeaderboard.sort(
-              (a, b) => a.wins - a.losses - (b.wins - b.losses),
+              (a, b) => b.wins - b.losses - (a.wins - a.losses),
             )),
         );
     }
@@ -59,7 +59,7 @@ export default function CheckerLeaderboardModal({
         <ModalBody>
           <Grid templateColumns='repeat(4, 1fr)' boxShadow='dark-lg'>
             <GridItem pl='1'>Position</GridItem>
-            <GridItem>PlayerId</GridItem>
+            <GridItem>Player</GridItem>
             <GridItem>Wins</GridItem>
             <GridItem>Losses</GridItem>
           </Grid>
@@ -75,7 +75,7 @@ export default function CheckerLeaderboardModal({
               <GridItem>
                 {leaderboard.map((player, index) => (
                   <Box pl='1' key={player.playerId} bgColor={index % 2 != 0 ? 'gray.100' : 'white'}>
-                    {player.playerId}
+                    {player.userName}
                   </Box>
                 ))}
               </GridItem>
@@ -88,8 +88,8 @@ export default function CheckerLeaderboardModal({
               </GridItem>
               <GridItem>
                 {leaderboard.map((player, index) => (
-                  <Box key={player.losses} bgColor={index % 2 != 0 ? 'gray.100' : 'white'}>
-                    {player.playerId}
+                  <Box key={player.playerId} bgColor={index % 2 != 0 ? 'gray.100' : 'white'}>
+                    {player.losses}
                   </Box>
                 ))}
               </GridItem>

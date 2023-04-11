@@ -859,6 +859,19 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
     return this._townsService.getCheckerPlayers(this.townID, checkerArea.id, this.sessionToken);
   }
 
+  public updateLeaderboard(
+    checkerArea: CheckerAreaController,
+    currPlayer: string,
+    userName: string,
+    isLoser: boolean,
+  ): Promise<CheckerLeaderboardItem[]> {
+    return this._townsService.updateLeaderboard(this.townID, checkerArea.id, this.sessionToken, {
+      isLoser,
+      userName,
+      playerId: currPlayer,
+    });
+  }
+
   /**
    * Get the active player from a specified checkerArea (specified via checker Area controller)
    * @param checkerArea the checker area controller

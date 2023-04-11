@@ -635,6 +635,30 @@ export class TownsController extends Controller {
     return checkerArea.activePlayer;
   }
 
+  @Patch('{townID}/{checkerAreaId}/updateLeaderboard')
+  @Response<InvalidParametersError>(400, 'Invalid values specified')
+  public async updateLeaderboard(
+    @Path() townID: string,
+    @Path() checkerAreaId: string,
+    @Body() leaderboardUpdate: { playerId: string; userName: string; isLoser: boolean },
+    @Header('X-Session-Token') sessionToken: string,
+  ): Promise<CheckerLeaderboardItem[]> {
+    const curTown = this._townsStore.getTownByID(townID);
+    if (!curTown) {
+      throw new InvalidParametersError('Invalid town ID');
+    }
+    if (!curTown.getPlayerBySessionToken(sessionToken)) {
+      throw new InvalidParametersError('Invalid session ID');
+    }
+    const checkerArea = curTown.getInteractable(checkerAreaId);
+    if (!checkerArea || !isCheckerArea(checkerArea)) {
+      throw new InvalidParametersError('Invalid checker area ID');
+    }
+    (<CheckerAreaReal>checkerArea).updateLeaderBoard(leaderboardUpdate);
+
+    return checkerArea.leaderboard;
+  }
+
   /**
    * Connects a client's socket to the requested town, or disconnects the socket if no such town exists
    *

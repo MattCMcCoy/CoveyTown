@@ -15,7 +15,6 @@ import {
   Square,
   Grid,
   GridItem,
-  Button,
 } from '@chakra-ui/react';
 import { Crown } from '@styled-icons/fa-solid/Crown';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -27,7 +26,7 @@ import CheckerAreaController, {
 } from '../../../classes/CheckerAreaController';
 import useTownController from '../../../hooks/useTownController';
 import CheckerAreaInteractable from './CheckerArea';
-import { CheckerSquare } from '../../../generated/client';
+import { CheckerLeaderboardItem, CheckerSquare } from '../../../generated/client';
 import CheckerOptionModal from './CheckerModals/CheckerOptionModal';
 import CheckerLeaderboardModal from './CheckerModals/CheckerLeaderboardModal';
 
@@ -40,27 +39,43 @@ const CHECKER_OUTER_SIZE = '65';
 const CHECKER_INNER_SIZE = '50';
 const MAX_PLAYERS = 2;
 
-function Score({ controller }: { controller: CheckerAreaController }): JSX.Element {
+function Score({
+  controller,
+  activePlayer,
+}: {
+  controller: CheckerAreaController;
+  activePlayer: number;
+}): JSX.Element {
   return (
     <Square display={'grid'}>
-      <Circle size={CHECKER_OUTER_SIZE} margin='auto' bg={CHECKER_OUTER_RED} marginBottom={5}>
-        <Circle
-          size={CHECKER_INNER_SIZE}
-          margin='auto'
-          bg={CHECKER_INNER_RED}
-          shadow='inner'
-          textColor={'white'}>
-          {12 - controller.squares.filter(square => square.checker.color === 'black').length}
+      <Circle
+        size='20'
+        margin='auto'
+        bg={activePlayer === 0 ? 'yellow' : 'transparent'}
+        marginBottom='5'>
+        <Circle size={CHECKER_OUTER_SIZE} bg={CHECKER_OUTER_RED}>
+          <Circle
+            size={CHECKER_INNER_SIZE}
+            bg={CHECKER_INNER_RED}
+            shadow='inner'
+            textColor={'white'}>
+            {12 - controller.squares.filter(square => square.checker.color === 'black').length}
+          </Circle>
         </Circle>
       </Circle>
-      <Circle size={CHECKER_OUTER_SIZE} margin='auto' bg={CHECKER_OUTER_BLACK}>
-        <Circle
-          size={CHECKER_INNER_SIZE}
-          margin='auto'
-          bg={CHECKER_INNER_BLACK}
-          shadow='inner'
-          textColor={'white'}>
-          {12 - controller.squares.filter(square => square.checker.color === 'red').length}
+      <Circle
+        size='20'
+        margin='auto'
+        bg={activePlayer === 1 ? 'yellow' : 'transparent'}
+        marginBottom='5'>
+        <Circle size={CHECKER_OUTER_SIZE} margin='auto' bg={CHECKER_OUTER_BLACK}>
+          <Circle
+            size={CHECKER_INNER_SIZE}
+            bg={CHECKER_INNER_BLACK}
+            shadow='inner'
+            textColor={'white'}>
+            {12 - controller.squares.filter(square => square.checker.color === 'red').length}
+          </Circle>
         </Circle>
       </Circle>
     </Square>
@@ -69,9 +84,11 @@ function Score({ controller }: { controller: CheckerAreaController }): JSX.Eleme
 function Board({
   squares,
   controller,
+  close,
 }: {
   squares: CheckerSquare[] | undefined;
   controller: CheckerAreaController;
+  close: () => void;
 }): JSX.Element {
   const [moveFrom, setMoveFrom] = useState<string>('');
   const [moveTo, setMoveTo] = useState<string>('');
@@ -88,6 +105,54 @@ function Board({
     });
   }, [controller, toast, townController]);
 
+  const checkGameOver = useCallback(() => {
+    if (
+      controller.squares &&
+      controller.squares.filter(
+        square =>
+          square.checker.color.toString() === (controller.activePlayer == 0 ? 'red' : 'black'),
+      ).length == 0 &&
+      controller.players.length > 1
+    ) {
+      toast({
+        title: `${controller.activePlayer == 0 ? 'black wins' : 'red wins'}`,
+        status: 'info',
+      });
+      townController
+        .updateLeaderboard(
+          controller,
+          currPlayer,
+          townController.ourPlayer.userName,
+          controller.isActivePlayer(currPlayer),
+        )
+        .then(
+          (newLeaderboard: CheckerLeaderboardItem[]) => (controller.leaderboard = newLeaderboard),
+        );
+      const otherPlayer = controller.players.find(player => player !== currPlayer) ?? '';
+      townController
+        .updateLeaderboard(
+          controller,
+          otherPlayer,
+          townController.players.find(player => player.id === otherPlayer)?.userName ?? '',
+          controller.isActivePlayer(otherPlayer),
+        )
+        .then(
+          (newLeaderboard: CheckerLeaderboardItem[]) => (controller.leaderboard = newLeaderboard),
+        );
+      townController.unPause();
+      townController.resetCheckerArea(controller).then(model => controller.updateFrom(model));
+      close();
+    }
+  }, [close, controller, currPlayer, toast, townController]);
+
+  useEffect(() => {
+    checkGameOver();
+    const timer = setInterval(checkGameOver, 5000);
+    return () => {
+      clearInterval(timer);
+    };
+  }, [checkGameOver]);
+
   useEffect(() => {
     if (moveFrom && moveTo) {
       townController.makeCheckerMove(controller, moveFrom, moveTo).then(value => {
@@ -99,7 +164,7 @@ function Board({
       setMoveFrom('');
       setMoveTo('');
     }
-  }, [changingTurn, controller, moveFrom, moveTo, townController]);
+  }, [changingTurn, close, controller, moveFrom, moveTo, squares, toast, townController]);
 
   // gets the color of a given square
   const getSquareColor = (x: number, y: number) => {
@@ -129,7 +194,6 @@ function Board({
     // add squares to row
     row.push(
       <Box
-        onKeyDown={() => {}}
         as='button'
         w={squareSize}
         h={squareSize}
@@ -194,13 +258,11 @@ export function CheckerBoard({
   close: () => void;
 }): JSX.Element {
   const townController = useTownController();
-  const toast = useToast();
   const activePlayer = useActivePlayer(controller);
   const playerList = usePlayers(controller);
   const squares = useSquares(controller);
   const [title, setTitle] = useState('Waiting for other players ...');
   const [currentPlayerList, setCurrentPlayerList] = useState<string[]>(playerList);
-  const [currentActivePlayer, setActivePlayer] = useState<number>(activePlayer);
   const [currentSquares, setCurrentSquares] = useState<CheckerSquare[] | undefined>(squares);
   const [startGame, setStartGame] = useState(true);
 
@@ -219,7 +281,6 @@ export function CheckerBoard({
     });
     townController.getActiveCheckerPlayer(controller).then(player => {
       controller.activePlayer = player;
-      setActivePlayer(player);
     });
   }, [controller, startGame, townController]);
 
@@ -239,16 +300,6 @@ export function CheckerBoard({
 
   if (currentPlayerList.length == MAX_PLAYERS && (squares == undefined || squares.length < 1)) {
     initBoard();
-  }
-
-  async function changeTurn() {
-    await townController
-      .changeActivePlayer(controller)
-      .then(player => (controller.activePlayer = player));
-    toast({
-      title: 'Switching turns',
-      status: 'info',
-    });
   }
 
   if (controller.players.length == 0 && startGame == false) {
@@ -273,20 +324,18 @@ export function CheckerBoard({
         <ModalCloseButton />
         <ModalBody pb={6}></ModalBody>
         <Grid templateColumns='repeat(5, 1fr)'>
-          <GridItem colSpan={4} rowSpan={2}>
+          <GridItem colSpan={4} rowSpan={1}>
             <Flex justify={'center'} padding={'5'}>
-              <Board squares={currentSquares} controller={controller} />
+              <Board squares={currentSquares} controller={controller} close={close} />
             </Flex>
           </GridItem>
-          <GridItem colSpan={1}>
-            <Button onClick={() => changeTurn()}>{'Active Player: ' + currentActivePlayer}</Button>
-          </GridItem>
           <GridItem colSpan={1} margin='auto'>
-            <Score controller={controller} />
+            {title === 'Waiting for other players ...' ? null : (
+              <Score controller={controller} activePlayer={activePlayer} />
+            )}
           </GridItem>
         </Grid>
         <ModalFooter />
-        {/* </form> */}
       </ModalContent>
     </Modal>
   );
@@ -323,10 +372,8 @@ export function CheckerGame({
         <ModalOverlay />
         <ModalContent>
           {<ModalHeader>Game in Progress</ModalHeader>}
-          <Score controller={checkerAreaController} />
           <ModalCloseButton />
           <ModalFooter />
-          {/* </form> */}
         </ModalContent>
       </Modal>
     );

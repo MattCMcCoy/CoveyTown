@@ -84,6 +84,7 @@ export interface CheckerArea {
 
 export interface CheckerLeaderboardItem {
   playerId: string;
+  userName: string;
   wins: number;
   losses: number;
 }
