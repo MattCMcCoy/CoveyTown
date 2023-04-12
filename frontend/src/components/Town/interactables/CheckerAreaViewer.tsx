@@ -478,7 +478,7 @@ export function AiCheckerBoard({
   const [currentPlayerList, setCurrentPlayerList] = useState<string[]>(playerList);
   const [currentSquares, setCurrentSquares] = useState<CheckerSquare[] | undefined>(squares);
   const [startGame, setStartGame] = useState(true);
-
+  console.log('here');
   // update board on player switch
   useEffect(() => {
     townController.getCheckerAreaBoard(controller).then(board => {
@@ -489,11 +489,9 @@ export function AiCheckerBoard({
 
   const updateGame = useCallback(() => {
     function getPlayerColor(): string {
-      return controller.players.indexOf(townController.ourPlayer.id) == 0
-        ? 'You are player red'
-        : 'You are player black';
+      return 'You are player red';
     }
-    if (controller.players.length == MAX_PLAYERS && startGame) {
+    if (controller.players.length == MAX_PLAYERS - 1 && startGame) {
       setStartGame(false);
       setTitle(getPlayerColor());
     }
@@ -505,7 +503,7 @@ export function AiCheckerBoard({
       controller.activePlayer = player;
     });
 
-    if (controller.players.length == 0 && startGame == false) {
+    if (controller.players.length == 0 && !startGame) {
       setStartGame(true);
       townController.unPause();
       townController.resetCheckerArea(controller).then(model => {
@@ -535,39 +533,11 @@ export function AiCheckerBoard({
     };
   }, [updateGame]);
 
-  const updateLeaderboardOnForfeit = () => {
-    townController
-      .updateLeaderboard(
-        controller,
-        townController.ourPlayer.id,
-        townController.ourPlayer.userName,
-        true,
-      )
-      .then(
-        (newLeaderboard: CheckerLeaderboardItem[]) => (controller.leaderboard = newLeaderboard),
-      );
-    const otherPlayer =
-      controller.players.find(player => player !== townController.ourPlayer.id) ?? '';
-    townController
-      .updateLeaderboard(
-        controller,
-        otherPlayer,
-        townController.players.find(player => player.id === otherPlayer)?.userName ?? '',
-        false,
-      )
-      .then(
-        (newLeaderboard: CheckerLeaderboardItem[]) => (controller.leaderboard = newLeaderboard),
-      );
-  };
-
   return (
     <Modal
       isOpen={isOpen}
       size={'4xl'}
       onClose={() => {
-        if (currentPlayerList.length === MAX_PLAYERS) {
-          updateLeaderboardOnForfeit();
-        }
         close();
         townController.unPause();
         townController.resetCheckerArea(controller).then(model => controller.updateFrom(model));
@@ -585,37 +555,23 @@ export function AiCheckerBoard({
           </GridItem>
           <Grid templateRows='repeat(2, 1fr)' margin='auto' paddingTop='64'>
             <GridItem colSpan={1}>
-              {currentPlayerList.length !== MAX_PLAYERS ? null : (
+              {currentPlayerList.length !== MAX_PLAYERS - 1 ? null : (
                 <Score controller={controller} activePlayer={activePlayer} />
               )}
             </GridItem>
             <GridItem colSpan={1}>
-              {currentPlayerList.length !== MAX_PLAYERS ? (
-                <Button
-                  onClick={() => {
-                    close();
-                    townController.unPause();
-                    townController
-                      .resetCheckerArea(controller)
-                      .then(model => controller.updateFrom(model));
-                  }}>
-                  Back
-                </Button>
-              ) : (
-                <Button
-                  onClick={() => {
-                    townController.unPause();
-                    townController
-                      .resetCheckerArea(controller)
-                      .then(model => controller.updateFrom(model));
-                    setCurrentSquares([]);
-                    setCurrentPlayerList([]);
-                    updateLeaderboardOnForfeit();
-                    close();
-                  }}>
-                  Forfeit{' '}
-                </Button>
-              )}
+              <Button
+                onClick={() => {
+                  townController.unPause();
+                  townController
+                    .resetCheckerArea(controller)
+                    .then(model => controller.updateFrom(model));
+                  setCurrentSquares([]);
+                  setCurrentPlayerList([]);
+                  close();
+                }}>
+                Forfeit
+              </Button>
             </GridItem>
           </Grid>
         </Grid>
@@ -635,10 +591,14 @@ export function CheckerGame({
   checkerArea,
   changeGameState,
   changeAiGameState,
+  beginGame,
+  beginAiGame,
 }: {
   checkerArea: CheckerAreaInteractable;
   changeGameState: (val: boolean) => void;
   changeAiGameState: (val: boolean) => void;
+  beginGame: boolean;
+  beginAiGame: boolean;
 }): JSX.Element {
   const checkerAreaController = useCheckerAreaController(checkerArea.name);
   // selectIsOpen is true if the squares have not been initialized
@@ -646,15 +606,26 @@ export function CheckerGame({
 
   return (
     <>
-      <CheckerBoard
-        //start={start}
-        controller={checkerAreaController}
-        isOpen={selectIsOpen}
-        close={() => {
-          setSelectIsOpen(false);
-          changeGameState(false);
-        }}
-      />
+      {beginGame ? (
+        <CheckerBoard
+          //start={start}
+          controller={checkerAreaController}
+          isOpen={selectIsOpen}
+          close={() => {
+            setSelectIsOpen(false);
+            changeGameState(false);
+          }}
+        />
+      ) : beginAiGame ? (
+        <AiCheckerBoard
+          controller={checkerAreaController}
+          isOpen={selectIsOpen}
+          close={() => {
+            setSelectIsOpen(false);
+            changeAiGameState(false);
+          }}
+        />
+      ) : null}
     </>
   );
 }
@@ -677,32 +648,13 @@ export default function CheckerAreaWrapper(): JSX.Element {
     setBeginAiGame(val);
   };
 
-  if (checkerArea && beginGame) {
-    return <CheckerGame changeGameState={changeGameState} checkerArea={checkerArea} />;
-  } else if (checkerArea) {
-    if (isLeaderboardOpen) {
-      return (
-        <CheckerLeaderboardModal
-          isLeaderboardOpen={isLeaderboardOpen}
-          checkerArea={checkerArea}
-          closeLeaderboard={() => setLeaderboardOpen(false)}
-        />
-      );
-    }
-    return (
-      <CheckerOptionModal
-        checkerArea={checkerArea}
-        changeGameState={changeGameState}
-        changeAiGameState={changeAiGameState}
-        openLeaderboard={() => setLeaderboardOpen(true)}
-      />
-    );
-  }
-  if (checkerArea && beginAiGame) {
+  if (checkerArea && (beginGame || beginAiGame)) {
     return (
       <CheckerGame
         changeGameState={changeGameState}
         changeAiGameState={changeAiGameState}
+        beginGame={beginGame}
+        beginAiGame={beginAiGame}
         checkerArea={checkerArea}
       />
     );

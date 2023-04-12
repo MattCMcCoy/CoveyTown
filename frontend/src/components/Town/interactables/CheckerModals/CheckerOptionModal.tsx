@@ -58,7 +58,6 @@ export default function CheckerOptionModal({
                   controller.players.length < MAX_PLAYERS - 1 &&
                   !controller.players.includes(currPlayerId)
                 ) {
-                  controller.players.push('aiPlayer');
                   townController
                     .addCheckerPlayer(controller)
                     .then(players => (controller.players = players));
