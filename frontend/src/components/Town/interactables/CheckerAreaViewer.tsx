@@ -149,7 +149,8 @@ function Board({
   }, [toast, controller.activePlayer]);
 
   const doubleJump = useCallback(() => {
-    townController.doubleJumpBoard(controller).then(p => (controller.activePlayer = p));
+    townController.changeActivePlayer(controller).then(p => (controller.activePlayer = p));
+    townController.changeActivePlayer(controller).then(p => (controller.activePlayer = p));
     toast({
       title: 'Double Jump Available',
       status: 'info',
@@ -370,10 +371,12 @@ export function CheckerBoard({
       isOpen={isOpen}
       size={'4xl'}
       onClose={() => {
+        if (currentPlayerList.length === MAX_PLAYERS) {
+          updateLeaderboardOnForfeit();
+        }
         close();
         townController.unPause();
         townController.resetCheckerArea(controller).then(model => controller.updateFrom(model));
-        updateLeaderboardOnForfeit();
       }}>
       <ModalOverlay />
       <ModalContent>
@@ -393,19 +396,32 @@ export function CheckerBoard({
               )}
             </GridItem>
             <GridItem colSpan={1}>
-              <Button
-                onClick={() => {
-                  townController.unPause();
-                  townController
-                    .resetCheckerArea(controller)
-                    .then(model => controller.updateFrom(model));
-                  setCurrentSquares([]);
-                  setCurrentPlayerList([]);
-                  updateLeaderboardOnForfeit();
-                  close();
-                }}>
-                Forfeit
-              </Button>
+              {currentPlayerList.length !== MAX_PLAYERS ? (
+                <Button
+                  onClick={() => {
+                    close();
+                    townController.unPause();
+                    townController
+                      .resetCheckerArea(controller)
+                      .then(model => controller.updateFrom(model));
+                  }}>
+                  Back
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => {
+                    townController.unPause();
+                    townController
+                      .resetCheckerArea(controller)
+                      .then(model => controller.updateFrom(model));
+                    setCurrentSquares([]);
+                    setCurrentPlayerList([]);
+                    updateLeaderboardOnForfeit();
+                    close();
+                  }}>
+                  Forfeit{' '}
+                </Button>
+              )}
             </GridItem>
           </Grid>
         </Grid>

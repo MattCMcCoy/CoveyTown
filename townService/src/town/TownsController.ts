@@ -528,49 +528,6 @@ export class TownsController extends Controller {
    * @throws InvalidParametersError if the session token is not valid, or if the
    *          checker area specified does not exist
    */
-  @Patch('{townID}/{checkerAreaId}/doubleJumpBoard')
-  @Response<InvalidParametersError>(400, 'Invalid values specified')
-  public async doubleJumpBoard(
-    @Path() townID: string,
-    @Path() checkerAreaId: string,
-    @Header('X-Session-Token') sessionToken: string,
-  ): Promise<number> {
-    const curTown = this._townsStore.getTownByID(townID);
-    if (!curTown) {
-      throw new InvalidParametersError('Invalid town ID');
-    }
-    if (!curTown.getPlayerBySessionToken(sessionToken)) {
-      throw new InvalidParametersError('Invalid session ID');
-    }
-    const checkerArea = curTown.getInteractable(checkerAreaId);
-    if (!checkerArea || !isCheckerArea(checkerArea)) {
-      throw new InvalidParametersError('Invalid checker area ID');
-    }
-    const newActivePlayer = checkerArea.activePlayer === 0 ? 0 : 1;
-
-    const updatedCheckerArea = {
-      id: checkerArea.id,
-      squares: checkerArea.squares,
-      activePlayer: newActivePlayer,
-      players: checkerArea.players,
-      leaderboard: checkerArea.leaderboard,
-    };
-    (<CheckerAreaReal>checkerArea).updateModel(updatedCheckerArea);
-    return newActivePlayer;
-  }
-
-  /**
-   * changes the active player of the checker game.
-   *
-   * @param townID ID of the town in which to get the players of the checker area
-   * @param checkerAreaId interactable ID of the checker area
-   * @param sessionToken session token of the player making the request, must
-   *        match the session token returned when the player joined the town
-   *
-   *
-   * @throws InvalidParametersError if the session token is not valid, or if the
-   *          checker area specified does not exist
-   */
   @Patch('{townID}/{checkerAreaId}/{playerId}/addCheckerPlayer')
   @Response<InvalidParametersError>(400, 'Invalid values specified')
   public async addCheckerPlayer(

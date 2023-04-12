@@ -857,15 +857,6 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
   }
 
   /**
-   * Switches the turn between the players of the given checkerBoard area. (specified via checker area controller)
-   * @param checkerArea the checker area controller
-   * @returns a promise wrapping the board
-   */
-  public async doubleJumpBoard(checkerArea: CheckerAreaController): Promise<number> {
-    return this._townsService.doubleJumpBoard(this.townID, checkerArea.id, this.sessionToken);
-  }
-
-  /**
    * Adds a person to the players of the given checkerBoard area. (specified via checker area controller)
    * @param checkerArea the checker area controller
    * @returns a promise wrapping the board
