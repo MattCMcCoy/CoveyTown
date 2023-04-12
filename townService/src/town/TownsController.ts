@@ -320,7 +320,7 @@ export class TownsController extends Controller {
    * @throws InvalidParametersError if the session token is not valid, or if the
    *          checker area specified does not exist
    */
-  @Patch('{townID}/{checkerAreaId}/squares')
+  @Get('{townID}/{checkerAreaId}/squares')
   @Response<InvalidParametersError>(400, 'Invalid values specified')
   public async getCheckerAreaSquares(
     @Path() townID: string,
@@ -393,7 +393,7 @@ export class TownsController extends Controller {
     @Header('X-Session-Token') sessionToken: string,
     @Path() moveFrom: string,
     @Path() moveTo: string,
-  ): Promise<{ isValid: boolean; board: CheckerSquare[] }> {
+  ): Promise<{ isValid: boolean | string; board: CheckerSquare[] }> {
     const curTown = this._townsStore.getTownByID(townID);
     if (!curTown) {
       throw new InvalidParametersError('Invalid town ID');
@@ -405,7 +405,40 @@ export class TownsController extends Controller {
     if (!checkerArea || !isCheckerArea(checkerArea)) {
       throw new InvalidParametersError('Invalid checker area ID');
     }
-    const validMove: boolean = (<CheckerAreaReal>checkerArea).makeMove(moveFrom, moveTo);
+    const validMove: boolean | string = (<CheckerAreaReal>checkerArea).makeMove(moveFrom, moveTo);
+    return { isValid: validMove, board: checkerArea.squares };
+  }
+
+  /**
+   * Initializes the checker board of the given checkerBoard area.
+   *
+   * @param townID ID of the town in which to initialize the checker areas board.
+   * @param checkerAreaId interactable ID of the checker area
+   * @param sessionToken session token of the player making the request, must
+   *        match the session token returned when the player joined the town
+   *
+   * @throws InvalidParametersError if the session token is not valid, or if the
+   *          checker area specified does not exist
+   */
+  @Patch('{townID}/{checkerAreaId}/makeAICheckerMove')
+  @Response<InvalidParametersError>(400, 'Invalid values specified')
+  public async makeAICheckerMove(
+    @Path() townID: string,
+    @Path() checkerAreaId: string,
+    @Header('X-Session-Token') sessionToken: string,
+  ): Promise<{ isValid: boolean | string; board: CheckerSquare[] }> {
+    const curTown = this._townsStore.getTownByID(townID);
+    if (!curTown) {
+      throw new InvalidParametersError('Invalid town ID');
+    }
+    if (!curTown.getPlayerBySessionToken(sessionToken)) {
+      throw new InvalidParametersError('Invalid session ID');
+    }
+    const checkerArea = curTown.getInteractable(checkerAreaId);
+    if (!checkerArea || !isCheckerArea(checkerArea)) {
+      throw new InvalidParametersError('Invalid checker area ID');
+    }
+    const validMove: boolean | string = (<CheckerAreaReal>checkerArea).AIMove();
     return { isValid: validMove, board: checkerArea.squares };
   }
 
@@ -419,7 +452,7 @@ export class TownsController extends Controller {
    * @throws InvalidParametersError if the session token is not valid, or if the
    *          checker area specified does not exist
    */
-  @Patch('{townID}/{checkerAreaId}/leaderboard')
+  @Get('{townID}/{checkerAreaId}/leaderboard')
   @Response<InvalidParametersError>(400, 'Invalid values specified')
   public async getCheckerLeaderBoard(
     @Path() townID: string,
@@ -581,7 +614,7 @@ export class TownsController extends Controller {
    * @throws InvalidParametersError if the session token is not valid, or if the
    *          checker area specified does not exist
    */
-  @Patch('{townID}/{checkerAreaId}/getCheckerPlayers')
+  @Get('{townID}/{checkerAreaId}/getCheckerPlayers')
   @Response<InvalidParametersError>(400, 'Invalid values specified')
   public async getCheckerPlayers(
     @Path() townID: string,
@@ -614,7 +647,7 @@ export class TownsController extends Controller {
    * @throws InvalidParametersError if the session token is not valid, or if the
    *          checker area specified does not exist
    */
-  @Patch('{townID}/{checkerAreaId}/getActiveCheckerPlayer')
+  @Get('{townID}/{checkerAreaId}/getActiveCheckerPlayer')
   @Response<InvalidParametersError>(400, 'Invalid values specified')
   public async getActiveCheckerPlayer(
     @Path() townID: string,
@@ -633,6 +666,30 @@ export class TownsController extends Controller {
       throw new InvalidParametersError('Invalid checker area ID');
     }
     return checkerArea.activePlayer;
+  }
+
+  @Patch('{townID}/{checkerAreaId}/updateLeaderboard')
+  @Response<InvalidParametersError>(400, 'Invalid values specified')
+  public async updateLeaderboard(
+    @Path() townID: string,
+    @Path() checkerAreaId: string,
+    @Body() leaderboardUpdate: { playerId: string; userName: string; isLoser: boolean },
+    @Header('X-Session-Token') sessionToken: string,
+  ): Promise<CheckerLeaderboardItem[]> {
+    const curTown = this._townsStore.getTownByID(townID);
+    if (!curTown) {
+      throw new InvalidParametersError('Invalid town ID');
+    }
+    if (!curTown.getPlayerBySessionToken(sessionToken)) {
+      throw new InvalidParametersError('Invalid session ID');
+    }
+    const checkerArea = curTown.getInteractable(checkerAreaId);
+    if (!checkerArea || !isCheckerArea(checkerArea)) {
+      throw new InvalidParametersError('Invalid checker area ID');
+    }
+    (<CheckerAreaReal>checkerArea).updateLeaderBoard(leaderboardUpdate);
+
+    return checkerArea.leaderboard;
   }
 
   /**

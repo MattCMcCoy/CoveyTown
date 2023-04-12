@@ -802,11 +802,18 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
     );
   }
 
+  /**
+   * Attemps to move a checker from the moveFromArea to the moveTo area in the given checkerArea.
+   * @param checkerArea the checker area the move is being performed on.
+   * @param moveFrom the position where the checker is currently.
+   * @param moveTo the position where the checker is going.
+   * @returns true if the move was successful.
+   */
   public async makeCheckerMove(
     checkerArea: CheckerAreaController,
     moveFrom: string,
     moveTo: string,
-  ): Promise<{ isValid: boolean; board: CheckerSquare[] }> {
+  ): Promise<{ isValid: boolean | string; board: CheckerSquare[] }> {
     return this._townsService.makeCheckerMove(
       this.townID,
       checkerArea.id,
@@ -814,6 +821,19 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
       moveFrom,
       moveTo,
     );
+  }
+
+  /**
+   * Performs aiMove on the given checkerArea which, is a fucntion that will determine a valid move
+   * to make and then perform it.
+   *
+   * @param checkerArea the checker area the move is being performed on.
+   * @returns true if the move was successful.
+   */
+  public async makeAiCheckerMove(
+    checkerArea: CheckerAreaController,
+  ): Promise<{ isValid: boolean | string; board: CheckerSquare[] }> {
+    return this._townsService.makeAiCheckerMove(this.townID, checkerArea.id, this.sessionToken);
   }
 
   /**
@@ -857,6 +877,19 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
    */
   public async getCheckerPlayers(checkerArea: CheckerAreaController): Promise<string[]> {
     return this._townsService.getCheckerPlayers(this.townID, checkerArea.id, this.sessionToken);
+  }
+
+  public updateLeaderboard(
+    checkerArea: CheckerAreaController,
+    currPlayer: string,
+    userName: string,
+    isLoser: boolean,
+  ): Promise<CheckerLeaderboardItem[]> {
+    return this._townsService.updateLeaderboard(this.townID, checkerArea.id, this.sessionToken, {
+      isLoser,
+      userName,
+      playerId: currPlayer,
+    });
   }
 
   /**

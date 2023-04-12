@@ -303,7 +303,7 @@ checkerAreaId: string,
 xSessionToken: string,
 ): CancelablePromise<Array<CheckerSquare>> {
         return this.httpRequest.request({
-            method: 'PATCH',
+            method: 'GET',
             url: '/towns/{townID}/{checkerAreaId}/squares',
             path: {
                 'townID': townId,
@@ -367,7 +367,7 @@ moveFrom: string,
 moveTo: string,
 ): CancelablePromise<{
 board: Array<CheckerSquare>;
-isValid: boolean;
+isValid: (boolean | string);
 }> {
         return this.httpRequest.request({
             method: 'PATCH',
@@ -377,6 +377,39 @@ isValid: boolean;
                 'checkerAreaId': checkerAreaId,
                 'moveFrom': moveFrom,
                 'moveTo': moveTo,
+            },
+            headers: {
+                'X-Session-Token': xSessionToken,
+            },
+            errors: {
+                400: `Invalid values specified`,
+            },
+        });
+    }
+
+    /**
+     * Initializes the checker board of the given checkerBoard area.
+     * @param townId ID of the town in which to initialize the checker areas board.
+     * @param checkerAreaId interactable ID of the checker area
+     * @param xSessionToken session token of the player making the request, must
+ * match the session token returned when the player joined the town
+     * @returns any Ok
+     * @throws ApiError
+     */
+    public makeAiCheckerMove(
+townId: string,
+checkerAreaId: string,
+xSessionToken: string,
+): CancelablePromise<{
+board: Array<CheckerSquare>;
+isValid: (boolean | string);
+}> {
+        return this.httpRequest.request({
+            method: 'PATCH',
+            url: '/towns/{townID}/{checkerAreaId}/makeAICheckerMove',
+            path: {
+                'townID': townId,
+                'checkerAreaId': checkerAreaId,
             },
             headers: {
                 'X-Session-Token': xSessionToken,
@@ -402,7 +435,7 @@ checkerAreaId: string,
 xSessionToken: string,
 ): CancelablePromise<Array<CheckerLeaderboardItem>> {
         return this.httpRequest.request({
-            method: 'PATCH',
+            method: 'GET',
             url: '/towns/{townID}/{checkerAreaId}/leaderboard',
             path: {
                 'townID': townId,
@@ -525,7 +558,7 @@ checkerAreaId: string,
 xSessionToken: string,
 ): CancelablePromise<Array<string>> {
         return this.httpRequest.request({
-            method: 'PATCH',
+            method: 'GET',
             url: '/towns/{townID}/{checkerAreaId}/getCheckerPlayers',
             path: {
                 'townID': townId,
@@ -555,7 +588,7 @@ checkerAreaId: string,
 xSessionToken: string,
 ): CancelablePromise<number> {
         return this.httpRequest.request({
-            method: 'PATCH',
+            method: 'GET',
             url: '/towns/{townID}/{checkerAreaId}/getActiveCheckerPlayer',
             path: {
                 'townID': townId,
@@ -564,6 +597,42 @@ xSessionToken: string,
             headers: {
                 'X-Session-Token': xSessionToken,
             },
+            errors: {
+                400: `Invalid values specified`,
+            },
+        });
+    }
+
+    /**
+     * @param townId 
+     * @param checkerAreaId 
+     * @param xSessionToken 
+     * @param requestBody 
+     * @returns CheckerLeaderboardItem Ok
+     * @throws ApiError
+     */
+    public updateLeaderboard(
+townId: string,
+checkerAreaId: string,
+xSessionToken: string,
+requestBody: {
+isLoser: boolean;
+userName: string;
+playerId: string;
+},
+): CancelablePromise<Array<CheckerLeaderboardItem>> {
+        return this.httpRequest.request({
+            method: 'PATCH',
+            url: '/towns/{townID}/{checkerAreaId}/updateLeaderboard',
+            path: {
+                'townID': townId,
+                'checkerAreaId': checkerAreaId,
+            },
+            headers: {
+                'X-Session-Token': xSessionToken,
+            },
+            body: requestBody,
+            mediaType: 'application/json',
             errors: {
                 400: `Invalid values specified`,
             },

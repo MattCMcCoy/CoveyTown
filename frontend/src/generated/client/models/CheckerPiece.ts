@@ -9,4 +9,3 @@ export type CheckerPiece = {
     type: CheckerType;
     color: CheckerColor;
 };
-
