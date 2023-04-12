@@ -210,7 +210,7 @@ export function CheckerBoard({
       }
       return newBoard;
     });
-  }, [townController, controller]);
+  }, [townController, controller, gameOverState, toast]);
   const activePlayer = useActivePlayer(controller);
   const playerList = usePlayers(controller);
   const squares = useSquares(controller);
