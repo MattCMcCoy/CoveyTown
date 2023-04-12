@@ -508,7 +508,11 @@ export default class CheckerArea extends InteractableArea {
       if (chosenStart) {
         randNum = Math.floor(Math.random() * this._attackingMoves(chosenStart).length);
         const moveToPossible = this._attackingMoves(chosenStart).at(randNum);
-        if (chosenStart.id !== undefined && moveToPossible) {
+        if (
+          chosenStart.id !== undefined &&
+          moveToPossible &&
+          chosenStart.moves.includes(moveToPossible)
+        ) {
           moveFrom = chosenStart.id;
           moveTo = moveToPossible;
         }
@@ -519,7 +523,11 @@ export default class CheckerArea extends InteractableArea {
       if (chosenStart) {
         randNum = Math.floor(Math.random() * this._generalMoves(chosenStart).length);
         const moveToPossible = this._generalMoves(chosenStart).at(randNum);
-        if (chosenStart.id !== undefined && moveToPossible !== undefined) {
+        if (
+          chosenStart.id !== undefined &&
+          moveToPossible !== undefined &&
+          chosenStart.moves.includes(moveToPossible)
+        ) {
           moveFrom = chosenStart.id;
           moveTo = moveToPossible;
         }

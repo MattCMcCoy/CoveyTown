@@ -17,10 +17,12 @@ const MAX_PLAYERS = 2;
 export default function CheckerOptionModal({
   checkerArea,
   changeGameState,
+  changeAiGameState,
   openLeaderboard,
 }: {
   checkerArea: CheckerAreaInteractable;
   changeGameState: (val: boolean) => void;
+  changeAiGameState: (val: boolean) => void;
   openLeaderboard: () => void;
 }): JSX.Element {
   const [visibleState, setVisibleState] = useState(true);
@@ -32,6 +34,10 @@ export default function CheckerOptionModal({
   const onClose = () => {
     setVisibleState(false);
     changeGameState(true);
+  };
+  const aiOnClose = () => {
+    setVisibleState(false);
+    changeAiGameState(true);
   };
 
   return (
@@ -48,7 +54,18 @@ export default function CheckerOptionModal({
               width='36'
               marginRight='1'
               onClick={() => {
-                onClose();
+                if (
+                  controller.players.length < MAX_PLAYERS - 1 &&
+                  !controller.players.includes(currPlayerId)
+                ) {
+                  controller.players.push('aiPlayer');
+                  townController
+                    .addCheckerPlayer(controller)
+                    .then(players => (controller.players = players));
+                  aiOnClose();
+                } else {
+                  console.log('too many players');
+                }
               }}>
               Play With AI
             </Button>

@@ -129,9 +129,13 @@ function Board({
         .then(
           (newLeaderboard: CheckerLeaderboardItem[]) => (controller.leaderboard = newLeaderboard),
         );
-      close();
-      townController.unPause();
-      townController.resetCheckerArea(controller).then(model => controller.updateFrom(model));
+      toast({
+        title: `The game is over! ${
+          controller.activePlayer == 0 ? 'red' : 'black'
+        } won! Thanks for Playing!`,
+        status: 'info',
+      });
+      return true;
     }
   }, [close, controller, currPlayer, townController]);
   const changingTurn = useCallback(() => {
@@ -140,13 +144,26 @@ function Board({
       townController.makeAiCheckerMove(controller);
     }
   }, [controller, townController]);
-
   useEffect(() => {
-    toast({
-      title: `It is ${controller.activePlayer == 0 ? 'red' : 'black'}'s turn!`,
-      status: 'info',
-    });
-  }, [toast, controller.activePlayer]);
+    if (!checkGameOver()) {
+      toast({
+        title: `It is ${controller.activePlayer == 0 ? 'red' : 'black'}'s turn!`,
+        status: 'info',
+      });
+    } else {
+      toast({
+        title: `The game is over! ${
+          controller.activePlayer == 1 ? 'red' : 'black'
+        } won! Thanks for Playing!`,
+        status: 'info',
+      });
+      townController.unPause();
+      townController.resetCheckerArea(controller).then(model => controller.updateFrom(model));
+      // setCurrentSquares([]);
+      // setCurrentPlayerList([]);
+      close();
+    }
+  }, [toast, controller.activePlayer, checkGameOver, controller, townController, close]);
 
   const doubleJump = useCallback(() => {
     townController.changeActivePlayer(controller).then(p => (controller.activePlayer = p));
@@ -158,6 +175,9 @@ function Board({
   }, [controller, toast, townController]);
 
   useEffect(() => {
+    if (controller.isActivePlayer(AI_PLAYER_ID)) {
+      townController.makeAiCheckerMove(controller);
+    }
     if (moveFrom && moveTo) {
       townController.makeCheckerMove(controller, moveFrom, moveTo).then(value => {
         if (value.isValid === true) {
@@ -432,6 +452,180 @@ export function CheckerBoard({
 }
 
 /**
+ * The CheckerBoard component does the following:
+ * -- renders the checkerBoard of a CheckerArea (in a modal)
+ * -- displays the title of the CheckerArea as the header of the modal
+ *
+ * @param props: A 'controller', which is the CheckerArea corresponding to the
+ *               current checker area.
+ *             : A 'isOpen' flag, denoting whether or not the modal should open (it should open if the a checkers game is started)
+ *             : A 'close' function, to be called when the modal is closed
+ */
+export function AiCheckerBoard({
+  controller,
+  isOpen,
+  close,
+}: {
+  controller: CheckerAreaController;
+  isOpen: boolean;
+  close: () => void;
+}): JSX.Element {
+  const townController = useTownController();
+  const activePlayer = useActivePlayer(controller);
+  const playerList = usePlayers(controller);
+  const squares = useSquares(controller);
+  const [title, setTitle] = useState('Waiting for other players ...');
+  const [currentPlayerList, setCurrentPlayerList] = useState<string[]>(playerList);
+  const [currentSquares, setCurrentSquares] = useState<CheckerSquare[] | undefined>(squares);
+  const [startGame, setStartGame] = useState(true);
+
+  // update board on player switch
+  useEffect(() => {
+    townController.getCheckerAreaBoard(controller).then(board => {
+      controller.squares = board;
+      setCurrentSquares(controller.squares);
+    });
+  }, [controller, controller.activePlayer, townController]);
+
+  const updateGame = useCallback(() => {
+    function getPlayerColor(): string {
+      return controller.players.indexOf(townController.ourPlayer.id) == 0
+        ? 'You are player red'
+        : 'You are player black';
+    }
+    if (controller.players.length == MAX_PLAYERS && startGame) {
+      setStartGame(false);
+      setTitle(getPlayerColor());
+    }
+    townController.getCheckerPlayers(controller).then(players => {
+      controller.players = players;
+      setCurrentPlayerList(players);
+    });
+    townController.getActiveCheckerPlayer(controller).then(player => {
+      controller.activePlayer = player;
+    });
+
+    if (controller.players.length == 0 && startGame == false) {
+      setStartGame(true);
+      townController.unPause();
+      townController.resetCheckerArea(controller).then(model => {
+        controller.updateFrom(model);
+      });
+      close();
+      setCurrentSquares([]);
+      setCurrentPlayerList([]);
+    }
+
+    if (
+      currentPlayerList.length == MAX_PLAYERS - 1 &&
+      (squares == undefined || squares.length < 1)
+    ) {
+      townController.initializeCheckerSessionAreaBoard(controller).then(newBoard => {
+        controller.squares = newBoard;
+        setCurrentSquares(newBoard);
+      });
+    }
+  }, [close, controller, currentPlayerList.length, squares, startGame, townController]);
+
+  useEffect(() => {
+    updateGame();
+    const timer = setInterval(updateGame, 2000);
+    return () => {
+      clearInterval(timer);
+    };
+  }, [updateGame]);
+
+  const updateLeaderboardOnForfeit = () => {
+    townController
+      .updateLeaderboard(
+        controller,
+        townController.ourPlayer.id,
+        townController.ourPlayer.userName,
+        true,
+      )
+      .then(
+        (newLeaderboard: CheckerLeaderboardItem[]) => (controller.leaderboard = newLeaderboard),
+      );
+    const otherPlayer =
+      controller.players.find(player => player !== townController.ourPlayer.id) ?? '';
+    townController
+      .updateLeaderboard(
+        controller,
+        otherPlayer,
+        townController.players.find(player => player.id === otherPlayer)?.userName ?? '',
+        false,
+      )
+      .then(
+        (newLeaderboard: CheckerLeaderboardItem[]) => (controller.leaderboard = newLeaderboard),
+      );
+  };
+
+  return (
+    <Modal
+      isOpen={isOpen}
+      size={'4xl'}
+      onClose={() => {
+        if (currentPlayerList.length === MAX_PLAYERS) {
+          updateLeaderboardOnForfeit();
+        }
+        close();
+        townController.unPause();
+        townController.resetCheckerArea(controller).then(model => controller.updateFrom(model));
+      }}>
+      <ModalOverlay />
+      <ModalContent>
+        {<ModalHeader>{title} </ModalHeader>}
+        <ModalCloseButton />
+        <ModalBody pb={6}></ModalBody>
+        <Grid templateColumns='repeat(5, 1fr)'>
+          <GridItem colSpan={4} rowSpan={1}>
+            <Flex justify={'center'} padding={'5'}>
+              <Board squares={currentSquares} controller={controller} close={close} />
+            </Flex>
+          </GridItem>
+          <Grid templateRows='repeat(2, 1fr)' margin='auto' paddingTop='64'>
+            <GridItem colSpan={1}>
+              {currentPlayerList.length !== MAX_PLAYERS ? null : (
+                <Score controller={controller} activePlayer={activePlayer} />
+              )}
+            </GridItem>
+            <GridItem colSpan={1}>
+              {currentPlayerList.length !== MAX_PLAYERS ? (
+                <Button
+                  onClick={() => {
+                    close();
+                    townController.unPause();
+                    townController
+                      .resetCheckerArea(controller)
+                      .then(model => controller.updateFrom(model));
+                  }}>
+                  Back
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => {
+                    townController.unPause();
+                    townController
+                      .resetCheckerArea(controller)
+                      .then(model => controller.updateFrom(model));
+                    setCurrentSquares([]);
+                    setCurrentPlayerList([]);
+                    updateLeaderboardOnForfeit();
+                    close();
+                  }}>
+                  Forfeit{' '}
+                </Button>
+              )}
+            </GridItem>
+          </Grid>
+        </Grid>
+        <ModalFooter />
+      </ModalContent>
+    </Modal>
+  );
+}
+
+/**
  * The CheckerGame monitors the player's interaction with a CheckerArea on the map: displaying either
  * a popup to notifying the player that a game is in progress or if a game is not in progress a CheckerBoard modal to display the checkerBoard.
  *
@@ -440,9 +634,11 @@ export function CheckerBoard({
 export function CheckerGame({
   checkerArea,
   changeGameState,
+  changeAiGameState,
 }: {
   checkerArea: CheckerAreaInteractable;
   changeGameState: (val: boolean) => void;
+  changeAiGameState: (val: boolean) => void;
 }): JSX.Element {
   const checkerAreaController = useCheckerAreaController(checkerArea.name);
   // selectIsOpen is true if the squares have not been initialized
@@ -469,11 +665,16 @@ export function CheckerGame({
  */
 export default function CheckerAreaWrapper(): JSX.Element {
   const [beginGame, setBeginGame] = useState(false);
+  const [beginAiGame, setBeginAiGame] = useState(false);
   const [isLeaderboardOpen, setLeaderboardOpen] = useState(false);
   const checkerArea = useInteractable<CheckerAreaInteractable>('checkerArea');
 
   const changeGameState = (val: boolean) => {
     setBeginGame(val);
+  };
+
+  const changeAiGameState = (val: boolean) => {
+    setBeginAiGame(val);
   };
 
   if (checkerArea && beginGame) {
@@ -492,6 +693,34 @@ export default function CheckerAreaWrapper(): JSX.Element {
       <CheckerOptionModal
         checkerArea={checkerArea}
         changeGameState={changeGameState}
+        changeAiGameState={changeAiGameState}
+        openLeaderboard={() => setLeaderboardOpen(true)}
+      />
+    );
+  }
+  if (checkerArea && beginAiGame) {
+    return (
+      <CheckerGame
+        changeGameState={changeGameState}
+        changeAiGameState={changeAiGameState}
+        checkerArea={checkerArea}
+      />
+    );
+  } else if (checkerArea) {
+    if (isLeaderboardOpen) {
+      return (
+        <CheckerLeaderboardModal
+          isLeaderboardOpen={isLeaderboardOpen}
+          checkerArea={checkerArea}
+          closeLeaderboard={() => setLeaderboardOpen(false)}
+        />
+      );
+    }
+    return (
+      <CheckerOptionModal
+        checkerArea={checkerArea}
+        changeGameState={changeGameState}
+        changeAiGameState={changeAiGameState}
         openLeaderboard={() => setLeaderboardOpen(true)}
       />
     );
