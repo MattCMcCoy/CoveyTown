@@ -495,13 +495,11 @@ export default class CheckerArea extends InteractableArea {
    *
    * @returns An array of length 2 that contains the ids of the AIs MoveFrom and MoveTo respectively.
    */
-  public AIMove(): string[] {
+  public AIMove() {
     let moveFrom;
     let moveTo;
-    const hasAvailableMoves = this.squares.filter(square => this._generalMoves(square).length > 0);
-    const hasAttackingMoves = this.squares.filter(
-      square => this._attackingMoves(square).length > 0,
-    );
+    const hasAvailableMoves = this._possibleAIGeneral();
+    const hasAttackingMoves = this._possibleAIAttacking();
     if (hasAttackingMoves.length > 0) {
       let randNum = Math.floor(Math.random() * hasAttackingMoves.length);
       const chosenStart = hasAttackingMoves.at(randNum);
@@ -534,9 +532,25 @@ export default class CheckerArea extends InteractableArea {
       }
     }
     if (moveFrom && moveTo) {
-      return [moveFrom, moveTo];
+      const isValid = this.makeMove(moveFrom, moveTo);
+      if (isValid === 'double') {
+        this.AIMove();
+      }
     }
-    return [];
+  }
+
+  private _possibleAIAttacking(): CheckerSquareModel[] {
+    let allowedSquares = this.squares.filter(square => square.checker.color === 'black');
+    allowedSquares = allowedSquares.filter(square => square.moves.length > 0);
+    allowedSquares = allowedSquares.filter(square => this._attackingMoves(square).length > 0);
+    return allowedSquares;
+  }
+
+  private _possibleAIGeneral(): CheckerSquareModel[] {
+    let allowedSquares = this.squares.filter(square => square.checker.color === 'black');
+    allowedSquares = allowedSquares.filter(square => square.moves.length > 0);
+    allowedSquares = allowedSquares.filter(square => this._generalMoves(square).length > 0);
+    return allowedSquares;
   }
 
   /**

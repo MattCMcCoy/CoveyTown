@@ -97,7 +97,6 @@ function Board({
   const toast = useToast();
   const currPlayer = townController.ourPlayer.id;
   const squareSize = '20';
-  let turns = 'user';
 
   const checkGameOver = useCallback(() => {
     if (
@@ -137,16 +136,18 @@ function Board({
       });
       return true;
     }
-  }, [close, controller, currPlayer, townController]);
+  }, [controller, currPlayer, toast, townController]);
   const changingTurn = useCallback(() => {
     townController.changeActivePlayer(controller).then(p => (controller.activePlayer = p));
   }, [controller, townController]);
   useEffect(() => {
     if (!checkGameOver()) {
-      toast({
-        title: `It is ${controller.activePlayer == 0 ? 'red' : 'black'}'s turn!`,
-        status: 'info',
-      });
+      if (controller.players.length === MAX_PLAYERS) {
+        toast({
+          title: `It is ${controller.activePlayer == 0 ? 'red' : 'black'}'s turn `,
+          status: 'info',
+        });
+      }
     } else {
       toast({
         title: `The game is over! ${
@@ -156,8 +157,6 @@ function Board({
       });
       townController.unPause();
       townController.resetCheckerArea(controller).then(model => controller.updateFrom(model));
-      // setCurrentSquares([]);
-      // setCurrentPlayerList([]);
       close();
     }
   }, [toast, controller.activePlayer, checkGameOver, controller, townController, close]);
@@ -172,52 +171,44 @@ function Board({
   }, [controller, toast, townController]);
 
   useEffect(() => {
-    if (controller.activePlayer === 1 && controller.players.length < 2) {
-      townController.makeAiCheckerMove(controller).then(value => {
-        const aiMoveFrom = value.isValid.at(0);
-        const aiMoveTo = value.isValid.at(1);
-        if (aiMoveFrom && aiMoveTo) {
-          setMoveFrom(aiMoveFrom);
-          setMoveTo(aiMoveTo);
-          if (moveFrom && moveTo) {
-            townController.makeCheckerMove(controller, aiMoveFrom, aiMoveTo).then(value => {
-              if (value.isValid === true) {
-                changingTurn();
-                turns = 'user';
-              }
-              controller.squares = value.board;
-              checkGameOver();
-              if (value.isValid === 'double') {
-                setMoveFrom(moveTo);
-                doubleJump();
-              } else {
-                setMoveFrom('');
-                setMoveTo('');
-              }
-            });
-          }
+    if (moveFrom && moveTo) {
+      townController.makeCheckerMove(controller, moveFrom, moveTo).then(value => {
+        if (value.isValid === true) {
+          townController.makeAiCheckerMove(controller).then(aiValue => {
+            if (aiValue.isValid == false) {
+              toast({
+                title: 'The game is over! Thanks for playing!',
+                status: 'info',
+              });
+              close();
+            }
+            changingTurn();
+          });
+          changingTurn();
+        }
+        controller.squares = value.board;
+        checkGameOver();
+        if (value.isValid === 'double') {
+          setMoveFrom(moveTo);
+          doubleJump();
+        } else {
+          setMoveFrom('');
+          setMoveTo('');
         }
       });
-    } else {
-      if (moveFrom && moveTo) {
-        townController.makeCheckerMove(controller, moveFrom, moveTo).then(value => {
-          if (value.isValid === true) {
-            changingTurn();
-            turns = 'ai';
-          }
-          controller.squares = value.board;
-          checkGameOver();
-          if (value.isValid === 'double') {
-            setMoveFrom(moveTo);
-            doubleJump();
-          } else {
-            setMoveFrom('');
-            setMoveTo('');
-          }
-        });
-      }
     }
-  }, [changingTurn, doubleJump, checkGameOver, controller, moveFrom, moveTo, townController]);
+    // }
+  }, [
+    changingTurn,
+    doubleJump,
+    checkGameOver,
+    controller,
+    moveFrom,
+    moveTo,
+    townController,
+    toast,
+    close,
+  ]);
 
   // gets the color of a given square
   const getSquareColor = (x: number, y: number) => {

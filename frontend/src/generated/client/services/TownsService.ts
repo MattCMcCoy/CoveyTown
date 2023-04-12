@@ -402,7 +402,7 @@ checkerAreaId: string,
 xSessionToken: string,
 ): CancelablePromise<{
 board: Array<CheckerSquare>;
-isValid: Array<string>;
+isValid: boolean;
 }> {
         return this.httpRequest.request({
             method: 'PATCH',
