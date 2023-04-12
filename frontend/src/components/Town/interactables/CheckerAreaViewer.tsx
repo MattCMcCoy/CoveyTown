@@ -447,11 +447,9 @@ export function CheckerGame({
   const checkerAreaController = useCheckerAreaController(checkerArea.name);
   // selectIsOpen is true if the squares have not been initialized
   const [selectIsOpen, setSelectIsOpen] = useState(checkerAreaController.squares.length < 1);
-
   return (
     <>
       <CheckerBoard
-        //start={start}
         controller={checkerAreaController}
         isOpen={selectIsOpen}
         close={() => {
