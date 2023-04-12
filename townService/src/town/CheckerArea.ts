@@ -100,6 +100,7 @@ export default class CheckerArea extends InteractableArea {
     }
 
     this.squares = newSquares;
+    this.updateMoveablePieces();
   }
 
   /**
@@ -168,6 +169,19 @@ export default class CheckerArea extends InteractableArea {
     this.squares.forEach(square => this._setSquareMoves(square));
   }
 
+  private _doubleJumpAvailable(square: CheckerSquareModel) {
+    this.squares.forEach(eachSquare => this._resetMoves(eachSquare));
+    if (this._attackingMoves(square).length > 0) {
+      square.moves = this._attackingMoves(square);
+      return true;
+    }
+    return false;
+  }
+
+  private _resetMoves(square: CheckerSquareModel) {
+    square.moves = [];
+  }
+
   /**
    * This method is called from the front end every time a move is being attempted.
    * First it calls updateMoveablePieces to set the valid moves that are attributed
@@ -179,15 +193,15 @@ export default class CheckerArea extends InteractableArea {
    * @param moveFrom The square that the checker is in currently.
    * @param moveTo The square that the checker wants to be moved to.
    */
-  public makeMove(moveFrom: string, moveTo: string): boolean {
-    this.updateMoveablePieces();
+  public makeMove(moveFrom: string, moveTo: string): boolean | string {
     const moveFromSquare = this.squares.find(square => square.id === moveFrom);
     const moveToSquare = this.squares.find(square => square.id === moveTo);
     // If the move is a general move.
     if (
       moveFromSquare &&
       moveToSquare &&
-      this._generalMoves(moveFromSquare).includes(moveToSquare.id)
+      this._generalMoves(moveFromSquare).includes(moveToSquare.id) &&
+      moveFromSquare.moves.includes(moveToSquare.id)
     ) {
       moveToSquare.checker.type = moveFromSquare.checker.type;
       moveToSquare.checker.color = moveFromSquare.checker.color;
@@ -195,13 +209,15 @@ export default class CheckerArea extends InteractableArea {
       moveFromSquare.checker.color = 'empty' as CheckerColor;
 
       this._crownKing(moveToSquare);
+      this.updateMoveablePieces();
       return true;
     }
     // If the move is an attacking move.
     if (
       moveFromSquare &&
       moveToSquare &&
-      this._attackingMoves(moveFromSquare).includes(moveToSquare.id)
+      this._attackingMoves(moveFromSquare).includes(moveToSquare.id) &&
+      moveFromSquare.moves.includes(moveToSquare.id)
     ) {
       moveToSquare.checker.type = moveFromSquare.checker.type;
       moveToSquare.checker.color = moveFromSquare.checker.color;
@@ -221,9 +237,12 @@ export default class CheckerArea extends InteractableArea {
         moveFromSquare.checker.color = 'empty' as CheckerColor;
         this._crownKing(moveToSquare);
       }
+      if (this._doubleJumpAvailable(moveToSquare)) {
+        return 'double';
+      }
+      this.updateMoveablePieces();
       return true;
     }
-
     return false;
   }
 
@@ -437,6 +456,83 @@ export default class CheckerArea extends InteractableArea {
         }
       }
     }
+    return attackingMoves;
+  }
+
+  /**
+   * updates the leaderboard based off the given update
+   * @param leaderboardUpdate the laederboard update request
+   */
+  public updateLeaderBoard(leaderboardUpdate: {
+    playerId: string;
+    isLoser: boolean;
+    userName: string;
+  }) {
+    const player = this.leaderboard.find(
+      leaderboardItem => leaderboardItem.playerId === leaderboardUpdate.playerId,
+    );
+
+    if (player) {
+      player.wins += leaderboardUpdate.isLoser ? 0 : 1;
+      player.losses += leaderboardUpdate.isLoser ? 1 : 0;
+      this._leaderboard = this.leaderboard.filter(
+        leaderboardItem => leaderboardItem.playerId !== leaderboardUpdate.playerId,
+      );
+      this._leaderboard.push(player);
+      return;
+    }
+
+    const leaderboardItem: CheckerLeaderboardItem = {
+      playerId: leaderboardUpdate.playerId,
+      userName: leaderboardUpdate.userName,
+      wins: leaderboardUpdate.isLoser ? 0 : 1,
+      losses: leaderboardUpdate.isLoser ? 1 : 0,
+    };
+
+    this._leaderboard.push(leaderboardItem);
+  }
+
+  /**
+   * AIMove determines the move that the AI will make next. The method prioritzes attacking
+   * moves and randomizes the choice of move otherwise so that it is as difficult as possible
+   * to predict what moves the AI will make.
+   *
+   * @returns An array of length 2 that contains the ids of the AIs MoveFrom and MoveTo respectively.
+   */
+  public AIMove(): boolean | string {
+    let moveFrom;
+    let moveTo;
+    const hasAvailableMoves = this.squares.filter(square => this._generalMoves(square).length > 0);
+    const hasAttackingMoves = this.squares.filter(
+      square => this._attackingMoves(square).length > 0,
+    );
+    if (hasAttackingMoves.length > 0) {
+      let randNum = Math.floor(Math.random() * hasAttackingMoves.length);
+      const chosenStart = hasAttackingMoves.at(randNum);
+      if (chosenStart) {
+        randNum = Math.floor(Math.random() * this._attackingMoves(chosenStart).length);
+        const moveToPossible = this._attackingMoves(chosenStart).at(randNum);
+        if (chosenStart.id !== undefined && moveToPossible) {
+          moveFrom = chosenStart.id;
+          moveTo = moveToPossible;
+        }
+      }
+    } else {
+      let randNum = Math.floor(Math.random() * hasAvailableMoves.length);
+      const chosenStart = hasAvailableMoves.at(randNum);
+      if (chosenStart) {
+        randNum = Math.floor(Math.random() * this._generalMoves(chosenStart).length);
+        const moveToPossible = this._generalMoves(chosenStart).at(randNum);
+        if (chosenStart.id !== undefined && moveToPossible !== undefined) {
+          moveFrom = chosenStart.id;
+          moveTo = moveToPossible;
+        }
+      }
+    }
+    if (moveFrom && moveTo) {
+      return this.makeMove(moveFrom, moveTo);
+    }
+    return false;
   }
 
   /**

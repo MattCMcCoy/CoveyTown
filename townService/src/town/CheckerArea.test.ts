@@ -327,7 +327,6 @@ describe('CheckerArea', () => {
       ).toEqual(true);
     });
   });
-
   describe('fromMapObject', () => {
     it('Throws an error if the width is missing', () => {
       expect(() =>

@@ -6,7 +6,7 @@ import PlayerController from './classes/PlayerController';
 import TownController, { TownEvents } from './classes/TownController';
 import ViewingAreaController from './classes/ViewingAreaController';
 import PosterSessionAreaController from './classes/PosterSessionAreaController';
-import { TownsService } from './generated/client';
+import { CheckerArea, TownsService } from './generated/client';
 import { CoveyTownSocket, ServerToClientEvents, TownJoinResponse } from './types/CoveyTownSocket';
 import CheckerAreaController from './classes/CheckerAreaController';
 
@@ -137,6 +137,26 @@ export function mockTownController({
         return checkerArea.squares || 'fail';
       },
     );
+    mockedController.getCheckerPlayers.mockImplementation(
+      async (checkerArea: CheckerAreaController) => {
+        return checkerArea.players || 'fail';
+      },
+    );
+    mockedController.getActiveCheckerPlayer.mockImplementation(
+      async (checkerArea: CheckerAreaController) => {
+        return checkerArea.activePlayer;
+      },
+    );
+    mockedController.resetCheckerArea.mockImplementation(
+      async (checkerArea: CheckerAreaController) => {
+        return {
+          squares: checkerArea.squares,
+          activePlayer: checkerArea.activePlayer,
+          players: checkerArea.players,
+          leaderboard: checkerArea.leaderboard,
+        } as CheckerArea;
+      },
+    );
   }
 
   if (posterSessionAreas) {
@@ -152,6 +172,7 @@ export function mockTownController({
       },
     );
   }
+
   return mockedController;
 }
 
