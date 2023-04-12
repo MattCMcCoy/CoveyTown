@@ -367,7 +367,7 @@ moveFrom: string,
 moveTo: string,
 ): CancelablePromise<{
 board: Array<CheckerSquare>;
-isValid: boolean;
+isValid: (boolean | string);
 }> {
         return this.httpRequest.request({
             method: 'PATCH',
@@ -377,6 +377,39 @@ isValid: boolean;
                 'checkerAreaId': checkerAreaId,
                 'moveFrom': moveFrom,
                 'moveTo': moveTo,
+            },
+            headers: {
+                'X-Session-Token': xSessionToken,
+            },
+            errors: {
+                400: `Invalid values specified`,
+            },
+        });
+    }
+
+    /**
+     * Initializes the checker board of the given checkerBoard area.
+     * @param townId ID of the town in which to initialize the checker areas board.
+     * @param checkerAreaId interactable ID of the checker area
+     * @param xSessionToken session token of the player making the request, must
+ * match the session token returned when the player joined the town
+     * @returns any Ok
+     * @throws ApiError
+     */
+    public makeAiCheckerMove(
+townId: string,
+checkerAreaId: string,
+xSessionToken: string,
+): CancelablePromise<{
+board: Array<CheckerSquare>;
+isValid: (boolean | string);
+}> {
+        return this.httpRequest.request({
+            method: 'PATCH',
+            url: '/towns/{townID}/{checkerAreaId}/makeAICheckerMove',
+            path: {
+                'townID': townId,
+                'checkerAreaId': checkerAreaId,
             },
             headers: {
                 'X-Session-Token': xSessionToken,
@@ -434,6 +467,36 @@ xSessionToken: string,
         return this.httpRequest.request({
             method: 'PATCH',
             url: '/towns/{townID}/{checkerAreaId}/changeActivePlayer',
+            path: {
+                'townID': townId,
+                'checkerAreaId': checkerAreaId,
+            },
+            headers: {
+                'X-Session-Token': xSessionToken,
+            },
+            errors: {
+                400: `Invalid values specified`,
+            },
+        });
+    }
+
+    /**
+     * changes the active player of the checker game.
+     * @param townId ID of the town in which to get the players of the checker area
+     * @param checkerAreaId interactable ID of the checker area
+     * @param xSessionToken session token of the player making the request, must
+ * match the session token returned when the player joined the town
+     * @returns number Ok
+     * @throws ApiError
+     */
+    public doubleJumpBoard(
+townId: string,
+checkerAreaId: string,
+xSessionToken: string,
+): CancelablePromise<number> {
+        return this.httpRequest.request({
+            method: 'PATCH',
+            url: '/towns/{townID}/{checkerAreaId}/doubleJumpBoard',
             path: {
                 'townID': townId,
                 'checkerAreaId': checkerAreaId,

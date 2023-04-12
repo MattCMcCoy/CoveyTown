@@ -39,6 +39,7 @@ const CHECKER_HIGHLIGHT_SIZE = '70';
 const CHECKER_OUTER_SIZE = '65';
 const CHECKER_INNER_SIZE = '50';
 const MAX_PLAYERS = 2;
+const AI_PLAYER_ID = 'ai_player';
 
 function Score({
   controller,
@@ -103,8 +104,7 @@ function Board({
       controller.squares &&
       controller.squares.filter(
         square =>
-          square.checker.color.toString() === (controller.activePlayer == 0 ? 'red' : 'black') &&
-          square.moves.length > 0,
+          square.checker.color.toString() === (controller.activePlayer == 0 ? 'red' : 'black'),
       ).length == 0 &&
       controller.players.length > 1
     ) {
@@ -137,8 +137,19 @@ function Board({
 
   const changingTurn = useCallback(() => {
     townController.changeActivePlayer(controller).then(p => (controller.activePlayer = p));
+    if (controller.isActivePlayer(AI_PLAYER_ID)) {
+      townController.makeAiCheckerMove(controller);
+    }
     toast({
       title: 'Switching turns',
+      status: 'info',
+    });
+  }, [controller, toast, townController]);
+
+  const doubleJump = useCallback(() => {
+    townController.doubleJumpBoard(controller).then(p => (controller.activePlayer = p));
+    toast({
+      title: 'Double Jump Available',
       status: 'info',
     });
   }, [controller, toast, townController]);
@@ -146,16 +157,21 @@ function Board({
   useEffect(() => {
     if (moveFrom && moveTo) {
       townController.makeCheckerMove(controller, moveFrom, moveTo).then(value => {
-        if (value.isValid) {
+        if (value.isValid === true) {
           changingTurn();
         }
         controller.squares = value.board;
         checkGameOver();
+        if (value.isValid === 'double') {
+          setMoveFrom(moveTo);
+          doubleJump();
+        } else {
+          setMoveFrom('');
+          setMoveTo('');
+        }
       });
-      setMoveFrom('');
-      setMoveTo('');
     }
-  }, [changingTurn, checkGameOver, controller, moveFrom, moveTo, townController]);
+  }, [changingTurn, doubleJump, checkGameOver, controller, moveFrom, moveTo, townController]);
 
   // gets the color of a given square
   const getSquareColor = (x: number, y: number) => {
@@ -164,9 +180,13 @@ function Board({
     return (x % 2 === 0 && y % 2 !== 0) || (x % 2 !== 0 && y % 2 === 0) ? brown : lightBrown;
   };
 
-  function handleButtonAction(square: CheckerSquare, color: string) {
+  async function handleButtonAction(square: CheckerSquare, color: string) {
     if (square.checker.color == color) {
       setMoveFrom(square.id);
+      // update board
+      await townController.getCheckerAreaBoard(controller).then(board => {
+        controller.squares = board;
+      });
     } else if (square.checker.color == 'empty') {
       setMoveTo(square.id);
     } else {

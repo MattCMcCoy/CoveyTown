@@ -984,7 +984,14 @@
 											"type": "array"
 										},
 										"isValid": {
-											"type": "boolean"
+											"anyOf": [
+												{
+													"type": "boolean"
+												},
+												{
+													"type": "string"
+												}
+											]
 										}
 									},
 									"required": [
@@ -1051,6 +1058,89 @@
 					{
 						"in": "path",
 						"name": "moveTo",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/towns/{townID}/{checkerAreaId}/makeAICheckerMove": {
+			"patch": {
+				"operationId": "MakeAICheckerMove",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"board": {
+											"items": {
+												"$ref": "#/components/schemas/CheckerSquare"
+											},
+											"type": "array"
+										},
+										"isValid": {
+											"anyOf": [
+												{
+													"type": "boolean"
+												},
+												{
+													"type": "string"
+												}
+											]
+										}
+									},
+									"required": [
+										"board",
+										"isValid"
+									],
+									"type": "object"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid values specified",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/InvalidParametersError"
+								}
+							}
+						}
+					}
+				},
+				"description": "Initializes the checker board of the given checkerBoard area.",
+				"tags": [
+					"towns"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "ID of the town in which to initialize the checker areas board.",
+						"in": "path",
+						"name": "townID",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "interactable ID of the checker area",
+						"in": "path",
+						"name": "checkerAreaId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "session token of the player making the request, must\nmatch the session token returned when the player joined the town",
+						"in": "header",
+						"name": "X-Session-Token",
 						"required": true,
 						"schema": {
 							"type": "string"
@@ -1137,6 +1227,60 @@
 								}
 							}
 						}
+					},
+					"400": {
+						"description": "Invalid values specified",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/InvalidParametersError"
+								}
+							}
+						}
+					}
+				},
+				"description": "changes the active player of the checker game.",
+				"tags": [
+					"towns"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "ID of the town in which to get the players of the checker area",
+						"in": "path",
+						"name": "townID",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "interactable ID of the checker area",
+						"in": "path",
+						"name": "checkerAreaId",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "session token of the player making the request, must\nmatch the session token returned when the player joined the town",
+						"in": "header",
+						"name": "X-Session-Token",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/towns/{townID}/{checkerAreaId}/doubleJumpBoard": {
+			"patch": {
+				"operationId": "DoubleJumpBoard",
+				"responses": {
+					"204": {
+						"description": "No content"
 					},
 					"400": {
 						"description": "Invalid values specified",

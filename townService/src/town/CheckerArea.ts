@@ -169,6 +169,19 @@ export default class CheckerArea extends InteractableArea {
     this.squares.forEach(square => this._setSquareMoves(square));
   }
 
+  private _doubleJumpAvailable(square: CheckerSquareModel) {
+    this.squares.forEach(eachSquare => this._resetMoves(eachSquare));
+    if (this._attackingMoves(square).length > 0) {
+      square.moves = this._attackingMoves(square);
+      return true;
+    }
+    return false;
+  }
+
+  private _resetMoves(square: CheckerSquareModel) {
+    square.moves = [];
+  }
+
   /**
    * This method is called from the front end every time a move is being attempted.
    * First it calls updateMoveablePieces to set the valid moves that are attributed
@@ -180,8 +193,7 @@ export default class CheckerArea extends InteractableArea {
    * @param moveFrom The square that the checker is in currently.
    * @param moveTo The square that the checker wants to be moved to.
    */
-  public makeMove(moveFrom: string, moveTo: string): boolean {
-    this.updateMoveablePieces();
+  public makeMove(moveFrom: string, moveTo: string): boolean | string {
     const moveFromSquare = this.squares.find(square => square.id === moveFrom);
     const moveToSquare = this.squares.find(square => square.id === moveTo);
     // If the move is a general move.
@@ -196,6 +208,7 @@ export default class CheckerArea extends InteractableArea {
       moveFromSquare.checker.color = 'empty' as CheckerColor;
 
       this._crownKing(moveToSquare);
+      this.updateMoveablePieces();
       return true;
     }
     // If the move is an attacking move.
@@ -222,9 +235,12 @@ export default class CheckerArea extends InteractableArea {
         moveFromSquare.checker.color = 'empty' as CheckerColor;
         this._crownKing(moveToSquare);
       }
+      if (this._doubleJumpAvailable(moveToSquare)) {
+        return 'double';
+      }
+      this.updateMoveablePieces();
       return true;
     }
-
     return false;
   }
 
@@ -477,8 +493,9 @@ export default class CheckerArea extends InteractableArea {
    *
    * @returns An array of length 2 that contains the ids of the AIs MoveFrom and MoveTo respectively.
    */
-  public AIMove(): string[] {
-    const moveFromAndTo = [];
+  public AIMove(): boolean | string {
+    let moveFrom;
+    let moveTo;
     const hasAvailableMoves = this.squares.filter(square => this._generalMoves(square).length > 0);
     const hasAttackingMoves = this.squares.filter(
       square => this._attackingMoves(square).length > 0,
@@ -488,10 +505,10 @@ export default class CheckerArea extends InteractableArea {
       const chosenStart = hasAttackingMoves.at(randNum);
       if (chosenStart) {
         randNum = Math.floor(Math.random() * this._attackingMoves(chosenStart).length);
-        const moveTo = this._attackingMoves(chosenStart).at(randNum);
-        if (chosenStart.id !== undefined && moveTo) {
-          moveFromAndTo.push(chosenStart.id);
-          moveFromAndTo.push(moveTo);
+        const moveToPossible = this._attackingMoves(chosenStart).at(randNum);
+        if (chosenStart.id !== undefined && moveToPossible) {
+          moveFrom = chosenStart.id;
+          moveTo = moveToPossible;
         }
       }
     } else {
@@ -499,14 +516,17 @@ export default class CheckerArea extends InteractableArea {
       const chosenStart = hasAvailableMoves.at(randNum);
       if (chosenStart) {
         randNum = Math.floor(Math.random() * this._generalMoves(chosenStart).length);
-        const moveTo = this._generalMoves(chosenStart).at(randNum);
-        if (chosenStart.id !== undefined && moveTo !== undefined) {
-          moveFromAndTo.push(chosenStart.id);
-          moveFromAndTo.push(moveTo);
+        const moveToPossible = this._generalMoves(chosenStart).at(randNum);
+        if (chosenStart.id !== undefined && moveToPossible !== undefined) {
+          moveFrom = chosenStart.id;
+          moveTo = moveToPossible;
         }
       }
     }
-    return moveFromAndTo;
+    if (moveFrom && moveTo) {
+      return this.makeMove(moveFrom, moveTo);
+    }
+    return false;
   }
 
   /**

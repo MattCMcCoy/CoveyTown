@@ -54,7 +54,13 @@ export default function CheckerOptionModal({
           <ModalHeader>Checkers</ModalHeader>
           <ModalCloseButton />
           <ModalFooter mx='auto'>
-            <Button colorScheme='blue' width='36' marginRight='1' onClick={onClose}>
+            <Button
+              colorScheme='blue'
+              width='36'
+              marginRight='1'
+              onClick={() => {
+                onClose();
+              }}>
               Play With AI
             </Button>
             <Button
