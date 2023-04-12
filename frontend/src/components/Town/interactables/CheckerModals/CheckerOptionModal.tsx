@@ -44,6 +44,7 @@ export default function CheckerOptionModal({
           <ModalCloseButton />
           <ModalFooter mx='auto'>
             <Button
+              disabled={true}
               colorScheme='blue'
               width='36'
               marginRight='1'

@@ -459,6 +459,10 @@ export default class CheckerArea extends InteractableArea {
     return attackingMoves;
   }
 
+  /**
+   * updates the leaderboard based off the given update
+   * @param leaderboardUpdate the laederboard update request
+   */
   public updateLeaderBoard(leaderboardUpdate: {
     playerId: string;
     isLoser: boolean;

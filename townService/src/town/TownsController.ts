@@ -375,7 +375,7 @@ export class TownsController extends Controller {
   }
 
   /**
-   * Initializes the checker board of the given checkerBoard area.
+   * Make a checker move on the board.
    *
    * @param townID ID of the town in which to initialize the checker areas board.
    * @param checkerAreaId interactable ID of the checker area
@@ -410,7 +410,7 @@ export class TownsController extends Controller {
   }
 
   /**
-   * Initializes the checker board of the given checkerBoard area.
+   * Request a move for the AI player to play against the user.
    *
    * @param townID ID of the town in which to initialize the checker areas board.
    * @param checkerAreaId interactable ID of the checker area
@@ -668,6 +668,17 @@ export class TownsController extends Controller {
     return checkerArea.activePlayer;
   }
 
+  /**
+   * Updates the leaderboard of a given checkerarea
+   * @param townID ID of the town in which to get the checker area squares
+   * @param checkerAreaId interactable ID of the checker area
+   * @param sessionToken session token of the player making the request, must
+   *        match the session token returned when the player joined the town
+   *
+   *
+   * @throws InvalidParametersError if the session token is not valid, or if the
+   *          checker area specified does not exist
+   */
   @Patch('{townID}/{checkerAreaId}/updateLeaderboard')
   @Response<InvalidParametersError>(400, 'Invalid values specified')
   public async updateLeaderboard(
