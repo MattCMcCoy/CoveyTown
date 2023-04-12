@@ -495,7 +495,7 @@ export default class CheckerArea extends InteractableArea {
    *
    * @returns An array of length 2 that contains the ids of the AIs MoveFrom and MoveTo respectively.
    */
-  public AIMove(): boolean | string {
+  public AIMove(): string[] {
     let moveFrom;
     let moveTo;
     const hasAvailableMoves = this.squares.filter(square => this._generalMoves(square).length > 0);
@@ -534,9 +534,9 @@ export default class CheckerArea extends InteractableArea {
       }
     }
     if (moveFrom && moveTo) {
-      return this.makeMove(moveFrom, moveTo);
+      return [moveFrom, moveTo];
     }
-    return false;
+    return [];
   }
 
   /**

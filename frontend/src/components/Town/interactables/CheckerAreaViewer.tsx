@@ -39,7 +39,6 @@ const CHECKER_HIGHLIGHT_SIZE = '70';
 const CHECKER_OUTER_SIZE = '65';
 const CHECKER_INNER_SIZE = '50';
 const MAX_PLAYERS = 2;
-const AI_PLAYER_ID = 'ai_player';
 
 function Score({
   controller,
@@ -98,6 +97,7 @@ function Board({
   const toast = useToast();
   const currPlayer = townController.ourPlayer.id;
   const squareSize = '20';
+  let turns = 'user';
 
   const checkGameOver = useCallback(() => {
     if (
@@ -140,9 +140,6 @@ function Board({
   }, [close, controller, currPlayer, townController]);
   const changingTurn = useCallback(() => {
     townController.changeActivePlayer(controller).then(p => (controller.activePlayer = p));
-    if (controller.isActivePlayer(AI_PLAYER_ID)) {
-      townController.makeAiCheckerMove(controller);
-    }
   }, [controller, townController]);
   useEffect(() => {
     if (!checkGameOver()) {
@@ -175,24 +172,50 @@ function Board({
   }, [controller, toast, townController]);
 
   useEffect(() => {
-    if (controller.isActivePlayer(AI_PLAYER_ID)) {
-      townController.makeAiCheckerMove(controller);
-    }
-    if (moveFrom && moveTo) {
-      townController.makeCheckerMove(controller, moveFrom, moveTo).then(value => {
-        if (value.isValid === true) {
-          changingTurn();
-        }
-        controller.squares = value.board;
-        checkGameOver();
-        if (value.isValid === 'double') {
-          setMoveFrom(moveTo);
-          doubleJump();
-        } else {
-          setMoveFrom('');
-          setMoveTo('');
+    if (controller.activePlayer === 1 && controller.players.length < 2) {
+      townController.makeAiCheckerMove(controller).then(value => {
+        const aiMoveFrom = value.isValid.at(0);
+        const aiMoveTo = value.isValid.at(1);
+        if (aiMoveFrom && aiMoveTo) {
+          setMoveFrom(aiMoveFrom);
+          setMoveTo(aiMoveTo);
+          if (moveFrom && moveTo) {
+            townController.makeCheckerMove(controller, aiMoveFrom, aiMoveTo).then(value => {
+              if (value.isValid === true) {
+                changingTurn();
+                turns = 'user';
+              }
+              controller.squares = value.board;
+              checkGameOver();
+              if (value.isValid === 'double') {
+                setMoveFrom(moveTo);
+                doubleJump();
+              } else {
+                setMoveFrom('');
+                setMoveTo('');
+              }
+            });
+          }
         }
       });
+    } else {
+      if (moveFrom && moveTo) {
+        townController.makeCheckerMove(controller, moveFrom, moveTo).then(value => {
+          if (value.isValid === true) {
+            changingTurn();
+            turns = 'ai';
+          }
+          controller.squares = value.board;
+          checkGameOver();
+          if (value.isValid === 'double') {
+            setMoveFrom(moveTo);
+            doubleJump();
+          } else {
+            setMoveFrom('');
+            setMoveTo('');
+          }
+        });
+      }
     }
   }, [changingTurn, doubleJump, checkGameOver, controller, moveFrom, moveTo, townController]);
 

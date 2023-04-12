@@ -426,7 +426,7 @@ export class TownsController extends Controller {
     @Path() townID: string,
     @Path() checkerAreaId: string,
     @Header('X-Session-Token') sessionToken: string,
-  ): Promise<{ isValid: boolean | string; board: CheckerSquare[] }> {
+  ): Promise<{ isValid: string[]; board: CheckerSquare[] }> {
     const curTown = this._townsStore.getTownByID(townID);
     if (!curTown) {
       throw new InvalidParametersError('Invalid town ID');
@@ -438,7 +438,7 @@ export class TownsController extends Controller {
     if (!checkerArea || !isCheckerArea(checkerArea)) {
       throw new InvalidParametersError('Invalid checker area ID');
     }
-    const validMove: boolean | string = (<CheckerAreaReal>checkerArea).AIMove();
+    const validMove: string[] = (<CheckerAreaReal>checkerArea).AIMove();
     return { isValid: validMove, board: checkerArea.squares };
   }
 
@@ -462,9 +462,6 @@ export class TownsController extends Controller {
     const curTown = this._townsStore.getTownByID(townID);
     if (!curTown) {
       throw new InvalidParametersError('Invalid town ID');
-    }
-    if (!curTown.getPlayerBySessionToken(sessionToken)) {
-      throw new InvalidParametersError('Invalid session ID');
     }
     const checkerArea = curTown.getInteractable(checkerAreaId);
     if (!checkerArea || !isCheckerArea(checkerArea)) {
@@ -503,6 +500,7 @@ export class TownsController extends Controller {
     if (!checkerArea || !isCheckerArea(checkerArea)) {
       throw new InvalidParametersError('Invalid checker area ID');
     }
+
     const newActivePlayer = checkerArea.activePlayer === 0 ? 1 : 0;
 
     const updatedCheckerArea = {

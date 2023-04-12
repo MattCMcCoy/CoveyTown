@@ -1083,14 +1083,10 @@
 											"type": "array"
 										},
 										"isValid": {
-											"anyOf": [
-												{
-													"type": "boolean"
-												},
-												{
-													"type": "string"
-												}
-											]
+											"items": {
+												"type": "string"
+											},
+											"type": "array"
 										}
 									},
 									"required": [

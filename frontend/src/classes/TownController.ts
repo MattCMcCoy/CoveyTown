@@ -832,7 +832,7 @@ export default class TownController extends (EventEmitter as new () => TypedEmit
    */
   public async makeAiCheckerMove(
     checkerArea: CheckerAreaController,
-  ): Promise<{ isValid: boolean | string; board: CheckerSquare[] }> {
+  ): Promise<{ isValid: string[]; board: CheckerSquare[] }> {
     return this._townsService.makeAiCheckerMove(this.townID, checkerArea.id, this.sessionToken);
   }
 
