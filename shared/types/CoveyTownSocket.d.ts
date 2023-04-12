@@ -83,8 +83,8 @@ export interface CheckerArea {
 }
 
 export interface CheckerLeaderboardItem {
-  position: number;
   playerId: string;
+  userName: string;
   wins: number;
   losses: number;
 }
