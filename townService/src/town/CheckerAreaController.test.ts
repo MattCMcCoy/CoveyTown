@@ -206,6 +206,195 @@ describe('TownsController integration tests', () => {
         expect(squares.length).toEqual(64);
         squares.forEach(square => expect(square.id).toEqual(`${square.x}${square.y}`));
       });
+
+      describe('changeActivePlayer tests', () => {
+        it('Active player changes when changeActivePlayer is called', async () => {
+          const checkerArea = interactables.find(isCheckerArea) as CheckerArea;
+          if (!checkerArea) {
+            fail('checker area does not exist in interactables');
+          }
+
+          expect(checkerArea.activePlayer).toEqual(0);
+
+          await controller.changeActivePlayer(testingTown.townID, checkerArea.id, sessionToken);
+
+          const activePlayer = await controller.getActiveCheckerPlayer(
+            testingTown.townID,
+            checkerArea.id,
+            sessionToken,
+          );
+          if (!activePlayer) fail('should have changed active player');
+          expect(activePlayer).toEqual(1);
+        });
+        it('Active player switches between 0 and 1', async () => {
+          const checkerArea = interactables.find(isCheckerArea) as CheckerArea;
+          if (!checkerArea) {
+            fail('checker area does not exist in interactables');
+          }
+
+          expect(checkerArea.activePlayer).toEqual(0);
+
+          await controller.changeActivePlayer(testingTown.townID, checkerArea.id, sessionToken);
+
+          let activePlayer = await controller.getActiveCheckerPlayer(
+            testingTown.townID,
+            checkerArea.id,
+            sessionToken,
+          );
+          if (!activePlayer) fail('should have changed active player');
+          expect(activePlayer).toEqual(1);
+
+          await controller.changeActivePlayer(testingTown.townID, checkerArea.id, sessionToken);
+          activePlayer = await controller.getActiveCheckerPlayer(
+            testingTown.townID,
+            checkerArea.id,
+            sessionToken,
+          );
+          expect(activePlayer).toEqual(0);
+        });
+      });
+
+      describe('addCheckerPlayer tests', () => {
+        it('adds player to checker Area', async () => {
+          const checkerArea = interactables.find(isCheckerArea) as CheckerArea;
+          if (!checkerArea) {
+            fail('checker area does not exist in interactables');
+          }
+          const playerOneId = nanoid();
+          await controller.addCheckerPlayer(
+            testingTown.townID,
+            checkerArea.id,
+            playerOneId,
+            sessionToken,
+          );
+
+          const players = await controller.getCheckerPlayers(
+            testingTown.townID,
+            checkerArea.id,
+            sessionToken,
+          );
+          if (!players) fail('should have changed active player');
+          expect(players.length).toEqual(1);
+          expect(players[0]).toEqual(playerOneId);
+        });
+        it('adds multiple players to checker Area', async () => {
+          const checkerArea = interactables.find(isCheckerArea) as CheckerArea;
+          if (!checkerArea) {
+            fail('checker area does not exist in interactables');
+          }
+          const playerOneId = nanoid();
+          expect(checkerArea.players).toEqual([]);
+          await controller.addCheckerPlayer(
+            testingTown.townID,
+            checkerArea.id,
+            playerOneId,
+            sessionToken,
+          );
+
+          let players = await controller.getCheckerPlayers(
+            testingTown.townID,
+            checkerArea.id,
+            sessionToken,
+          );
+          if (!players) fail('should have changed active player');
+          expect(players.length).toEqual(1);
+          expect(players[0]).toEqual(playerOneId);
+
+          const playerTwoId = nanoid();
+          await controller.addCheckerPlayer(
+            testingTown.townID,
+            checkerArea.id,
+            playerTwoId,
+            sessionToken,
+          );
+
+          players = await controller.getCheckerPlayers(
+            testingTown.townID,
+            checkerArea.id,
+            sessionToken,
+          );
+          if (!players) fail('should have changed active player');
+          expect(players.length).toEqual(2);
+          expect(players[0]).toEqual(playerOneId);
+          expect(players[1]).toEqual(playerTwoId);
+        });
+      });
+
+      describe('resetCheckerArea tests', () => {
+        it('resets the players in the game', async () => {
+          const checkerArea = interactables.find(isCheckerArea) as CheckerArea;
+          if (!checkerArea) {
+            fail('checker area does not exist in interactables');
+          }
+          expect(checkerArea.players).toEqual([]);
+          const playerOneId = nanoid();
+          const players = await controller.addCheckerPlayer(
+            testingTown.townID,
+            checkerArea.id,
+            playerOneId,
+            sessionToken,
+          );
+          expect(players.length).toEqual(1);
+          expect(players[0]).toEqual(playerOneId);
+
+          const model = await controller.resetCheckerArea(
+            testingTown.townID,
+            checkerArea.id,
+            sessionToken,
+          );
+          expect(model.players).toEqual([]);
+        });
+        it('resets the activePlayer in the game', async () => {
+          const checkerArea = interactables.find(isCheckerArea) as CheckerArea;
+          if (!checkerArea) {
+            fail('checker area does not exist in interactables');
+          }
+          expect(checkerArea.activePlayer).toEqual(0);
+          const activePlayer = await controller.changeActivePlayer(
+            testingTown.townID,
+            checkerArea.id,
+            sessionToken,
+          );
+          expect(activePlayer).toEqual(1);
+          const model = await controller.resetCheckerArea(
+            testingTown.townID,
+            checkerArea.id,
+            sessionToken,
+          );
+          expect(model.activePlayer).toEqual(0);
+        });
+        it('resets the squares in the game', async () => {
+          const checkerArea = interactables.find(isCheckerArea) as CheckerArea;
+          if (!checkerArea) {
+            fail('checker area does not exist in interactables');
+          }
+          const squares = await controller.initializeCheckerAreaBoard(
+            testingTown.townID,
+            checkerArea.id,
+            sessionToken,
+          );
+          expect(squares.length).toEqual(64);
+          const model = await controller.resetCheckerArea(
+            testingTown.townID,
+            checkerArea.id,
+            sessionToken,
+          );
+          expect(model.squares).toEqual([]);
+        });
+        it('resets the leaderboard in the game', async () => {
+          const checkerArea = interactables.find(isCheckerArea) as CheckerArea;
+          if (!checkerArea) {
+            fail('checker area does not exist in interactables');
+          }
+
+          const model = await controller.resetCheckerArea(
+            testingTown.townID,
+            checkerArea.id,
+            sessionToken,
+          );
+          expect(model.leaderboard).toEqual([]);
+        });
+      });
     });
   });
 });
