@@ -8,7 +8,7 @@ import {
   ModalOverlay,
 } from '@chakra-ui/react';
 import CheckerAreaInteractable from '../CheckerArea';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { HowToPlayModal } from './CheckerHowToPlayModal';
 import useTownController from '../../../../hooks/useTownController';
 import { useCheckerAreaController } from '../../../../classes/TownController';
@@ -33,17 +33,6 @@ export default function CheckerOptionModal({
     setVisibleState(false);
     changeGameState(true);
   };
-  const updatePlayers = useCallback(() => {
-    townController.getCheckerPlayers(controller).then(players => (controller.players = players));
-  }, [controller, townController]);
-
-  useEffect(() => {
-    updatePlayers();
-    const timer = setInterval(updatePlayers, 2000);
-    return () => {
-      clearInterval(timer);
-    };
-  }, [updatePlayers]);
 
   return (
     <>
@@ -74,10 +63,10 @@ export default function CheckerOptionModal({
                   townController
                     .addCheckerPlayer(controller)
                     .then(players => (controller.players = players));
+                  onClose();
                 } else {
                   console.log('too many players');
                 }
-                onClose();
               }}>
               Wait For Player
             </Button>
