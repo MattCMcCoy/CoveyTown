@@ -1014,7 +1014,7 @@
 						}
 					}
 				},
-				"description": "Initializes the checker board of the given checkerBoard area.",
+				"description": "Make a checker move on the board.",
 				"tags": [
 					"towns"
 				],
@@ -1113,7 +1113,7 @@
 						}
 					}
 				},
-				"description": "Initializes the checker board of the given checkerBoard area.",
+				"description": "Request a move for the AI player to play against the user.",
 				"tags": [
 					"towns"
 				],
@@ -1562,12 +1562,14 @@
 						}
 					}
 				},
+				"description": "Updates the leaderboard of a given checkerarea",
 				"tags": [
 					"towns"
 				],
 				"security": [],
 				"parameters": [
 					{
+						"description": "ID of the town in which to get the checker area squares",
 						"in": "path",
 						"name": "townID",
 						"required": true,
@@ -1576,6 +1578,7 @@
 						}
 					},
 					{
+						"description": "interactable ID of the checker area",
 						"in": "path",
 						"name": "checkerAreaId",
 						"required": true,
@@ -1584,6 +1587,7 @@
 						}
 					},
 					{
+						"description": "session token of the player making the request, must\nmatch the session token returned when the player joined the town",
 						"in": "header",
 						"name": "X-Session-Token",
 						"required": true,

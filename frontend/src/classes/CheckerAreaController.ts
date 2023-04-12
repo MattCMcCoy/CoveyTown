@@ -84,10 +84,18 @@ export default class CheckerAreaController extends (EventEmitter as new () => Ty
     }
   }
 
+  /**
+   * The leaderboard of this checker area.
+   */
   public get leaderboard(): CheckerLeaderboardItem[] {
     return this._model.leaderboard;
   }
 
+  /**
+   * The state of the leaderboard in a checker area.
+   *
+   * Changing this value will emit a 'leaderboard' event
+   */
   public set leaderboard(leaderboard: CheckerLeaderboardItem[]) {
     if (_.xor(this._model.leaderboard, leaderboard).length > 0) {
       this._model.leaderboard = leaderboard;
@@ -130,14 +138,25 @@ export default class CheckerAreaController extends (EventEmitter as new () => Ty
     }
   }
 
+  /**
+   * @returns gets the active player
+   */
   public getActivePlayer(): string {
     return this.players[this.activePlayer];
   }
 
+  /**
+   * returns whether or not the given player is an Active Player.
+   * @param playerId
+   * @returns
+   */
   public isActivePlayer(playerId: string): boolean {
     return this.players[this.activePlayer] == playerId;
   }
 
+  /**
+   * @returns Gets the active players color
+   */
   public getActivePlayerColor(): string {
     return this.activePlayer == 0 ? 'red' : 'black';
   }
@@ -198,6 +217,12 @@ export function useSquares(controller: CheckerAreaController): CheckerSquare[] |
   return checkerSquares;
 }
 
+/**
+ * A hook in which returns the current state of the squares.
+ *
+ * @param controller the controller to get the squares from
+ * @returns the current squares of the given controller
+ */
 export function useActivePlayer(controller: CheckerAreaController): number {
   const [activePlayer, setActivePlayer] = useState(controller.activePlayer);
 
@@ -210,6 +235,12 @@ export function useActivePlayer(controller: CheckerAreaController): number {
   return activePlayer;
 }
 
+/**
+ * A hook in which returns the current state of the squares.
+ *
+ * @param controller the controller to get the squares from
+ * @returns the current squares of the given controller
+ */
 export function usePlayers(controller: CheckerAreaController): string[] {
   const [players, setPlayers] = useState(controller.players);
 
@@ -222,6 +253,12 @@ export function usePlayers(controller: CheckerAreaController): string[] {
   return players;
 }
 
+/**
+ * A hook in which returns the current state of the leaderboard.
+ *
+ * @param controller the controller to get the leaderboard from
+ * @returns the current leaderboard of the given controller
+ */
 export function useLeaderboard(controller: CheckerAreaController): CheckerLeaderboardItem[] {
   const [leaderboard, setLeaderboard] = useState(controller.leaderboard);
 
